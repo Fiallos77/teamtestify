@@ -17,7 +17,7 @@ export function ErrorWithUpgradeCta({ message }: { message: string }) {
       {isUpgradeError(message) && (
         <>
           {" "}
-          <Link href="/pricing" className="underline">
+          <Link href="/#pricing" className="underline">
             View plans
           </Link>
         </>
