@@ -6,14 +6,6 @@ export default defineSchema({
     name: v.string(),
     slug: v.optional(v.string()),
     notificationEmail: v.optional(v.string()),
-    planTier: v.optional(v.string()),
-    planLimits: v.optional(
-      v.object({
-        maxSpaces: v.optional(v.number()),
-        maxTestimonials: v.optional(v.number()),
-        maxVideoMinutes: v.optional(v.number()),
-      })
-    ),
     createdAt: v.number(),
   }),
 
