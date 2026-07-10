@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { VideoRecorder } from "@/components/public/video-recorder";
+import { getVisitorId } from "@/lib/visitor-id";
 
 const BACKGROUND_STYLES: Record<string, string> = {
   solid: "color-mix(in srgb, var(--primary) 8%, var(--background))",
@@ -88,9 +89,13 @@ export default function CollectionPage({
     setSubmitting(true);
     setError(null);
     try {
+      const visitorId = getVisitorId();
       let authorPhotoStorageId: Id<"_storage"> | undefined;
       if (photoFile) {
-        const photoUploadUrl = await generateUploadUrl();
+        const photoUploadUrl = await generateUploadUrl({
+          spaceId: space._id as Id<"spaces">,
+          visitorId,
+        });
         const photoRes = await fetch(photoUploadUrl, {
           method: "POST",
           headers: { "Content-Type": photoFile.type || "application/octet-stream" },
@@ -127,7 +132,10 @@ export default function CollectionPage({
         await submitText({ ...common, textContent });
       } else {
         if (!videoFile) throw new Error("Please record or upload a video");
-        const uploadUrl = await generateUploadUrl();
+        const uploadUrl = await generateUploadUrl({
+          spaceId: space._id as Id<"spaces">,
+          visitorId,
+        });
         // Strip codec parameters (e.g. "video/webm;codecs=vp9,opus") — Convex's
         // upload endpoint rejects Content-Type headers with extra parameters.
         const baseMimeType = (videoFile.type || "application/octet-stream").split(";")[0];

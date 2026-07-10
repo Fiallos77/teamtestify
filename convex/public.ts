@@ -1,11 +1,31 @@
 import { v } from "convex/values";
 import { mutation, query } from "./_generated/server";
-import { internal } from "./_generated/api";
+import { components, internal } from "./_generated/api";
 import { getActiveStorageAdapter } from "./lib/storage";
+import { RateLimiter, HOUR, DAY } from "@convex-dev/rate-limiter";
 
 // Everything in this file is reachable by anonymous visitors. Never trust
 // client-supplied organizationId/status — always derive them server-side
 // from the space document.
+
+// How many upload URLs a single visitor (identified by a client-generated,
+// locally-persisted id — see src/lib/visitor-id.ts) may mint per hour, and
+// how many a single space may hand out per day across all visitors.
+export const VISITOR_UPLOAD_LIMIT_PER_HOUR = 5;
+export const SPACE_UPLOAD_LIMIT_PER_DAY = 50;
+
+const rateLimiter = new RateLimiter(components.rateLimiter, {
+  uploadUrlPerVisitor: {
+    kind: "token bucket",
+    rate: VISITOR_UPLOAD_LIMIT_PER_HOUR,
+    period: HOUR,
+  },
+  uploadUrlPerSpace: {
+    kind: "token bucket",
+    rate: SPACE_UPLOAD_LIMIT_PER_DAY,
+    period: DAY,
+  },
+});
 
 export const getSpaceBySlug = query({
   args: { publicSlug: v.string() },
@@ -27,9 +47,26 @@ export const getSpaceBySlug = query({
   },
 });
 
+async function loadActiveSpace(ctx: any, spaceId: any) {
+  const space = await ctx.db.get(spaceId);
+  if (!space || !space.isActive) {
+    throw new Error("This collection page is not accepting submissions");
+  }
+  return space;
+}
+
 export const generateUploadUrl = mutation({
-  args: {},
-  handler: async (ctx) => {
+  args: { spaceId: v.id("spaces"), visitorId: v.string() },
+  handler: async (ctx, { spaceId, visitorId }) => {
+    await loadActiveSpace(ctx, spaceId);
+    await rateLimiter.limit(ctx, "uploadUrlPerVisitor", {
+      key: visitorId,
+      throws: true,
+    });
+    await rateLimiter.limit(ctx, "uploadUrlPerSpace", {
+      key: spaceId,
+      throws: true,
+    });
     return await getActiveStorageAdapter().generateUploadUrl(ctx);
   },
 });
@@ -48,14 +85,6 @@ const submitterFields = {
   // Honeypot: must stay empty. Real visitors never see/fill this field.
   website: v.optional(v.string()),
 };
-
-async function loadActiveSpace(ctx: any, spaceId: any) {
-  const space = await ctx.db.get(spaceId);
-  if (!space || !space.isActive) {
-    throw new Error("This collection page is not accepting submissions");
-  }
-  return space;
-}
 
 export const submitTextTestimonial = mutation({
   args: { ...submitterFields, textContent: v.string() },
