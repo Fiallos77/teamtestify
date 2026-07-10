@@ -1,6 +1,7 @@
 import { v } from "convex/values";
-import { mutation, query } from "./_generated/server";
+import { mutation, query, type MutationCtx } from "./_generated/server";
 import { components, internal } from "./_generated/api";
+import type { Id } from "./_generated/dataModel";
 import { getActiveStorageAdapter } from "./lib/storage";
 import { isAcceptableVideoUpload } from "./lib/videoValidation";
 import { getEntitlements } from "./entitlements";
@@ -51,7 +52,7 @@ export const getSpaceBySlug = query({
   },
 });
 
-async function loadActiveSpace(ctx: any, spaceId: any) {
+async function loadActiveSpace(ctx: MutationCtx, spaceId: Id<"spaces">) {
   const space = await ctx.db.get(spaceId);
   if (!space || !space.isActive) {
     throw new Error("This collection page is not accepting submissions");
@@ -136,7 +137,7 @@ export const submitVideoTestimonial = mutation({
     ctx,
     args
   ): Promise<
-    | { ok: true; testimonialId: import("./_generated/dataModel").Id<"testimonials"> }
+    | { ok: true; testimonialId: Id<"testimonials"> }
     | { ok: false; error: string }
   > => {
     if (args.website) return { ok: false, error: "Submission rejected" };

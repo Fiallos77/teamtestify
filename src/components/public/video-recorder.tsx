@@ -33,6 +33,13 @@ export function VideoRecorder({
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
 
   useEffect(() => {
+    // Defaulting `supported` to true and correcting it here (rather than a
+    // lazy useState initializer) is deliberate: this runs identically on
+    // the server (window is undefined -> false) and the client's first
+    // paint, so SSR and hydration render the same tree. A lazy initializer
+    // would compute true on the client immediately, before hydration,
+    // producing a real SSR/client mismatch for this conditional UI.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setSupported(
       typeof window !== "undefined" &&
         !!navigator.mediaDevices?.getUserMedia &&
@@ -104,7 +111,6 @@ export function VideoRecorder({
   return (
     <div className="space-y-3">
       {previewUrl ? (
-        // eslint-disable-next-line jsx-a11y/media-has-caption
         <video src={previewUrl} controls className="w-full rounded-md" />
       ) : (
         <video ref={videoRef} className="w-full rounded-md bg-black" />

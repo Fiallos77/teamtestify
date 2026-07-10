@@ -3,6 +3,7 @@ import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 import schema from "./schema";
 import { internal } from "./_generated/api";
 import { ORPHAN_GRACE_PERIOD_MS } from "./storageCleanup";
+import type { Id } from "./_generated/dataModel";
 
 const modules = import.meta.glob("./**/*.ts");
 
@@ -20,7 +21,7 @@ afterEach(() => {
 
 async function fileExists(
   t: ReturnType<typeof newTestConvex>,
-  storageId: any
+  storageId: Id<"_storage">
 ): Promise<boolean> {
   const meta = await t.run(
     async (ctx) => await ctx.db.system.get("_storage", storageId)
