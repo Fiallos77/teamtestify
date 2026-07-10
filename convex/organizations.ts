@@ -101,6 +101,21 @@ export const updateNotificationEmail = mutation({
   },
 });
 
+// Used by convex/stripe.ts (a "use node" action file — actions can't touch
+// ctx.db directly). Billing actions (checkout, portal) are owner-only:
+// any member could otherwise self-serve upgrade/manage billing for an org
+// they don't own.
+export const requireOwnerContext = internalQuery({
+  args: {},
+  handler: async (ctx) => {
+    const { org, orgRole } = await requireOrgContext(ctx);
+    if (orgRole !== "owner") {
+      throw new AuthzError("Only the organization owner can manage billing");
+    }
+    return { organizationId: org._id };
+  },
+});
+
 // Used by convex/notifications.ts (a "use node" action file — actions can't
 // touch ctx.db directly, so this query hands over just what the email needs).
 export const getNotificationContext = internalQuery({

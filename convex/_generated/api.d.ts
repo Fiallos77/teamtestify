@@ -24,6 +24,7 @@ import type * as organizations from "../organizations.js";
 import type * as public_ from "../public.js";
 import type * as spaces from "../spaces.js";
 import type * as storageCleanup from "../storageCleanup.js";
+import type * as stripe from "../stripe.js";
 import type * as subscriptions from "../subscriptions.js";
 import type * as testimonials from "../testimonials.js";
 import type * as widgets from "../widgets.js";
@@ -51,6 +52,7 @@ declare const fullApi: ApiFromModules<{
   public: typeof public_;
   spaces: typeof spaces;
   storageCleanup: typeof storageCleanup;
+  stripe: typeof stripe;
   subscriptions: typeof subscriptions;
   testimonials: typeof testimonials;
   widgets: typeof widgets;
