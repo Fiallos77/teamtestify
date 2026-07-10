@@ -21,6 +21,7 @@
     iframe.setAttribute("title", "Testimonials");
 
     window.addEventListener("message", function (event) {
+      if (event.origin !== origin) return;
       var data = event.data;
       if (
         data &&

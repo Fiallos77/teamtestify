@@ -4,5 +4,8 @@ export default defineConfig({
   test: {
     environment: "node",
     server: { deps: { inline: ["convex-test"] } },
+    environmentOptions: {
+      jsdom: { url: "https://app.example.com" },
+    },
   },
 });
