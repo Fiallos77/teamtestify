@@ -147,4 +147,20 @@ export default defineSchema({
     testimonialId: v.optional(v.id("testimonials")),
     ts: v.number(),
   }).index("by_widget_and_time", ["widgetId", "ts"]),
+
+  // No Stripe writes yet (Phase 2 spec, entitlements-only slice). Free is
+  // the absence of an active "pro" row here — see convex/entitlements.ts.
+  subscriptions: defineTable({
+    organizationId: v.id("organizations"),
+    stripeCustomerId: v.optional(v.string()),
+    stripeSubscriptionId: v.optional(v.string()),
+    plan: v.union(v.literal("free"), v.literal("pro")),
+    status: v.union(
+      v.literal("active"),
+      v.literal("canceled"),
+      v.literal("past_due"),
+      v.literal("incomplete")
+    ),
+    currentPeriodEnd: v.optional(v.number()),
+  }).index("by_org", ["organizationId"]),
 });
