@@ -3,6 +3,7 @@ import { mutation, query } from "./_generated/server";
 import { components, internal } from "./_generated/api";
 import { getActiveStorageAdapter } from "./lib/storage";
 import { isAcceptableVideoUpload } from "./lib/videoValidation";
+import { getEntitlements } from "./entitlements";
 import { RateLimiter, HOUR, DAY } from "@convex-dev/rate-limiter";
 
 // Everything in this file is reachable by anonymous visitors. Never trust
@@ -36,6 +37,7 @@ export const getSpaceBySlug = query({
       .withIndex("by_slug", (q) => q.eq("publicSlug", publicSlug))
       .unique();
     if (!space || !space.isActive) return null;
+    const entitlements = await getEntitlements(ctx, space.organizationId);
     return {
       _id: space._id,
       name: space.name,
@@ -44,6 +46,7 @@ export const getSpaceBySlug = query({
       logoUrl: space.branding.logoStorageId
         ? await ctx.storage.getUrl(space.branding.logoStorageId)
         : null,
+      maxVideoSeconds: entitlements.maxVideoSeconds,
     };
   },
 });

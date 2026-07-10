@@ -7,6 +7,7 @@ import {
   tryOrgContext,
 } from "./lib/authz";
 import { getActiveStorageAdapter } from "./lib/storage";
+import { assertCanPublish, assertCanPublishVideo } from "./entitlements";
 
 // Org-wide counts for the dashboard summary cards.
 export const getOrgStats = query({
@@ -78,7 +79,18 @@ export const setStatus = mutation({
   },
   handler: async (ctx, { testimonialId, status }) => {
     const { org, identity } = await requireOrgContext(ctx);
-    await requireTestimonialInOrg(ctx, testimonialId, org._id);
+    const testimonial = await requireTestimonialInOrg(ctx, testimonialId, org._id);
+
+    // Only gate the transition INTO approved — re-saving an already-approved
+    // testimonial (or rejecting one) must never be blocked by entitlements,
+    // otherwise it'd double-count itself against its own limit.
+    if (status === "approved" && testimonial.status !== "approved") {
+      await assertCanPublish(ctx, org._id);
+      if (testimonial.type === "video") {
+        await assertCanPublishVideo(ctx, org._id);
+      }
+    }
+
     await ctx.db.patch(testimonialId, {
       status,
       reviewedAt: Date.now(),

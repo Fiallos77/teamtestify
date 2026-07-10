@@ -3,8 +3,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 
-const MAX_SECONDS = 180;
-
 function pickMimeType() {
   const candidates = [
     "video/webm;codecs=vp9,opus",
@@ -17,8 +15,13 @@ function pickMimeType() {
 
 export function VideoRecorder({
   onRecorded,
+  maxSeconds,
 }: {
   onRecorded: (file: File) => void;
+  // From entitlements (convex/entitlements.ts maxVideoSeconds) via
+  // public.getSpaceBySlug — 120s free / 180s pro. No local fallback: the
+  // caller must pass the real plan-derived value.
+  maxSeconds: number;
 }) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
@@ -43,13 +46,13 @@ export function VideoRecorder({
 
   useEffect(() => {
     if (!recording) return;
-    if (seconds >= MAX_SECONDS) {
+    if (seconds >= maxSeconds) {
       stopRecording();
       return;
     }
     const t = setTimeout(() => setSeconds((s) => s + 1), 1000);
     return () => clearTimeout(t);
-  }, [recording, seconds]);
+  }, [recording, seconds, maxSeconds]);
 
   async function startRecording() {
     const stream = await navigator.mediaDevices.getUserMedia({
@@ -114,7 +117,7 @@ export function VideoRecorder({
         )}
         {recording && (
           <Button type="button" variant="destructive" onClick={stopRecording}>
-            Stop ({MAX_SECONDS - seconds}s left)
+            Stop ({maxSeconds - seconds}s left)
           </Button>
         )}
         {previewUrl && !recording && (

@@ -260,3 +260,31 @@ describe("public.submitVideoTestimonial", () => {
     expect(await storageEntryExists(t, storageId)).toBe(true);
   });
 });
+
+describe("public.getSpaceBySlug maxVideoSeconds", () => {
+  test("free org's space reports the free video length cap", async () => {
+    const t = newTestConvex();
+    const slug = `slug-${Math.random().toString(36).slice(2)}`;
+    await seedSpace(t, { slug });
+
+    const result = await t.query(api.public.getSpaceBySlug, { publicSlug: slug });
+    expect(result?.maxVideoSeconds).toBe(120);
+  });
+
+  test("pro org's space reports the pro video length cap", async () => {
+    const t = newTestConvex();
+    const slug = `slug-${Math.random().toString(36).slice(2)}`;
+    const spaceId = await seedSpace(t, { slug });
+    await t.run(async (ctx) => {
+      const space = await ctx.db.get(spaceId);
+      await ctx.db.insert("subscriptions", {
+        organizationId: space!.organizationId,
+        plan: "pro",
+        status: "active",
+      });
+    });
+
+    const result = await t.query(api.public.getSpaceBySlug, { publicSlug: slug });
+    expect(result?.maxVideoSeconds).toBe(180);
+  });
+});

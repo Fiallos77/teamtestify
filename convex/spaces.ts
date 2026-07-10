@@ -2,6 +2,7 @@ import { v } from "convex/values";
 import { mutation, query } from "./_generated/server";
 import { requireOrgContext, requireSpaceInOrg, tryOrgContext } from "./lib/authz";
 import { getActiveStorageAdapter } from "./lib/storage";
+import { assertCanCreateSpace } from "./entitlements";
 
 const formConfigValidator = v.object({
   headline: v.string(),
@@ -54,6 +55,7 @@ export const create = mutation({
   },
   handler: async (ctx, args) => {
     const { org } = await requireOrgContext(ctx);
+    await assertCanCreateSpace(ctx, org._id);
 
     const existing = await ctx.db
       .query("spaces")

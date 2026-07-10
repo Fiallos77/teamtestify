@@ -336,7 +336,7 @@ export default function CollectionPage({
                 />
               ) : (
                 <div className="space-y-3">
-                  <VideoRecorder onRecorded={setVideoFile} />
+                  <VideoRecorder onRecorded={setVideoFile} maxSeconds={space.maxVideoSeconds} />
                   <div className="text-sm text-muted-foreground">or</div>
                   <Input
                     type="file"
