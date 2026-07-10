@@ -3,6 +3,7 @@ import { describe, expect, test } from "vitest";
 import rateLimiterTest from "@convex-dev/rate-limiter/test";
 import schema from "./schema";
 import { api } from "./_generated/api";
+import { MAX_VIDEO_BYTES } from "./lib/videoValidation";
 import type { Id } from "./_generated/dataModel";
 
 const modules = import.meta.glob("./**/*.ts");
@@ -162,5 +163,100 @@ describe("public.generateUploadUrl", () => {
         visitorId: "visitor-b",
       })
     ).resolves.toEqual(expect.any(String));
+  });
+});
+
+async function storeBlob(
+  t: ReturnType<typeof newTestConvex>,
+  blob: Blob
+): Promise<Id<"_storage">> {
+  return await t.run(async (ctx) => await ctx.storage.store(blob));
+}
+
+async function storageEntryExists(
+  t: ReturnType<typeof newTestConvex>,
+  storageId: Id<"_storage">
+): Promise<boolean> {
+  const meta = await t.run(
+    async (ctx) => await ctx.db.system.get("_storage", storageId)
+  );
+  return meta !== null;
+}
+
+// convex-test's `ctx.storage.store()` mock never records a `contentType`
+// (see node_modules/convex-test/dist/index.js, "storage/storeBlob" only
+// persists `size`/`sha256`), and it doesn't implement the real
+// `/api/storage/upload` HTTP endpoint that would normally set contentType
+// from the client's Content-Type header. So every stored blob looks
+// "typeless" here regardless of the Blob's own `.type` — every upload
+// exercises the *rejection* path in this harness. Exact allow/deny-by-type
+// and size-boundary coverage lives in convex/lib/videoValidation.test.ts,
+// which tests the pure predicate directly. What we verify here is the
+// integration behavior around rejection: the blob is deleted, no
+// testimonial is created, and the mutation returns ok:false instead of
+// throwing (throwing after ctx.storage.delete would roll the delete back,
+// since a mutation is one atomic transaction).
+describe("public.submitVideoTestimonial", () => {
+  test("rejects an unverifiable upload, deletes the blob, and creates no testimonial", async () => {
+    const t = newTestConvex();
+    const spaceId = await seedSpace(t);
+    const storageId = await storeBlob(
+      t,
+      new Blob(["fake webm bytes"], { type: "video/webm" })
+    );
+
+    const result = await t.mutation(api.public.submitVideoTestimonial, {
+      spaceId,
+      authorName: "Jane",
+      storageId,
+      mimeType: "video/webm",
+      durationSeconds: 42,
+    });
+
+    expect(result.ok).toBe(false);
+    expect(await storageEntryExists(t, storageId)).toBe(false);
+    const testimonials = await t.run(
+      async (ctx) =>
+        await ctx.db
+          .query("testimonials")
+          .withIndex("by_space", (q) => q.eq("spaceId", spaceId))
+          .collect()
+    );
+    expect(testimonials).toHaveLength(0);
+  });
+
+  test("cleans up a large blob on rejection without erroring", async () => {
+    const t = newTestConvex();
+    const spaceId = await seedSpace(t);
+    const large = new Uint8Array(MAX_VIDEO_BYTES + 1);
+    const storageId = await storeBlob(t, new Blob([large], { type: "video/webm" }));
+
+    const result = await t.mutation(api.public.submitVideoTestimonial, {
+      spaceId,
+      authorName: "Jane",
+      storageId,
+      mimeType: "video/webm",
+    });
+
+    expect(result.ok).toBe(false);
+    expect(await storageEntryExists(t, storageId)).toBe(false);
+  });
+
+  test("honeypot rejection never touches storage validation", async () => {
+    const t = newTestConvex();
+    const spaceId = await seedSpace(t);
+    const storageId = await storeBlob(t, new Blob(["x"], { type: "video/webm" }));
+
+    const result = await t.mutation(api.public.submitVideoTestimonial, {
+      spaceId,
+      authorName: "Jane",
+      storageId,
+      website: "http://spam.example",
+    });
+
+    expect(result).toEqual({ ok: false, error: "Submission rejected" });
+    // Honeypot rejection happens before the storage check even runs, so
+    // the (never-validated) blob is intentionally left alone.
+    expect(await storageEntryExists(t, storageId)).toBe(true);
   });
 });

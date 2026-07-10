@@ -2,6 +2,7 @@ import { v } from "convex/values";
 import { mutation, query } from "./_generated/server";
 import { components, internal } from "./_generated/api";
 import { getActiveStorageAdapter } from "./lib/storage";
+import { isAcceptableVideoUpload } from "./lib/videoValidation";
 import { RateLimiter, HOUR, DAY } from "@convex-dev/rate-limiter";
 
 // Everything in this file is reachable by anonymous visitors. Never trust
@@ -128,11 +129,31 @@ export const submitVideoTestimonial = mutation({
     mimeType: v.optional(v.string()),
     durationSeconds: v.optional(v.number()),
   },
-  handler: async (ctx, args) => {
-    if (args.website) throw new Error("Submission rejected");
+  handler: async (
+    ctx,
+    args
+  ): Promise<
+    | { ok: true; testimonialId: import("./_generated/dataModel").Id<"testimonials"> }
+    | { ok: false; error: string }
+  > => {
+    if (args.website) return { ok: false, error: "Submission rejected" };
     const space = await loadActiveSpace(ctx, args.spaceId);
     if (!space.formConfig.allowVideo) {
-      throw new Error("Video testimonials are not enabled for this space");
+      return { ok: false, error: "Video testimonials are not enabled for this space" };
+    }
+
+    // Duration can't be verified without decoding the file, but content
+    // type and size can — check the actual stored blob (not the client's
+    // claims). A mutation is one atomic transaction, so if we threw here
+    // after deleting, the delete would roll back along with everything
+    // else — return a result instead so the delete actually commits.
+    const meta = await ctx.db.system.get("_storage", args.storageId);
+    if (!isAcceptableVideoUpload(meta)) {
+      await ctx.storage.delete(args.storageId);
+      return {
+        ok: false,
+        error: "Video upload rejected: unsupported format or file too large",
+      };
     }
 
     const testimonialId = await ctx.db.insert("testimonials", {
@@ -163,5 +184,6 @@ export const submitVideoTestimonial = mutation({
       spaceId: space._id,
       testimonialId,
     });
+    return { ok: true, testimonialId };
   },
 });

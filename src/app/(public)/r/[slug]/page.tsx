@@ -149,7 +149,8 @@ export default function CollectionPage({
         }
         const { storageId } = await res.json();
         if (!storageId) throw new Error("Video upload did not return a storage id");
-        await submitVideo({ ...common, storageId, mimeType: videoFile.type });
+        const result = await submitVideo({ ...common, storageId, mimeType: videoFile.type });
+        if (!result.ok) throw new Error(result.error);
       }
       setDone(true);
     } catch (err) {
