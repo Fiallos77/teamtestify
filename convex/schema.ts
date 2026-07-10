@@ -153,8 +153,10 @@ export default defineSchema({
     ts: v.number(),
   }).index("by_widget_and_time", ["widgetId", "ts"]),
 
-  // No Stripe writes yet (Phase 2 spec, entitlements-only slice). Free is
-  // the absence of an active "pro" row here — see convex/entitlements.ts.
+  // Free is the absence of an active "pro" row here — see
+  // convex/entitlements.ts. Written by convex/subscriptions.ts:
+  // setPlanForTesting (dev/tests) or processStripeWebhookEvent (real
+  // Stripe events, via convex/stripeWebhook.ts).
   subscriptions: defineTable({
     organizationId: v.id("organizations"),
     stripeCustomerId: v.optional(v.string()),
@@ -167,5 +169,16 @@ export default defineSchema({
       v.literal("incomplete")
     ),
     currentPeriodEnd: v.optional(v.number()),
-  }).index("by_org", ["organizationId"]),
+  })
+    .index("by_org", ["organizationId"])
+    .index("by_stripe_customer_id", ["stripeCustomerId"])
+    .index("by_stripe_subscription_id", ["stripeSubscriptionId"]),
+
+  // Idempotency ledger for convex/stripeWebhook.ts — Stripe may deliver the
+  // same event more than once (retries, redelivery from the dashboard).
+  stripeWebhookEvents: defineTable({
+    eventId: v.string(),
+    eventType: v.string(),
+    processedAt: v.number(),
+  }).index("by_event_id", ["eventId"]),
 });

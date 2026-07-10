@@ -148,3 +148,230 @@ describe("subscriptions.setPlanForTesting wires the downgrade/re-upgrade round t
     expect(afterReUpgrade.every((t) => !t?.downgradeHidden)).toBe(true);
   });
 });
+
+async function eventCount(t: ReturnType<typeof newTestConvex>, eventId: string): Promise<number> {
+  const rows = await t.run(
+    async (ctx) =>
+      await ctx.db
+        .query("stripeWebhookEvents")
+        .withIndex("by_event_id", (q) => q.eq("eventId", eventId))
+        .collect()
+  );
+  return rows.length;
+}
+
+async function seedStripeLinkedSubscription(
+  t: ReturnType<typeof newTestConvex>,
+  organizationId: Id<"organizations">,
+  overrides: { stripeCustomerId?: string; stripeSubscriptionId?: string } = {}
+) {
+  await t.run(
+    async (ctx) =>
+      await ctx.db.insert("subscriptions", {
+        organizationId,
+        stripeCustomerId: overrides.stripeCustomerId ?? "cus_test123",
+        stripeSubscriptionId: overrides.stripeSubscriptionId ?? "sub_test123",
+        plan: "pro",
+        status: "active",
+      })
+  );
+}
+
+describe("subscriptions.processStripeWebhookEvent", () => {
+  test("checkout.session.completed upserts a pro subscription and restores downgraded content", async () => {
+    const t = newTestConvex();
+    const organizationId = await seedOrg(t);
+    const spaceId = await seedSpace(t, organizationId);
+    // Simulate content that was previously downgraded, waiting to be restored.
+    const hiddenId = await t.run(
+      async (ctx) =>
+        await ctx.db.insert("testimonials", {
+          spaceId,
+          organizationId,
+          type: "text",
+          status: "pending",
+          downgradeHidden: true,
+          authorName: "Jane",
+          featured: false,
+          tags: [],
+          source: "form",
+          submittedAt: Date.now(),
+        })
+    );
+
+    await t.mutation(internal.subscriptions.processStripeWebhookEvent, {
+      eventId: "evt_checkout_1",
+      eventType: "checkout.session.completed",
+      organizationId,
+      stripeCustomerId: "cus_new",
+      stripeSubscriptionId: "sub_new",
+    });
+
+    const subscription = await getSubscription(t, organizationId);
+    expect(subscription?.plan).toBe("pro");
+    expect(subscription?.status).toBe("active");
+    expect(subscription?.stripeCustomerId).toBe("cus_new");
+    expect(subscription?.stripeSubscriptionId).toBe("sub_new");
+
+    const hidden = await t.run(async (ctx) => await ctx.db.get(hiddenId));
+    expect(hidden?.status).toBe("approved");
+    expect(hidden?.downgradeHidden).toBe(false);
+  });
+
+  test("the same event id is only ever recorded once, even if delivered twice", async () => {
+    const t = newTestConvex();
+    const organizationId = await seedOrg(t);
+    const args = {
+      eventId: "evt_dup_1",
+      eventType: "checkout.session.completed",
+      organizationId,
+      stripeCustomerId: "cus_dup",
+      stripeSubscriptionId: "sub_dup",
+    };
+
+    await t.mutation(internal.subscriptions.processStripeWebhookEvent, args);
+    await t.mutation(internal.subscriptions.processStripeWebhookEvent, args);
+
+    expect(await eventCount(t, "evt_dup_1")).toBe(1);
+    const subscription = await getSubscription(t, organizationId);
+    expect(subscription?.plan).toBe("pro");
+  });
+
+  test("customer.subscription.deleted downgrades the org (unit level against the handler)", async () => {
+    const t = newTestConvex();
+    const organizationId = await seedOrg(t);
+    const spaceId = await seedSpace(t, organizationId);
+    await seedStripeLinkedSubscription(t, organizationId, {
+      stripeCustomerId: "cus_del",
+      stripeSubscriptionId: "sub_del",
+    });
+    for (let i = 0; i < 18; i++) {
+      await seedApprovedTestimonial(t, organizationId, spaceId);
+    }
+
+    await t.mutation(internal.subscriptions.processStripeWebhookEvent, {
+      eventId: "evt_deleted_1",
+      eventType: "customer.subscription.deleted",
+      stripeCustomerId: "cus_del",
+      stripeSubscriptionId: "sub_del",
+    });
+
+    const subscription = await getSubscription(t, organizationId);
+    expect(subscription?.plan).toBe("free");
+    expect(subscription?.status).toBe("canceled");
+
+    const testimonials = await t.run(
+      async (ctx) =>
+        await ctx.db
+          .query("testimonials")
+          .withIndex("by_org", (q) => q.eq("organizationId", organizationId))
+          .collect()
+    );
+    expect(testimonials.filter((x) => x.status === "approved")).toHaveLength(15);
+  });
+
+  test("invoice.payment_failed downgrades only when it's the final attempt", async () => {
+    const t = newTestConvex();
+    const organizationId = await seedOrg(t);
+    const spaceId = await seedSpace(t, organizationId);
+    await seedStripeLinkedSubscription(t, organizationId, {
+      stripeCustomerId: "cus_fail",
+      stripeSubscriptionId: "sub_fail",
+    });
+    for (let i = 0; i < 18; i++) {
+      await seedApprovedTestimonial(t, organizationId, spaceId);
+    }
+
+    await t.mutation(internal.subscriptions.processStripeWebhookEvent, {
+      eventId: "evt_fail_retry",
+      eventType: "invoice.payment_failed",
+      stripeCustomerId: "cus_fail",
+      stripeSubscriptionId: "sub_fail",
+      isFinalPaymentFailure: false,
+    });
+    let subscription = await getSubscription(t, organizationId);
+    expect(subscription?.status).toBe("active");
+
+    await t.mutation(internal.subscriptions.processStripeWebhookEvent, {
+      eventId: "evt_fail_final",
+      eventType: "invoice.payment_failed",
+      stripeCustomerId: "cus_fail",
+      stripeSubscriptionId: "sub_fail",
+      isFinalPaymentFailure: true,
+    });
+    subscription = await getSubscription(t, organizationId);
+    expect(subscription?.status).toBe("past_due");
+    expect(subscription?.plan).toBe("free");
+
+    const testimonials = await t.run(
+      async (ctx) =>
+        await ctx.db
+          .query("testimonials")
+          .withIndex("by_org", (q) => q.eq("organizationId", organizationId))
+          .collect()
+    );
+    expect(testimonials.filter((x) => x.status === "approved")).toHaveLength(15);
+  });
+
+  test("customer.subscription.updated recovering to active restores downgraded content", async () => {
+    const t = newTestConvex();
+    const organizationId = await seedOrg(t);
+    const spaceId = await seedSpace(t, organizationId);
+    await seedStripeLinkedSubscription(t, organizationId, {
+      stripeCustomerId: "cus_recover",
+      stripeSubscriptionId: "sub_recover",
+    });
+    await t.run(async (ctx) => {
+      const row = await ctx.db
+        .query("subscriptions")
+        .withIndex("by_org", (q) => q.eq("organizationId", organizationId))
+        .unique();
+      await ctx.db.patch(row!._id, { status: "past_due", plan: "free" });
+    });
+    const hiddenId = await t.run(
+      async (ctx) =>
+        await ctx.db.insert("testimonials", {
+          spaceId,
+          organizationId,
+          type: "text",
+          status: "pending",
+          downgradeHidden: true,
+          authorName: "Jane",
+          featured: false,
+          tags: [],
+          source: "form",
+          submittedAt: Date.now(),
+        })
+    );
+
+    await t.mutation(internal.subscriptions.processStripeWebhookEvent, {
+      eventId: "evt_recovered",
+      eventType: "customer.subscription.updated",
+      stripeCustomerId: "cus_recover",
+      stripeSubscriptionId: "sub_recover",
+      rawStatus: "active",
+      currentPeriodEnd: 1234567890,
+    });
+
+    const subscription = await getSubscription(t, organizationId);
+    expect(subscription?.plan).toBe("pro");
+    expect(subscription?.status).toBe("active");
+    expect(subscription?.currentPeriodEnd).toBe(1234567890);
+
+    const hidden = await t.run(async (ctx) => await ctx.db.get(hiddenId));
+    expect(hidden?.status).toBe("approved");
+  });
+
+  test("an unrecognized event type is recorded and ignored without error", async () => {
+    const t = newTestConvex();
+
+    await expect(
+      t.mutation(internal.subscriptions.processStripeWebhookEvent, {
+        eventId: "evt_unknown",
+        eventType: "some.future.event",
+      })
+    ).resolves.not.toThrow();
+
+    expect(await eventCount(t, "evt_unknown")).toBe(1);
+  });
+});

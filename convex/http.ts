@@ -2,6 +2,7 @@ import { httpRouter } from "convex/server";
 import { httpAction } from "./_generated/server";
 import { api, internal } from "./_generated/api";
 import { authComponent, createAuth } from "./auth";
+import { fulfillStripeWebhook } from "./stripeWebhook";
 
 const CORS_HEADERS = {
   "Access-Control-Allow-Origin": "*",
@@ -74,6 +75,12 @@ http.route({
     }
     return new Response(null, { status: 204, headers: CORS_HEADERS });
   }),
+});
+
+http.route({
+  path: "/stripe/webhook",
+  method: "POST",
+  handler: fulfillStripeWebhook,
 });
 
 export default http;
