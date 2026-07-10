@@ -3,6 +3,7 @@
 import { v } from "convex/values";
 import { internalAction } from "./_generated/server";
 import { internal } from "./_generated/api";
+import { buildNewTestimonialEmail } from "./lib/email";
 
 export const sendNewTestimonialEmail = internalAction({
   args: {
@@ -26,12 +27,7 @@ export const sendNewTestimonialEmail = internalAction({
         Authorization: `Bearer ${apiKey}`,
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({
-        from: "Testimonial Studio <onboarding@resend.dev>",
-        to: notificationEmail,
-        subject: `New testimonial for ${spaceName}`,
-        html: `<p>You just received a new testimonial for <strong>${spaceName}</strong>.</p><p>Review and approve it from your dashboard.</p>`,
-      }),
+      body: JSON.stringify(buildNewTestimonialEmail({ spaceName, notificationEmail })),
     });
   },
 });
