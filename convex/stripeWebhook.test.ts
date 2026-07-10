@@ -206,4 +206,42 @@ describe("POST /stripe/webhook", () => {
     );
     expect(events).toHaveLength(1);
   });
+
+  test("end to end: a real webhook delivery is what getEntitlements sees, not just the subscriptions row", async () => {
+    // Closes the loop for task 5 (teamtestify-v2-spec.md Phase 2): proves
+    // getEntitlements needs no special-casing for Stripe vs the dev
+    // toggle — both just write the same subscriptions row, and this test
+    // exercises the real HTTP+signature path, not a direct mutation call.
+    const { getEntitlements } = await import("./entitlements");
+    const t = newTestConvex();
+    const organizationId = await t.run(
+      async (ctx) => await ctx.db.insert("organizations", { name: "Acme", createdAt: Date.now() })
+    );
+
+    const before = await t.run(async (ctx) => await getEntitlements(ctx, organizationId));
+    expect(before.plan).toBe("free");
+
+    const payload = JSON.stringify({
+      id: "evt_e2e",
+      type: "checkout.session.completed",
+      data: {
+        object: { client_reference_id: organizationId, customer: "cus_e2e", subscription: "sub_e2e" },
+      },
+    });
+    const stripeForSigning = new Stripe("sk_test_not_a_real_key");
+    const signatureHeader = stripeForSigning.webhooks.generateTestHeaderString({
+      payload,
+      secret: TEST_WEBHOOK_SECRET,
+    });
+    const res = await t.fetch("/stripe/webhook", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "stripe-signature": signatureHeader },
+      body: payload,
+    });
+    expect(res.status).toBe(200);
+
+    const after = await t.run(async (ctx) => await getEntitlements(ctx, organizationId));
+    expect(after.plan).toBe("pro");
+    expect(after.maxSpaces).toBe(5);
+  });
 });
