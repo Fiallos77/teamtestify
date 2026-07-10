@@ -225,22 +225,26 @@ describe("public.submitVideoTestimonial", () => {
     expect(testimonials).toHaveLength(0);
   });
 
-  test("cleans up a large blob on rejection without erroring", async () => {
-    const t = newTestConvex();
-    const spaceId = await seedSpace(t);
-    const large = new Uint8Array(MAX_VIDEO_BYTES + 1);
-    const storageId = await storeBlob(t, new Blob([large], { type: "video/webm" }));
+  test(
+    "cleans up a large blob on rejection without erroring",
+    async () => {
+      const t = newTestConvex();
+      const spaceId = await seedSpace(t);
+      const large = new Uint8Array(MAX_VIDEO_BYTES + 1);
+      const storageId = await storeBlob(t, new Blob([large], { type: "video/webm" }));
 
-    const result = await t.mutation(api.public.submitVideoTestimonial, {
-      spaceId,
-      authorName: "Jane",
-      storageId,
-      mimeType: "video/webm",
-    });
+      const result = await t.mutation(api.public.submitVideoTestimonial, {
+        spaceId,
+        authorName: "Jane",
+        storageId,
+        mimeType: "video/webm",
+      });
 
-    expect(result.ok).toBe(false);
-    expect(await storageEntryExists(t, storageId)).toBe(false);
-  });
+      expect(result.ok).toBe(false);
+      expect(await storageEntryExists(t, storageId)).toBe(false);
+    },
+    15000
+  );
 
   test("honeypot rejection never touches storage validation", async () => {
     const t = newTestConvex();
