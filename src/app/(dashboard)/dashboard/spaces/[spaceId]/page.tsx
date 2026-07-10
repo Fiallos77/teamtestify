@@ -13,16 +13,14 @@ import {
   TabsList,
   TabsTrigger,
 } from "@/components/ui/tabs";
+import { ErrorWithUpgradeCta } from "@/components/dashboard/upgrade-cta";
 
 type Status = "pending" | "approved" | "rejected";
 
 function VideoPlayer({ testimonialId }: { testimonialId: Id<"testimonials"> }) {
   const url = useQuery(api.testimonials.getVideoUrl, { testimonialId });
   if (!url) return null;
-  return (
-    // eslint-disable-next-line jsx-a11y/media-has-caption
-    <video src={url} controls className="mt-2 max-h-64 rounded-md" />
-  );
+  return <video src={url} controls className="mt-2 max-h-64 rounded-md" />;
 }
 
 function TestimonialCard({
@@ -44,6 +42,16 @@ function TestimonialCard({
   const setStatus = useMutation(api.testimonials.setStatus);
   const setFeatured = useMutation(api.testimonials.setFeatured);
   const remove = useMutation(api.testimonials.remove);
+  const [approveError, setApproveError] = useState<string | null>(null);
+
+  async function handleApprove() {
+    setApproveError(null);
+    try {
+      await setStatus({ testimonialId: testimonial._id, status: "approved" });
+    } catch (e) {
+      setApproveError(e instanceof Error ? e.message : "Something went wrong");
+    }
+  }
 
   return (
     <Card>
@@ -76,12 +84,7 @@ function TestimonialCard({
         <div className="mt-4 flex flex-wrap gap-2">
           {testimonial.status === "pending" && (
             <>
-              <Button
-                size="sm"
-                onClick={() =>
-                  setStatus({ testimonialId: testimonial._id, status: "approved" })
-                }
-              >
+              <Button size="sm" onClick={handleApprove}>
                 Approve
               </Button>
               <Button
@@ -95,6 +98,7 @@ function TestimonialCard({
               </Button>
             </>
           )}
+          {approveError && <ErrorWithUpgradeCta message={approveError} />}
           {testimonial.status === "approved" && (
             <Button
               size="sm"
