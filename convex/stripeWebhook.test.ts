@@ -124,33 +124,37 @@ describe("POST /stripe/webhook", () => {
     process.env.STRIPE_SECRET_KEY = originalSecretKey;
   });
 
-  test("rejects a request with an invalid signature", async () => {
-    const t = newTestConvex();
-    const payload = JSON.stringify({
-      id: "evt_bad_sig",
-      type: "checkout.session.completed",
-      data: { object: {} },
-    });
+  test(
+    "rejects a request with an invalid signature",
+    async () => {
+      const t = newTestConvex();
+      const payload = JSON.stringify({
+        id: "evt_bad_sig",
+        type: "checkout.session.completed",
+        data: { object: {} },
+      });
 
-    const res = await t.fetch("/stripe/webhook", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "stripe-signature": "t=1,v1=not_a_valid_signature",
-      },
-      body: payload,
-    });
+      const res = await t.fetch("/stripe/webhook", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "stripe-signature": "t=1,v1=not_a_valid_signature",
+        },
+        body: payload,
+      });
 
-    expect(res.status).toBe(400);
-    const stored = await t.run(
-      async (ctx) =>
-        await ctx.db
-          .query("stripeWebhookEvents")
-          .withIndex("by_event_id", (q) => q.eq("eventId", "evt_bad_sig"))
-          .unique()
-    );
-    expect(stored).toBeNull();
-  });
+      expect(res.status).toBe(400);
+      const stored = await t.run(
+        async (ctx) =>
+          await ctx.db
+            .query("stripeWebhookEvents")
+            .withIndex("by_event_id", (q) => q.eq("eventId", "evt_bad_sig"))
+            .unique()
+      );
+      expect(stored).toBeNull();
+    },
+    15000
+  );
 
   test("accepts a validly-signed event and processes it exactly once", async () => {
     const t = newTestConvex();

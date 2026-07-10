@@ -40,3 +40,6 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 .claude/
+
+# local tool binaries (e.g. the Stripe CLI, downloaded for webhook testing)
+*.exe
