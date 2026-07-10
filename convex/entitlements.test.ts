@@ -5,6 +5,8 @@ import {
   assertCanCreateSpace,
   assertCanPublish,
   assertCanPublishVideo,
+  applyDowngradeToFree,
+  applyReUpgradeToPro,
   getEntitlements,
   FREE_MAX_SPACES,
   FREE_MAX_PUBLISHED_TESTIMONIALS,
@@ -63,9 +65,10 @@ async function seedApprovedTestimonial(
   t: ReturnType<typeof newTestConvex>,
   organizationId: Id<"organizations">,
   spaceId: Id<"spaces">,
-  type: "text" | "video"
-) {
-  await t.run(
+  type: "text" | "video",
+  reviewedAt: number = Date.now()
+): Promise<Id<"testimonials">> {
+  return await t.run(
     async (ctx) =>
       await ctx.db.insert("testimonials", {
         spaceId,
@@ -76,8 +79,8 @@ async function seedApprovedTestimonial(
         featured: false,
         tags: [],
         source: "form",
-        submittedAt: Date.now(),
-        reviewedAt: Date.now(),
+        submittedAt: reviewedAt,
+        reviewedAt,
       })
   );
 }
@@ -249,5 +252,141 @@ describe("assertCanPublishVideo", () => {
     }
 
     await t.run(async (ctx) => await assertCanPublishVideo(ctx, organizationId));
+  });
+});
+
+describe("applyDowngradeToFree / applyReUpgradeToPro", () => {
+  test("keeps the 15 most recent approved (max 2 video), hides the rest, and restores everything on re-upgrade", async () => {
+    const t = newTestConvex();
+    const organizationId = await seedOrg(t);
+    const spaceId = await seedSpace(t, organizationId);
+
+    // 15 text testimonials, oldest first: reviewedAt 1000..1014
+    const textIds: Id<"testimonials">[] = [];
+    for (let i = 0; i < 15; i++) {
+      textIds.push(await seedApprovedTestimonial(t, organizationId, spaceId, "text", 1000 + i));
+    }
+    // 5 videos, the most recent items overall: reviewedAt 1015..1019
+    const videoIds: Id<"testimonials">[] = [];
+    for (let i = 0; i < 5; i++) {
+      videoIds.push(await seedApprovedTestimonial(t, organizationId, spaceId, "video", 1015 + i));
+    }
+
+    // Expected keep set (most recent 15, capped at 2 video):
+    // video[4], video[3] (2 most recent videos), then text[14]..text[2] (13 texts).
+    const expectedKept = new Set([
+      videoIds[4],
+      videoIds[3],
+      ...textIds.slice(2, 15).reverse(),
+    ]);
+    const expectedHidden = new Set([
+      videoIds[2],
+      videoIds[1],
+      videoIds[0],
+      textIds[0],
+      textIds[1],
+    ]);
+    expect(expectedKept.size).toBe(15);
+    expect(expectedHidden.size).toBe(5);
+
+    await t.run(async (ctx) => await applyDowngradeToFree(ctx, organizationId));
+
+    const afterDowngrade = await t.run(
+      async (ctx) =>
+        await ctx.db
+          .query("testimonials")
+          .withIndex("by_org", (q) => q.eq("organizationId", organizationId))
+          .collect()
+    );
+    for (const testimonial of afterDowngrade) {
+      if (expectedKept.has(testimonial._id)) {
+        expect(testimonial.status).toBe("approved");
+        expect(testimonial.downgradeHidden).not.toBe(true);
+      } else if (expectedHidden.has(testimonial._id)) {
+        expect(testimonial.status).toBe("pending");
+        expect(testimonial.downgradeHidden).toBe(true);
+      }
+    }
+    const approvedCount = afterDowngrade.filter((t) => t.status === "approved").length;
+    const approvedVideoCount = afterDowngrade.filter(
+      (t) => t.status === "approved" && t.type === "video"
+    ).length;
+    expect(approvedCount).toBe(15);
+    expect(approvedVideoCount).toBe(2);
+
+    await t.run(async (ctx) => await applyReUpgradeToPro(ctx, organizationId));
+
+    const afterReUpgrade = await t.run(
+      async (ctx) =>
+        await ctx.db
+          .query("testimonials")
+          .withIndex("by_org", (q) => q.eq("organizationId", organizationId))
+          .collect()
+    );
+    expect(afterReUpgrade.every((t) => t.status === "approved")).toBe(true);
+    expect(afterReUpgrade.every((t) => !t.downgradeHidden)).toBe(true);
+    expect(afterReUpgrade).toHaveLength(20);
+  });
+
+  test("never touches a manually-rejected testimonial", async () => {
+    const t = newTestConvex();
+    const organizationId = await seedOrg(t);
+    const spaceId = await seedSpace(t, organizationId);
+    for (let i = 0; i < 20; i++) {
+      await seedApprovedTestimonial(t, organizationId, spaceId, "text", 1000 + i);
+    }
+    const rejectedId = await t.run(
+      async (ctx) =>
+        await ctx.db.insert("testimonials", {
+          spaceId,
+          organizationId,
+          type: "text",
+          status: "rejected",
+          authorName: "Spammer",
+          featured: false,
+          tags: [],
+          source: "form",
+          submittedAt: Date.now(),
+          reviewedAt: Date.now(),
+        })
+    );
+
+    await t.run(async (ctx) => await applyDowngradeToFree(ctx, organizationId));
+    expect((await t.run(async (ctx) => await ctx.db.get(rejectedId)))?.status).toBe("rejected");
+
+    await t.run(async (ctx) => await applyReUpgradeToPro(ctx, organizationId));
+    expect((await t.run(async (ctx) => await ctx.db.get(rejectedId)))?.status).toBe("rejected");
+  });
+
+  test("never touches a testimonial that was always pending", async () => {
+    const t = newTestConvex();
+    const organizationId = await seedOrg(t);
+    const spaceId = await seedSpace(t, organizationId);
+    for (let i = 0; i < 20; i++) {
+      await seedApprovedTestimonial(t, organizationId, spaceId, "text", 1000 + i);
+    }
+    const pendingId = await t.run(
+      async (ctx) =>
+        await ctx.db.insert("testimonials", {
+          spaceId,
+          organizationId,
+          type: "text",
+          status: "pending",
+          authorName: "New submitter",
+          featured: false,
+          tags: [],
+          source: "form",
+          submittedAt: Date.now(),
+        })
+    );
+
+    await t.run(async (ctx) => await applyDowngradeToFree(ctx, organizationId));
+    let pending = await t.run(async (ctx) => await ctx.db.get(pendingId));
+    expect(pending?.status).toBe("pending");
+    expect(pending?.downgradeHidden).not.toBe(true);
+
+    await t.run(async (ctx) => await applyReUpgradeToPro(ctx, organizationId));
+    pending = await t.run(async (ctx) => await ctx.db.get(pendingId));
+    expect(pending?.status).toBe("pending");
   });
 });

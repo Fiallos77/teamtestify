@@ -93,6 +93,11 @@ export default defineSchema({
     submittedAt: v.number(),
     reviewedAt: v.optional(v.number()),
     reviewedBy: v.optional(v.string()),
+    // True while this testimonial was approved but got forced back to
+    // pending by a plan downgrade (over the free publish/video cap) — lets
+    // re-upgrade restore exactly these, and only these, to approved. See
+    // applyDowngradeToFree / applyReUpgradeToPro in convex/entitlements.ts.
+    downgradeHidden: v.optional(v.boolean()),
   })
     .index("by_space", ["spaceId"])
     .index("by_space_and_status", ["spaceId", "status"])

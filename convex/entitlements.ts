@@ -115,3 +115,44 @@ export async function assertCanPublishVideo(ctx: Ctx, organizationId: Id<"organi
     );
   }
 }
+
+// Downgrade behavior per the Plan Matrix section of teamtestify-v2-spec.md:
+// keep the 15 most recently published testimonials visible (max 2 video),
+// unpublish the rest WITHOUT deleting, and store enough state to restore
+// instantly on re-upgrade. "Unpublish" here means flipping status back to
+// pending (not "rejected" — that would misrepresent it as a moderation
+// decision) and marking downgradeHidden so re-upgrade knows exactly which
+// ones to restore, without touching testimonials that were never approved
+// or were genuinely rejected by a human.
+export async function applyDowngradeToFree(ctx: MutationCtx, organizationId: Id<"organizations">) {
+  const approved = await countApprovedTestimonials(ctx, organizationId);
+  approved.sort((a, b) => (b.reviewedAt ?? b.submittedAt) - (a.reviewedAt ?? a.submittedAt));
+
+  const kept = new Set<Id<"testimonials">>();
+  let keptVideoCount = 0;
+  for (const testimonial of approved) {
+    if (kept.size >= FREE_MAX_PUBLISHED_TESTIMONIALS) break;
+    if (testimonial.type === "video") {
+      if (keptVideoCount >= FREE_MAX_PUBLISHED_VIDEO_TESTIMONIALS) continue;
+      keptVideoCount++;
+    }
+    kept.add(testimonial._id);
+  }
+
+  for (const testimonial of approved) {
+    if (kept.has(testimonial._id)) continue;
+    await ctx.db.patch(testimonial._id, { status: "pending", downgradeHidden: true });
+  }
+}
+
+export async function applyReUpgradeToPro(ctx: MutationCtx, organizationId: Id<"organizations">) {
+  const testimonials = await ctx.db
+    .query("testimonials")
+    .withIndex("by_org", (q) => q.eq("organizationId", organizationId))
+    .collect();
+  for (const testimonial of testimonials) {
+    if (testimonial.downgradeHidden) {
+      await ctx.db.patch(testimonial._id, { status: "approved", downgradeHidden: false });
+    }
+  }
+}

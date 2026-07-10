@@ -1,5 +1,6 @@
 import { v } from "convex/values";
 import { internalMutation } from "./_generated/server";
+import { applyDowngradeToFree, applyReUpgradeToPro } from "./entitlements";
 
 // Internal only — not reachable from the client. There is no Stripe
 // integration yet (Phase 2 of teamtestify-v2-spec.md); this exists purely
@@ -19,6 +20,12 @@ export const setPlanForTesting = internalMutation({
       await ctx.db.patch(existing._id, { plan, status: "active" });
     } else {
       await ctx.db.insert("subscriptions", { organizationId, plan, status: "active" });
+    }
+
+    if (plan === "free") {
+      await applyDowngradeToFree(ctx, organizationId);
+    } else {
+      await applyReUpgradeToPro(ctx, organizationId);
     }
   },
 });
