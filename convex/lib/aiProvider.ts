@@ -1,10 +1,16 @@
 // Single seam between the app and whatever LLM provider we use. Everything
 // that needs generated text goes through generateText() so swapping providers
 // (or models) later touches only this file. Currently Google Gemini
-// (gemini-2.5-flash) over the REST API; the API key comes from the
+// (gemini-3.5-flash) over the REST API; the API key comes from the
 // GEMINI_API_KEY Convex env var and is never hardcoded.
-
-const GEMINI_MODEL = "gemini-2.5-flash";
+//
+// NOTE: Google discontinued gemini-2.5-flash on the Generative Language API in
+// July 2026 (404 "no longer available to new users") ahead of its published
+// shutdown date. gemini-3.5-flash is the current versioned GA flash model —
+// verified callable by our key via ListModels + a live generateContent probe.
+// Prefer a versioned id over the gemini-flash-latest alias, which has 404'd
+// unexpectedly. If Google churns this again, this const is the only change.
+const GEMINI_MODEL = "gemini-3.5-flash";
 const GEMINI_ENDPOINT = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent`;
 
 export interface GenerateTextOptions {

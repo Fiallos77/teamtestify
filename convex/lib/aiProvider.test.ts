@@ -12,7 +12,7 @@ afterEach(() => {
 });
 
 describe("generateText — Gemini provider seam", () => {
-  test("posts the prompt to gemini-2.5-flash and returns the text", async () => {
+  test("posts the prompt to gemini-3.5-flash and returns the text", async () => {
     process.env.GEMINI_API_KEY = "test-key";
     const fetchMock = vi.fn(
       async () =>
@@ -27,7 +27,7 @@ describe("generateText — Gemini provider seam", () => {
     expect(out).toBe("hola mundo");
 
     const [url, init] = fetchMock.mock.calls[0] as unknown as [string, RequestInit];
-    expect(String(url)).toContain("gemini-2.5-flash");
+    expect(String(url)).toContain("gemini-3.5-flash");
     expect((init.headers as Record<string, string>)["x-goog-api-key"]).toBe("test-key");
     const body = JSON.parse(init.body as string);
     expect(body.contents[0].parts[0].text).toBe("di hola");

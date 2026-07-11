@@ -14,8 +14,9 @@ aimed at freelancers, creators, and small service businesses.
   `organizations`, `organizationMembers`, `userSettings` tables (see `convex/lib/authz.ts`).
 - **shadcn/ui** + Tailwind for UI.
 - **Stripe** (test mode) — Pro checkout, customer portal, webhooks.
-- **Gemini API** — model `gemini-2.5-flash`, called only through
-  `convex/lib/aiProvider.ts` (`generateText()`) so swapping providers touches one file.
+- **Gemini API** — model `gemini-3.5-flash` (Google discontinued `gemini-2.5-flash`
+  on the API in July 2026), called only through `convex/lib/aiProvider.ts`
+  (`generateText()`) so swapping the provider/model touches one file.
 - **vitest** — `npx vitest run`. Config caps `maxForks: 2` (4-core / slow-filesystem
   dev box); if a run or dev server hangs, kill + restart rather than chasing it as a
   code bug.

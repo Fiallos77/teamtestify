@@ -100,7 +100,8 @@ From that, the AI generates:
 Output language matches the language the owner wrote the description in. Each generated
 text has a **copy button**. The AI provider is abstracted behind a single internal module
 (`convex/lib/aiProvider.ts`, exposing `generateText()`) so swapping providers later
-touches one file. Model: Google Gemini `gemini-2.5-flash`, key from `GEMINI_API_KEY`
+touches one file. Model: Google Gemini `gemini-3.5-flash` (the originally
+specified `gemini-2.5-flash` was discontinued on the API in July 2026), key from `GEMINI_API_KEY`
 (Convex env, never hardcoded).
 
 ### Feature B — Social image generator (Phase 4B, next session)
