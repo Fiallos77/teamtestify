@@ -9,11 +9,12 @@ export default defineConfig({
     },
     // This machine has 4 logical CPUs. convex-test's esbuild bundling and
     // jsdom's cold environment setup are both CPU-heavy; forking a worker
-    // per test file (12 files) starves them of cores, which manifested as
-    // spurious stripeWebhook test timeouts and the embed.test.ts jsdom
-    // worker failing to start in time. Capping concurrent forks keeps each
-    // worker enough headroom to finish setup within the default timeouts.
-    maxForks: 2,
+    // per test file starves them of cores, which manifested as spurious
+    // stripeWebhook test timeouts and the embed.test.ts jsdom worker failing
+    // to start in time. Capping concurrent workers keeps each one enough
+    // headroom to finish setup within the timeouts. (Vitest 4's option is
+    // maxWorkers; the default pool is 'forks'.)
+    maxWorkers: 2,
     testTimeout: 20000,
   },
 });
