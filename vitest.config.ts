@@ -1,6 +1,12 @@
+import { fileURLToPath } from "node:url";
 import { defineConfig } from "vitest/config";
 
 export default defineConfig({
+  // Mirror the app's tsconfig "@/*" -> "src/*" alias so tests can import route
+  // handlers / components that use it (e.g. the testimonial-image route).
+  resolve: {
+    alias: { "@": fileURLToPath(new URL("./src", import.meta.url)) },
+  },
   test: {
     environment: "node",
     server: { deps: { inline: ["convex-test"] } },

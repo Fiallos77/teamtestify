@@ -14,6 +14,7 @@ import {
   TabsTrigger,
 } from "@/components/ui/tabs";
 import { ErrorWithUpgradeCta } from "@/components/dashboard/upgrade-cta";
+import { ImageGenerator } from "@/components/dashboard/image-generator";
 
 type Status = "pending" | "approved" | "rejected";
 
@@ -100,18 +101,21 @@ function TestimonialCard({
           )}
           {approveError && <ErrorWithUpgradeCta message={approveError} />}
           {testimonial.status === "approved" && (
-            <Button
-              size="sm"
-              variant="outline"
-              onClick={() =>
-                setFeatured({
-                  testimonialId: testimonial._id,
-                  featured: !testimonial.featured,
-                })
-              }
-            >
-              {testimonial.featured ? "Unfeature" : "Feature"}
-            </Button>
+            <>
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() =>
+                  setFeatured({
+                    testimonialId: testimonial._id,
+                    featured: !testimonial.featured,
+                  })
+                }
+              >
+                {testimonial.featured ? "Unfeature" : "Feature"}
+              </Button>
+              <ImageGenerator testimonialId={testimonial._id} />
+            </>
           )}
           <Button
             size="sm"
