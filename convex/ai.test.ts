@@ -108,6 +108,49 @@ describe("reserveAiCredit — increment-first, fail closed", () => {
     ).rejects.toThrow();
   });
 
+  test("refund returns a spent credit so a failed generation isn't billed", async () => {
+    const t = newTestConvex();
+    const organizationId = await seedOrg(t);
+    const month = "2026-07";
+
+    // Reserve the single free request credit, then refund it (as the generate
+    // action does when the provider call throws).
+    const reserved = await t.mutation(internal.ai.reserveAiCredit, {
+      organizationId,
+      feature: "request",
+      month,
+    });
+    expect(reserved.remaining).toBe(0);
+    expect((await usageRow(t, organizationId, month))?.requestGenCount).toBe(1);
+
+    await t.mutation(internal.ai.refundAiCredit, { organizationId, feature: "request", month });
+    expect((await usageRow(t, organizationId, month))?.requestGenCount).toBe(0);
+
+    // The credit is genuinely available again.
+    const again = await t.mutation(internal.ai.reserveAiCredit, {
+      organizationId,
+      feature: "request",
+      month,
+    });
+    expect(again.remaining).toBe(0);
+  });
+
+  test("refund floors at zero — it can never mint credit", async () => {
+    const t = newTestConvex();
+    const organizationId = await seedOrg(t);
+    const month = "2026-07";
+
+    // Refund with no prior usage row is a no-op; refunding past zero stays at 0.
+    await t.mutation(internal.ai.refundAiCredit, { organizationId, feature: "request", month });
+    await t.mutation(internal.ai.reserveAiCredit, { organizationId, feature: "image", month });
+    await t.mutation(internal.ai.refundAiCredit, { organizationId, feature: "image", month });
+    await t.mutation(internal.ai.refundAiCredit, { organizationId, feature: "image", month });
+
+    const row = await usageRow(t, organizationId, month);
+    expect(row?.requestGenCount).toBe(0);
+    expect(row?.imageGenCount).toBe(0);
+  });
+
   test("month rollover resets the counter", async () => {
     const t = newTestConvex();
     const organizationId = await seedOrg(t);

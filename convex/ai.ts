@@ -70,6 +70,54 @@ export const reserveAiCredit = internalMutation({
   },
 });
 
+// Compensating counterpart to reserveAiCredit. reserveAiCredit increments
+// BEFORE the provider is called (fail closed at the cap), but if that provider
+// call then fails the reservation would otherwise permanently burn a credit —
+// brutal for a Free org with a single request/month. The generate action
+// refunds on failure so only successful generations are billed, while the
+// reserve-first ordering still prevents concurrent over-cap usage. Floors at 0
+// so a double-refund can never mint credit.
+export const refundAiCredit = internalMutation({
+  args: {
+    organizationId: v.id("organizations"),
+    feature: featureValidator,
+    month: v.string(),
+  },
+  handler: async (ctx, { organizationId, feature, month }) => {
+    const row = await ctx.db
+      .query("aiUsage")
+      .withIndex("by_org_and_month", (q) =>
+        q.eq("organizationId", organizationId).eq("month", month)
+      )
+      .unique();
+    if (!row) return;
+    if (feature === "request") {
+      await ctx.db.patch(row._id, { requestGenCount: Math.max(0, row.requestGenCount - 1) });
+    } else {
+      await ctx.db.patch(row._id, { imageGenCount: Math.max(0, row.imageGenCount - 1) });
+    }
+  },
+});
+
+// Internal dev/testing helper — not reachable from the client. Zeroes the
+// current (or given) month's AI usage for an org so the metered features can
+// be exercised repeatedly without waiting for the monthly reset. Mirrors
+// subscriptions:setPlanForTesting; run it from the Convex dashboard or
+// `npx convex run ai:resetAiUsageForTesting '{"organizationId":"..."}'`.
+export const resetAiUsageForTesting = internalMutation({
+  args: { organizationId: v.id("organizations"), month: v.optional(v.string()) },
+  handler: async (ctx, { organizationId, month }) => {
+    const targetMonth = month ?? currentMonth();
+    const row = await ctx.db
+      .query("aiUsage")
+      .withIndex("by_org_and_month", (q) =>
+        q.eq("organizationId", organizationId).eq("month", targetMonth)
+      )
+      .unique();
+    if (row) await ctx.db.patch(row._id, { requestGenCount: 0, imageGenCount: 0 });
+  },
+});
+
 // Owner/org-scoped read the generate action needs (actions can't touch the db
 // directly). Also enforces that the space belongs to the caller's active org.
 export const getAssistantContext = internalQuery({
@@ -198,28 +246,40 @@ export const generateRequestKit = action({
     );
 
     // Reserve first — over-cap requests never reach the provider.
+    const month = currentMonth();
     const { remaining } = await ctx.runMutation(internal.ai.reserveAiCredit, {
       organizationId,
       feature: "request" as AiFeature,
-      month: currentMonth(),
+      month,
     });
 
-    const link = collectionLink(publicSlug);
-    const raw = await generateText({
-      system: REQUEST_KIT_SYSTEM,
-      prompt: buildRequestPrompt({ businessDescription: description, spaceName, link }),
-      responseMimeType: "application/json",
-      responseSchema: REQUEST_KIT_SCHEMA,
-    });
-    const kit = parseRequestKit(raw);
+    // From here on a failure must refund the reserved credit — otherwise a
+    // provider error or unparseable response would silently burn it.
+    try {
+      const link = collectionLink(publicSlug);
+      const raw = await generateText({
+        system: REQUEST_KIT_SYSTEM,
+        prompt: buildRequestPrompt({ businessDescription: description, spaceName, link }),
+        responseMimeType: "application/json",
+        responseSchema: REQUEST_KIT_SCHEMA,
+      });
+      const kit = parseRequestKit(raw);
 
-    await ctx.runMutation(internal.ai.saveRequestKit, {
-      spaceId,
-      businessDescription: description,
-      kit,
-    });
+      await ctx.runMutation(internal.ai.saveRequestKit, {
+        spaceId,
+        businessDescription: description,
+        kit,
+      });
 
-    return { ...kit, remaining };
+      return { ...kit, remaining };
+    } catch (err) {
+      await ctx.runMutation(internal.ai.refundAiCredit, {
+        organizationId,
+        feature: "request" as AiFeature,
+        month,
+      });
+      throw err;
+    }
   },
 });
 
