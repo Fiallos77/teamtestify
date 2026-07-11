@@ -12,7 +12,12 @@ export function FinalCta() {
           Free to start, no credit card required. Set up your collection page in a few minutes.
         </p>
         <div className="mt-8">
-          <Button size="lg" variant="secondary" render={<Link href="/sign-up" />}>
+          <Button
+            size="lg"
+            variant="secondary"
+            nativeButton={false}
+            render={<Link href="/sign-up" />}
+          >
             Start for free
           </Button>
         </div>

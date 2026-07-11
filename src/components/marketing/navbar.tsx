@@ -26,15 +26,20 @@ export function Navbar() {
 
         <div className="flex items-center gap-2">
           {signedIn ? (
-            <Button size="sm" render={<Link href="/dashboard" />}>
+            <Button size="sm" nativeButton={false} render={<Link href="/dashboard" />}>
               Go to dashboard
             </Button>
           ) : (
             <>
-              <Button size="sm" variant="ghost" render={<Link href="/sign-in" />}>
+              <Button
+                size="sm"
+                variant="ghost"
+                nativeButton={false}
+                render={<Link href="/sign-in" />}
+              >
                 Log in
               </Button>
-              <Button size="sm" render={<Link href="/sign-up" />}>
+              <Button size="sm" nativeButton={false} render={<Link href="/sign-up" />}>
                 Start for free
               </Button>
             </>

@@ -14,10 +14,15 @@ export function Hero() {
           and text testimonials and publish a Wall of Love on their site. No developer required.
         </p>
         <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
-          <Button size="lg" render={<Link href="/sign-up" />}>
+          <Button size="lg" nativeButton={false} render={<Link href="/sign-up" />}>
             Start for free
           </Button>
-          <Button size="lg" variant="outline" render={<a href="#how-it-works" />}>
+          <Button
+            size="lg"
+            variant="outline"
+            nativeButton={false}
+            render={<a href="#how-it-works" />}
+          >
             See how it works
           </Button>
         </div>

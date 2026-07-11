@@ -50,7 +50,7 @@ export function PricingSection() {
               <p className="text-sm text-muted-foreground">
                 Great for getting your first testimonials live.
               </p>
-              <Button variant="outline" render={<Link href="/sign-up" />}>
+              <Button variant="outline" nativeButton={false} render={<Link href="/sign-up" />}>
                 Start for free
               </Button>
             </CardContent>
@@ -80,7 +80,9 @@ export function PricingSection() {
                   </Button>
                 </div>
               ) : (
-                <Button render={<Link href="/sign-up" />}>Get started</Button>
+                <Button nativeButton={false} render={<Link href="/sign-up" />}>
+                  Get started
+                </Button>
               )}
             </CardContent>
           </Card>
