@@ -8,12 +8,14 @@
  * @module
  */
 
+import type * as ai from "../ai.js";
 import type * as auth from "../auth.js";
 import type * as crons from "../crons.js";
 import type * as embed from "../embed.js";
 import type * as embedPublic from "../embedPublic.js";
 import type * as entitlements from "../entitlements.js";
 import type * as http from "../http.js";
+import type * as lib_aiProvider from "../lib/aiProvider.js";
 import type * as lib_authz from "../lib/authz.js";
 import type * as lib_email from "../lib/email.js";
 import type * as lib_storage from "../lib/storage.js";
@@ -38,12 +40,14 @@ import type {
 } from "convex/server";
 
 declare const fullApi: ApiFromModules<{
+  ai: typeof ai;
   auth: typeof auth;
   crons: typeof crons;
   embed: typeof embed;
   embedPublic: typeof embedPublic;
   entitlements: typeof entitlements;
   http: typeof http;
+  "lib/aiProvider": typeof lib_aiProvider;
   "lib/authz": typeof lib_authz;
   "lib/email": typeof lib_email;
   "lib/storage": typeof lib_storage;

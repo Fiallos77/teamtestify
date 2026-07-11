@@ -8,6 +8,11 @@ import {
   applyDowngradeToFree,
   applyReUpgradeToPro,
   getEntitlements,
+  aiFeatureLimit,
+  aiFeatureUsed,
+  aiRemaining,
+  assertUnderAiQuota,
+  type AiQuota,
   FREE_MAX_SPACES,
   FREE_MAX_PUBLISHED_TESTIMONIALS,
   FREE_MAX_PUBLISHED_VIDEO_TESTIMONIALS,
@@ -98,7 +103,10 @@ describe("getEntitlements", () => {
     expect(entitlements.maxPublishedVideoTestimonials).toBe(FREE_MAX_PUBLISHED_VIDEO_TESTIMONIALS);
     expect(entitlements.maxVideoSeconds).toBe(FREE_MAX_VIDEO_SECONDS);
     expect(entitlements.badgeRemovable).toBe(false);
-    expect(entitlements.aiGenerationsPerMonth).toBe(0);
+    expect(entitlements.aiQuota.metering).toBe("per_feature");
+    expect(entitlements.aiQuota.requestGensPerMonth).toBe(1);
+    expect(entitlements.aiQuota.imageGensPerMonth).toBe(3);
+    expect(entitlements.aiQuota.watermark).toBe(true);
     expect(entitlements.maxTeamMembers).toBe(1);
   });
 
@@ -139,7 +147,9 @@ describe("getEntitlements", () => {
     expect(entitlements.maxPublishedVideoTestimonials).toBeNull();
     expect(entitlements.maxVideoSeconds).toBe(PRO_MAX_VIDEO_SECONDS);
     expect(entitlements.badgeRemovable).toBe(true);
-    expect(entitlements.aiGenerationsPerMonth).toBe(100);
+    expect(entitlements.aiQuota.metering).toBe("combined");
+    expect(entitlements.aiQuota.combinedGensPerMonth).toBe(100);
+    expect(entitlements.aiQuota.watermark).toBe(false);
     expect(entitlements.maxTeamMembers).toBe(3);
   });
 });
@@ -388,5 +398,48 @@ describe("applyDowngradeToFree / applyReUpgradeToPro", () => {
     await t.run(async (ctx) => await applyReUpgradeToPro(ctx, organizationId));
     pending = await t.run(async (ctx) => await ctx.db.get(pendingId));
     expect(pending?.status).toBe("pending");
+  });
+});
+
+describe("AI quota math", () => {
+  const freeQuota: AiQuota = {
+    metering: "per_feature",
+    requestGensPerMonth: 1,
+    imageGensPerMonth: 3,
+    combinedGensPerMonth: 0,
+    watermark: true,
+  };
+  const proQuota: AiQuota = {
+    metering: "combined",
+    requestGensPerMonth: 0,
+    imageGensPerMonth: 0,
+    combinedGensPerMonth: 100,
+    watermark: false,
+  };
+
+  test("free meters request and image independently", () => {
+    expect(aiFeatureLimit(freeQuota, "request")).toBe(1);
+    expect(aiFeatureLimit(freeQuota, "image")).toBe(3);
+
+    // One request used exhausts the request bucket but leaves image untouched.
+    const usage = { requestGenCount: 1, imageGenCount: 0 };
+    expect(aiRemaining(freeQuota, usage, "request")).toBe(0);
+    expect(aiRemaining(freeQuota, usage, "image")).toBe(3);
+    expect(() => assertUnderAiQuota(freeQuota, usage, "request")).toThrow();
+    expect(() => assertUnderAiQuota(freeQuota, usage, "image")).not.toThrow();
+  });
+
+  test("pro draws request and image from one combined pool", () => {
+    expect(aiFeatureLimit(proQuota, "request")).toBe(100);
+    expect(aiFeatureLimit(proQuota, "image")).toBe(100);
+
+    const usage = { requestGenCount: 60, imageGenCount: 39 };
+    expect(aiFeatureUsed(proQuota, usage, "request")).toBe(99);
+    expect(aiRemaining(proQuota, usage, "image")).toBe(1);
+    expect(() => assertUnderAiQuota(proQuota, usage, "request")).not.toThrow();
+
+    const full = { requestGenCount: 60, imageGenCount: 40 };
+    expect(aiRemaining(proQuota, full, "request")).toBe(0);
+    expect(() => assertUnderAiQuota(proQuota, full, "image")).toThrow();
   });
 });

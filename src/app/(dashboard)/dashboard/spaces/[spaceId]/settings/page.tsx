@@ -13,6 +13,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Separator } from "@/components/ui/separator";
 import { QuestionsEditor, type SpaceQuestion } from "@/components/dashboard/questions-editor";
 import { CollectionPagePreview } from "@/components/dashboard/collection-page-preview";
+import { RequestAssistant } from "@/components/dashboard/request-assistant";
 
 export default function SpaceSettingsPage({
   params,
@@ -86,6 +87,20 @@ export default function SpaceSettingsPage({
     });
     setSaved(true);
     setTimeout(() => setSaved(false), 2000);
+  }
+
+  // AI-generated guide questions land in the owner-editable guided prompts
+  // below (skipping any that already match), so the owner can tweak/reorder
+  // and Save to publish them on the public collection page.
+  function applyGuideQuestions(generated: string[]) {
+    setQuestions((prev) => {
+      const existing = new Set(prev.map((q) => q.label.trim().toLowerCase()));
+      const additions = generated
+        .map((label) => label.trim())
+        .filter((label) => label && !existing.has(label.toLowerCase()))
+        .map((label) => ({ id: crypto.randomUUID(), label, required: false }));
+      return [...prev, ...additions];
+    });
   }
 
   return (
@@ -198,6 +213,22 @@ export default function SpaceSettingsPage({
             </div>
           </CardContent>
         </Card>
+
+        <RequestAssistant
+          spaceId={id}
+          initialDescription={space.businessDescription ?? ""}
+          cachedKit={
+            space.requestAssistant
+              ? {
+                  outreachEmail: space.requestAssistant.outreachEmail,
+                  outreachWhatsApp: space.requestAssistant.outreachWhatsApp,
+                  followUp: space.requestAssistant.followUp,
+                  guideQuestions: space.requestAssistant.guideQuestions,
+                }
+              : null
+          }
+          onApplyGuideQuestions={applyGuideQuestions}
+        />
 
         <Card>
           <CardHeader>

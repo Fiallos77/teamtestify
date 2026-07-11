@@ -15,7 +15,48 @@ export const FREE_MAX_VIDEO_SECONDS = 120;
 export const PRO_MAX_VIDEO_SECONDS = 180;
 export const FREE_MAX_TEAM_MEMBERS = 1;
 export const PRO_MAX_TEAM_MEMBERS = 3;
-export const PRO_AI_GENERATIONS_PER_MONTH = 100;
+// AI generation quotas. Free meters each feature separately (per_feature);
+// Pro meters request + image against one shared monthly pool (combined). The
+// aiUsage table (convex/schema.ts) tracks per-feature counts per month; the
+// pure helpers below turn a plan's quota + a month's usage into limit / used /
+// remaining, and every AI entry point fails closed at the cap.
+export type AiFeature = "request" | "image";
+
+export interface AiQuota {
+  metering: "per_feature" | "combined";
+  requestGensPerMonth: number; // used when metering === "per_feature"
+  imageGensPerMonth: number; // used when metering === "per_feature"
+  combinedGensPerMonth: number; // used when metering === "combined"
+  watermark: boolean;
+}
+
+export interface AiUsageCounts {
+  requestGenCount: number;
+  imageGenCount: number;
+}
+
+export const FREE_AI_REQUEST_GENS_PER_MONTH = 1;
+export const FREE_AI_IMAGE_GENS_PER_MONTH = 3;
+export const PRO_AI_COMBINED_GENS_PER_MONTH = 100;
+// Reserved for a future third tier (e.g. Agency). Not wired to any plan yet —
+// drop the real number in here and add the plan's AiQuota when that tier ships.
+export const RESERVED_TIER_AI_COMBINED_GENS_PER_MONTH = 500;
+
+const FREE_AI_QUOTA: AiQuota = {
+  metering: "per_feature",
+  requestGensPerMonth: FREE_AI_REQUEST_GENS_PER_MONTH,
+  imageGensPerMonth: FREE_AI_IMAGE_GENS_PER_MONTH,
+  combinedGensPerMonth: 0,
+  watermark: true,
+};
+
+const PRO_AI_QUOTA: AiQuota = {
+  metering: "combined",
+  requestGensPerMonth: 0,
+  imageGensPerMonth: 0,
+  combinedGensPerMonth: PRO_AI_COMBINED_GENS_PER_MONTH,
+  watermark: false,
+};
 
 export interface Entitlements {
   plan: "free" | "pro";
@@ -27,7 +68,7 @@ export interface Entitlements {
   badgeRemovable: boolean;
   customDomain: boolean;
   richSnippets: boolean;
-  aiGenerationsPerMonth: number;
+  aiQuota: AiQuota;
   maxTeamMembers: number;
 }
 
@@ -40,7 +81,7 @@ const FREE_ENTITLEMENTS: Entitlements = {
   badgeRemovable: false,
   customDomain: false,
   richSnippets: false,
-  aiGenerationsPerMonth: 0,
+  aiQuota: FREE_AI_QUOTA,
   maxTeamMembers: FREE_MAX_TEAM_MEMBERS,
 };
 
@@ -53,7 +94,7 @@ const PRO_ENTITLEMENTS: Entitlements = {
   badgeRemovable: true,
   customDomain: true,
   richSnippets: true,
-  aiGenerationsPerMonth: PRO_AI_GENERATIONS_PER_MONTH,
+  aiQuota: PRO_AI_QUOTA,
   maxTeamMembers: PRO_MAX_TEAM_MEMBERS,
 };
 
@@ -154,5 +195,44 @@ export async function applyReUpgradeToPro(ctx: MutationCtx, organizationId: Id<"
     if (testimonial.downgradeHidden) {
       await ctx.db.patch(testimonial._id, { status: "approved", downgradeHidden: false });
     }
+  }
+}
+
+// --- AI quota helpers (pure) -------------------------------------------------
+// Kept side-effect-free so both the reservation mutation and the usage query
+// (convex/ai.ts) share one interpretation of a plan's quota. "combined" plans
+// count request + image against one pool; "per_feature" plans meter each
+// bucket on its own.
+
+export function aiFeatureLimit(quota: AiQuota, feature: AiFeature): number {
+  if (quota.metering === "combined") return quota.combinedGensPerMonth;
+  return feature === "request" ? quota.requestGensPerMonth : quota.imageGensPerMonth;
+}
+
+export function aiFeatureUsed(
+  quota: AiQuota,
+  usage: AiUsageCounts,
+  feature: AiFeature
+): number {
+  if (quota.metering === "combined") return usage.requestGenCount + usage.imageGenCount;
+  return feature === "request" ? usage.requestGenCount : usage.imageGenCount;
+}
+
+export function aiRemaining(quota: AiQuota, usage: AiUsageCounts, feature: AiFeature): number {
+  return Math.max(0, aiFeatureLimit(quota, feature) - aiFeatureUsed(quota, usage, feature));
+}
+
+// Throws if this feature has no credit left this month. Callers reserve a
+// credit before invoking the AI provider, so the cap fails closed.
+export function assertUnderAiQuota(
+  quota: AiQuota,
+  usage: AiUsageCounts,
+  feature: AiFeature
+): void {
+  if (aiRemaining(quota, usage, feature) <= 0) {
+    const label = feature === "request" ? "request" : "image";
+    throw new Error(
+      `You've used all your ${label} generations for this month. Upgrade to Pro for more.`
+    );
   }
 }

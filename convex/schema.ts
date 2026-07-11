@@ -51,6 +51,21 @@ export default defineSchema({
       logoStorageId: v.optional(v.id("_storage")),
       backgroundStyle: v.optional(v.string()),
     }),
+    // Phase 4A AI request assistant. businessDescription is the owner's
+    // one-sentence description of their business; requestAssistant caches the
+    // latest generated kit so the dashboard can show it again without spending
+    // another credit.
+    businessDescription: v.optional(v.string()),
+    requestAssistant: v.optional(
+      v.object({
+        outreachEmail: v.string(),
+        outreachWhatsApp: v.string(),
+        followUp: v.string(),
+        guideQuestions: v.array(v.string()),
+        language: v.optional(v.string()),
+        generatedAt: v.number(),
+      })
+    ),
     isActive: v.boolean(),
     createdAt: v.number(),
   })
@@ -181,4 +196,15 @@ export default defineSchema({
     eventType: v.string(),
     processedAt: v.number(),
   }).index("by_event_id", ["eventId"]),
+
+  // Per-org, per-month AI generation counters (Phase 4). Metered by feature so
+  // Free can cap request/image independently while Pro shares one combined
+  // pool — see convex/entitlements.ts. reserveAiCredit in convex/ai.ts
+  // increments these before any provider call, so the cap fails closed.
+  aiUsage: defineTable({
+    organizationId: v.id("organizations"),
+    month: v.string(), // "YYYY-MM" (UTC)
+    requestGenCount: v.number(),
+    imageGenCount: v.number(),
+  }).index("by_org_and_month", ["organizationId", "month"]),
 });
