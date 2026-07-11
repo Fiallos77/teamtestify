@@ -102,6 +102,15 @@ describe("parseImageProposals", () => {
     expect(out).toEqual([{ layout: "elegant-neutral", headline: "hi" }]);
   });
 
+  test("tolerates a markdown code fence and surrounding prose", () => {
+    const fenced =
+      'Here you go:\n```json\n{"proposals":[{"layout":"giant-quote","headline":"Great"}]}\n```\nHope that helps!';
+    expect(parseImageProposals(fenced)).toEqual([{ layout: "giant-quote", headline: "Great" }]);
+
+    const proseArray = 'Sure! [{"layout":"vibrant-solid","headline":"Bold"}]';
+    expect(parseImageProposals(proseArray)).toEqual([{ layout: "vibrant-solid", headline: "Bold" }]);
+  });
+
   test("throws when nothing usable survives", () => {
     expect(() => parseImageProposals(JSON.stringify({ proposals: [{ layout: "x", headline: "y" }] }))).toThrow();
     expect(() => parseImageProposals("not json")).toThrow();

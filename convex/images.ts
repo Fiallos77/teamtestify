@@ -34,10 +34,27 @@ export interface ImageProposal {
 // a { proposals: [...] } wrapper; drops entries with an unknown layout or empty
 // headline; dedupes by layout; caps at 3. Throws if nothing usable survives so
 // the caller refunds the credit instead of returning an empty result.
+
+// Even with responseMimeType/JSON the model sometimes wraps output in a
+// ```json fence or adds a stray sentence, so pull out the JSON payload before
+// parsing rather than failing on it.
+function extractJson(raw: string): string {
+  let s = raw.trim();
+  const fenced = s.match(/^```(?:json)?\s*([\s\S]*?)\s*```$/i);
+  if (fenced) s = fenced[1].trim();
+  if (s[0] !== "{" && s[0] !== "[") {
+    const starts = [s.indexOf("{"), s.indexOf("[")].filter((i) => i >= 0);
+    const start = starts.length ? Math.min(...starts) : -1;
+    const end = Math.max(s.lastIndexOf("}"), s.lastIndexOf("]"));
+    if (start >= 0 && end > start) s = s.slice(start, end + 1);
+  }
+  return s;
+}
+
 export function parseImageProposals(raw: string): ImageProposal[] {
   let parsed: unknown;
   try {
-    parsed = JSON.parse(raw);
+    parsed = JSON.parse(extractJson(raw));
   } catch {
     throw new Error("The AI response could not be read. Please try again.");
   }
@@ -80,6 +97,26 @@ function buildPrompt(material: string, author: string): string {
     material,
   ].join("\n");
 }
+
+// Structured-output schema so Gemini returns strict JSON (mirrors 4A). The
+// layout enum constrains the model to the real catalog ids.
+const PROPOSAL_SCHEMA = {
+  type: "object",
+  properties: {
+    proposals: {
+      type: "array",
+      items: {
+        type: "object",
+        properties: {
+          layout: { type: "string", enum: [...LAYOUT_IDS] },
+          headline: { type: "string" },
+        },
+        required: ["layout", "headline"],
+      },
+    },
+  },
+  required: ["proposals"],
+};
 
 export interface ImageProposalResult {
   proposals: ImageProposal[];
@@ -128,6 +165,7 @@ export const generateImageProposal = action({
         system: SYSTEM,
         prompt: buildPrompt(material, author || info.authorName),
         responseMimeType: "application/json",
+        responseSchema: PROPOSAL_SCHEMA,
       });
       const proposals = parseImageProposals(raw);
 

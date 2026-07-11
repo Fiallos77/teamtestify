@@ -1,17 +1,17 @@
 import { readFileSync } from "node:fs";
-import { dirname, join } from "node:path";
-import { createRequire } from "node:module";
+import { join } from "node:path";
 
 // satori needs embedded font data (no system-font fallback) and accepts
 // TTF/OTF/WOFF — not WOFF2. We ship Inter 400/700 via @fontsource/inter, whose
-// files/ directory contains .woff. Resolve through the package.json so the
-// lookup works from both vitest (ESM) and the Next route handler regardless of
-// cwd, and doesn't depend on the package's own "exports" exposing the asset.
-const require_ = createRequire(import.meta.url);
-
+// files/ directory contains .woff. Read from the project root at runtime:
+// createRequire(import.meta.url) works in vitest but Next's Turbopack rewrites
+// import.meta.url to a virtual "[project]/..." path in the bundled route
+// handler, so the file wouldn't resolve on disk. process.cwd() is the project
+// root in both the dev server and vitest.
 function loadWoff(file: string): Buffer {
-  const pkgJson = require_.resolve("@fontsource/inter/package.json");
-  return readFileSync(join(dirname(pkgJson), "files", file));
+  return readFileSync(
+    join(process.cwd(), "node_modules", "@fontsource", "inter", "files", file)
+  );
 }
 
 export interface SatoriFont {
