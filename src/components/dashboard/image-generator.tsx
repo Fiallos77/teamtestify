@@ -206,22 +206,12 @@ export function ImageGenerator({ testimonialId }: { testimonialId: Id<"testimoni
                     key={size}
                     size="sm"
                     variant="outline"
-                    className="h-auto py-1.5"
                     disabled={downloading !== null}
                     onClick={() => download(size)}
                     title={IMAGE_SIZES[size].label}
                   >
                     <Download className="size-4" />
-                    {downloading === size ? (
-                      "…"
-                    ) : (
-                      <span className="flex flex-col items-start leading-tight">
-                        <span>{IMAGE_SIZES[size].network}</span>
-                        <span className="text-[10px] font-normal text-muted-foreground">
-                          {IMAGE_SIZES[size].label}
-                        </span>
-                      </span>
-                    )}
+                    {downloading === size ? "…" : IMAGE_SIZES[size].network}
                   </Button>
                 ))}
               </div>

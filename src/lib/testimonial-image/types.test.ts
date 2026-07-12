@@ -13,9 +13,9 @@ describe("IMAGE_SIZES export labels", () => {
   });
 
   test("network names match the three social export targets", () => {
-    expect(IMAGE_SIZES.square.network).toBe("Instagram Feed (Square)");
-    expect(IMAGE_SIZES.portrait.network).toBe("Instagram Feed (Vertical)");
-    expect(IMAGE_SIZES.story.network).toBe("Stories/Reels");
+    expect(IMAGE_SIZES.square.network).toBe("Instagram Feed");
+    expect(IMAGE_SIZES.portrait.network).toBe("Facebook Feed");
+    expect(IMAGE_SIZES.story.network).toBe("Stories & Reels");
   });
 
   test("pixel dimensions are retained (not replaced)", () => {
