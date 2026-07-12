@@ -3,10 +3,12 @@
 // route handler (sharp is native and can't run in a Convex action); the Convex
 // side picks the layout/headline/background + meters quota.
 
+// `network` is the human export label (social platform); `label` keeps the
+// pixel dimensions, shown small / as a tooltip next to it.
 export const IMAGE_SIZES = {
-  square: { width: 1080, height: 1080, label: "1080×1080" },
-  portrait: { width: 1080, height: 1350, label: "1080×1350" },
-  story: { width: 1080, height: 1920, label: "1080×1920" },
+  square: { width: 1080, height: 1080, label: "1080×1080", network: "Instagram Feed (Square)" },
+  portrait: { width: 1080, height: 1350, label: "1080×1350", network: "Instagram Feed (Vertical)" },
+  story: { width: 1080, height: 1920, label: "1080×1920", network: "Stories/Reels" },
 } as const;
 
 export type ImageSizeKey = keyof typeof IMAGE_SIZES;
