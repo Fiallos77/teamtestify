@@ -84,6 +84,7 @@ export const update = mutation({
     formConfig: v.optional(formConfigValidator),
     branding: v.optional(brandingValidator),
     isActive: v.optional(v.boolean()),
+    businessDescription: v.optional(v.string()),
     imageHeaderLabel: v.optional(v.string()),
     imageFooterText: v.optional(v.string()),
   },

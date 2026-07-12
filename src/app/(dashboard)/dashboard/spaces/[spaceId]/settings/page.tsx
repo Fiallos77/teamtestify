@@ -10,7 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
-import { Separator } from "@/components/ui/separator";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { QuestionsEditor, type SpaceQuestion } from "@/components/dashboard/questions-editor";
 import { CollectionPagePreview } from "@/components/dashboard/collection-page-preview";
 import { RequestAssistant } from "@/components/dashboard/request-assistant";
@@ -41,8 +41,7 @@ export default function SpaceSettingsPage({
   const [collectAuthorEmail, setCollectAuthorEmail] = useState(false);
   const [questions, setQuestions] = useState<SpaceQuestion[]>([]);
   const [isActive, setIsActive] = useState(true);
-  const [imageHeaderLabel, setImageHeaderLabel] = useState("");
-  const [imageFooterText, setImageFooterText] = useState("");
+  const [businessDescription, setBusinessDescription] = useState("");
   const [saved, setSaved] = useState(false);
 
   useEffect(() => {
@@ -59,8 +58,7 @@ export default function SpaceSettingsPage({
     setCollectAuthorEmail(space.formConfig.collectAuthorEmail ?? false);
     setQuestions(space.formConfig.questions);
     setIsActive(space.isActive);
-    setImageHeaderLabel(space.imageHeaderLabel ?? "");
-    setImageFooterText(space.imageFooterText ?? "");
+    setBusinessDescription(space.businessDescription ?? "");
   }, [space]);
 
   if (!space) return <p className="text-muted-foreground">Loading…</p>;
@@ -76,8 +74,7 @@ export default function SpaceSettingsPage({
       name,
       description: description || undefined,
       isActive,
-      imageHeaderLabel: imageHeaderLabel || undefined,
-      imageFooterText: imageFooterText || undefined,
+      businessDescription: businessDescription || undefined,
       formConfig: {
         ...space!.formConfig,
         headline,
@@ -112,176 +109,193 @@ export default function SpaceSettingsPage({
   return (
     <div className="grid gap-6 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
       <div className="max-w-2xl space-y-6">
-        <Card>
-          <CardHeader>
-            <CardTitle>Collection page</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="space-y-2">
-              <Label>Public link</Label>
-              <div className="flex items-center gap-2">
-                <Input readOnly value={publicUrl} />
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => navigator.clipboard.writeText(publicUrl)}
-                >
-                  Copy
-                </Button>
-              </div>
-            </div>
+        <Tabs defaultValue="basico">
+          <TabsList>
+            <TabsTrigger value="basico">Básico</TabsTrigger>
+            <TabsTrigger value="ia">Asistente IA</TabsTrigger>
+          </TabsList>
 
-            <div className="flex items-center justify-between">
-              <div>
-                <Label>Accepting submissions</Label>
+          <TabsContent value="basico" className="space-y-6 pt-4">
+            {/* Section 1 — Identificación */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Identificación</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="space-name">Nombre del espacio</Label>
+                  <Input id="space-name" value={name} onChange={(e) => setName(e.target.value)} />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="space-description">Descripción interna (opcional)</Label>
+                  <Textarea
+                    id="space-description"
+                    value={description}
+                    onChange={(e) => setDescription(e.target.value)}
+                    placeholder="Para qué es este espacio — solo visible para tu equipo."
+                    rows={2}
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label>Enlace público</Label>
+                  <div className="flex items-center gap-2">
+                    <Input readOnly value={publicUrl} />
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() => navigator.clipboard.writeText(publicUrl)}
+                    >
+                      Copiar
+                    </Button>
+                  </div>
+                </div>
+
+                <div className="flex items-center justify-between">
+                  <div>
+                    <Label>Aceptando respuestas</Label>
+                    <p className="text-sm text-muted-foreground">
+                      Controla tu enlace público de arriba. Mientras esté activo, cualquiera con el
+                      enlace puede enviar un testimonio. Desactívalo para pausar la recolección — los
+                      visitantes verán un mensaje de &quot;no disponible&quot; en lugar del
+                      formulario, sin borrar nada.
+                    </p>
+                  </div>
+                  <Switch checked={isActive} onCheckedChange={setIsActive} />
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Section 2 — Textos del formulario */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Textos del formulario</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="headline">Título</Label>
+                  <Input
+                    id="headline"
+                    value={headline}
+                    onChange={(e) => setHeadline(e.target.value)}
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="subheading">Descripción</Label>
+                  <Textarea
+                    id="subheading"
+                    value={subheading}
+                    onChange={(e) => setSubheading(e.target.value)}
+                    placeholder="Una línea breve explicando qué estás pidiendo."
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="thank-you">Mensaje de gracias</Label>
+                  <Textarea
+                    id="thank-you"
+                    value={thankYouMessage}
+                    onChange={(e) => setThankYouMessage(e.target.value)}
+                  />
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Section 3 — Recopilar datos */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Recopilar datos</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <Label>Permitir testimonios de texto</Label>
+                  <Switch checked={allowText} onCheckedChange={setAllowText} />
+                </div>
+                <div className="flex items-center justify-between">
+                  <Label>Permitir testimonios de video</Label>
+                  <Switch checked={allowVideo} onCheckedChange={setAllowVideo} />
+                </div>
+                <div className="flex items-center justify-between">
+                  <Label>Recopilar calificación</Label>
+                  <Switch checked={collectRating} onCheckedChange={setCollectRating} />
+                </div>
+                <div className="flex items-center justify-between">
+                  <Label>Recopilar nombre, empresa y cargo</Label>
+                  <Switch
+                    checked={collectNameCompanyPhoto}
+                    onCheckedChange={setCollectNameCompanyPhoto}
+                  />
+                </div>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <Label>Recopilar email del autor</Label>
+                    <p className="text-sm text-muted-foreground">
+                      Opcional — desactivado por defecto para mantener el formulario ágil.
+                    </p>
+                  </div>
+                  <Switch checked={collectAuthorEmail} onCheckedChange={setCollectAuthorEmail} />
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="ia" className="space-y-6 pt-4">
+            <Card>
+              <CardHeader>
+                <CardTitle>Descripción de negocio</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-2">
+                <Label htmlFor="business-description">Tu negocio, en una frase</Label>
+                <Textarea
+                  id="business-description"
+                  value={businessDescription}
+                  onChange={(e) => setBusinessDescription(e.target.value)}
+                  placeholder="p. ej. Soy diseñador de interiores freelance para cafés y restaurantes pequeños."
+                  rows={2}
+                />
                 <p className="text-sm text-muted-foreground">
-                  Controls your public link above. While on, anyone with the link can submit a
-                  testimonial. Turn it off to pause collection — visitors will see a "not
-                  available" message instead of the form, without deleting anything.
+                  El asistente de IA usa esto para redactar tus mensajes de solicitud.
                 </p>
-              </div>
-              <Switch checked={isActive} onCheckedChange={setIsActive} />
-            </div>
+              </CardContent>
+            </Card>
 
-            <div className="space-y-2">
-              <Label htmlFor="space-name">Space name</Label>
-              <Input id="space-name" value={name} onChange={(e) => setName(e.target.value)} />
-            </div>
+            <RequestAssistant
+              spaceId={id}
+              initialDescription={businessDescription}
+              cachedKit={
+                space.requestAssistant
+                  ? {
+                      outreachEmail: space.requestAssistant.outreachEmail,
+                      outreachWhatsApp: space.requestAssistant.outreachWhatsApp,
+                      followUp: space.requestAssistant.followUp,
+                      guideQuestions: space.requestAssistant.guideQuestions,
+                    }
+                  : null
+              }
+              onApplyGuideQuestions={applyGuideQuestions}
+            />
 
-            <div className="space-y-2">
-              <Label htmlFor="space-description">Description (optional)</Label>
-              <Textarea
-                id="space-description"
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-                placeholder="What this space is for — only visible to your team."
-                rows={2}
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="headline">Form title</Label>
-              <Input
-                id="headline"
-                value={headline}
-                onChange={(e) => setHeadline(e.target.value)}
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="subheading">Form description</Label>
-              <Textarea
-                id="subheading"
-                value={subheading}
-                onChange={(e) => setSubheading(e.target.value)}
-                placeholder="A short line explaining what you're asking for."
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="thank-you">Thank-you message</Label>
-              <Textarea
-                id="thank-you"
-                value={thankYouMessage}
-                onChange={(e) => setThankYouMessage(e.target.value)}
-              />
-            </div>
-
-            <Separator />
-
-            <div className="flex items-center justify-between">
-              <Label>Allow text testimonials</Label>
-              <Switch checked={allowText} onCheckedChange={setAllowText} />
-            </div>
-            <div className="flex items-center justify-between">
-              <Label>Allow video testimonials</Label>
-              <Switch checked={allowVideo} onCheckedChange={setAllowVideo} />
-            </div>
-            <div className="flex items-center justify-between">
-              <Label>Collect star rating</Label>
-              <Switch checked={collectRating} onCheckedChange={setCollectRating} />
-            </div>
-            <div className="flex items-center justify-between">
-              <Label>Collect name, company &amp; title</Label>
-              <Switch
-                checked={collectNameCompanyPhoto}
-                onCheckedChange={setCollectNameCompanyPhoto}
-              />
-            </div>
-            <div className="flex items-center justify-between">
-              <div>
-                <Label>Collect author email</Label>
-                <p className="text-sm text-muted-foreground">
-                  Optional — off by default to keep the form quick.
-                </p>
-              </div>
-              <Switch checked={collectAuthorEmail} onCheckedChange={setCollectAuthorEmail} />
-            </div>
-          </CardContent>
-        </Card>
-
-        <RequestAssistant
-          spaceId={id}
-          initialDescription={space.businessDescription ?? ""}
-          cachedKit={
-            space.requestAssistant
-              ? {
-                  outreachEmail: space.requestAssistant.outreachEmail,
-                  outreachWhatsApp: space.requestAssistant.outreachWhatsApp,
-                  followUp: space.requestAssistant.followUp,
-                  guideQuestions: space.requestAssistant.guideQuestions,
-                }
-              : null
-          }
-          onApplyGuideQuestions={applyGuideQuestions}
-        />
-
-        <Card>
-          <CardHeader>
-            <CardTitle>Guided prompts</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <QuestionsEditor questions={questions} onChange={setQuestions} />
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>Social images</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <p className="text-sm text-muted-foreground">
-              Used by the AI social image generator on approved testimonials.
-            </p>
-            <div className="space-y-2">
-              <Label htmlFor="image-header">Header label (optional)</Label>
-              <Input
-                id="image-header"
-                value={imageHeaderLabel}
-                onChange={(e) => setImageHeaderLabel(e.target.value)}
-                placeholder="e.g. Client Testimonial — leave blank to let AI match the language"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="image-footer">Footer (website / handle, optional)</Label>
-              <Input
-                id="image-footer"
-                value={imageFooterText}
-                onChange={(e) => setImageFooterText(e.target.value)}
-                placeholder="e.g. yoursite.com or @yourhandle"
-              />
-            </div>
-          </CardContent>
-        </Card>
+            <Card>
+              <CardHeader>
+                <CardTitle>Preguntas guía</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <QuestionsEditor questions={questions} onChange={setQuestions} />
+              </CardContent>
+            </Card>
+          </TabsContent>
+        </Tabs>
 
         <div className="flex items-center gap-3">
-          <Button onClick={handleSave}>Save changes</Button>
-          {saved && <span className="text-sm text-muted-foreground">Saved</span>}
+          <Button onClick={handleSave}>Guardar cambios</Button>
+          {saved && <span className="text-sm text-muted-foreground">Guardado</span>}
         </div>
       </div>
 
       <div className="lg:sticky lg:top-6 lg:self-start">
-        <p className="mb-3 text-sm font-medium text-muted-foreground">Live preview</p>
+        <p className="mb-3 text-sm font-medium text-muted-foreground">Vista previa en vivo</p>
         <CollectionPagePreview
           headline={headline}
           subheading={subheading}
