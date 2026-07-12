@@ -5,7 +5,7 @@ import { FONT_SANS, FONT_SERIF, FONT_SCRIPT } from "./fonts";
 // Minimal satori node shape (object form of React elements). satori requires
 // display:flex on any element with more than one child; leaf text nodes take a
 // string child. We keep to that here.
-type Style = Record<string, string | number>;
+type Style = Record<string, string | number | undefined>;
 export type Node = { type: string; props: { style?: Style; children?: Child; src?: string } };
 type Child = string | Node | (string | Node)[];
 
@@ -185,7 +185,7 @@ function avatarCircle(ctx: Ctx, size: number, ring: string, fallbackBg: string):
 }
 
 function authorLines(ctx: Ctx, nameColor: string, metaColor: string, align: "flex-start" | "center" = "flex-start"): Node {
-  const meta = [ctx.c.authorTitle, ctx.c.authorCompany].filter(Boolean).map(sanitize).join(" · ");
+  const meta = [ctx.c.authorTitle, ctx.c.authorCompany].filter((s): s is string => !!s).map(sanitize).join(" · ");
   const kids: Node[] = [
     el("div", { display: "flex", fontFamily: FONT_SANS, fontSize: 32, fontWeight: 700, color: nameColor }, sanitize(ctx.c.authorName)),
   ];

@@ -6,6 +6,9 @@ export default defineSchema({
     name: v.string(),
     slug: v.optional(v.string()),
     notificationEmail: v.optional(v.string()),
+    // The layout ids picked by the last social-image generation, so the next
+    // generation can avoid repeating the exact same 3 (see convex/images.ts).
+    lastImageLayouts: v.optional(v.array(v.string())),
     createdAt: v.number(),
   }),
 
@@ -51,6 +54,11 @@ export default defineSchema({
       logoStorageId: v.optional(v.id("_storage")),
       backgroundStyle: v.optional(v.string()),
     }),
+    // Phase 4B social image generator, owner-editable. imageHeaderLabel
+    // overrides the AI's language-appropriate "Client Testimonial" default;
+    // imageFooterText is the website/handle shown subtly in the footer zone.
+    imageHeaderLabel: v.optional(v.string()),
+    imageFooterText: v.optional(v.string()),
     // Phase 4A AI request assistant. businessDescription is the owner's
     // one-sentence description of their business; requestAssistant caches the
     // latest generated kit so the dashboard can show it again without spending

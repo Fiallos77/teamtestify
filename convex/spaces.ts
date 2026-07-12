@@ -84,6 +84,8 @@ export const update = mutation({
     formConfig: v.optional(formConfigValidator),
     branding: v.optional(brandingValidator),
     isActive: v.optional(v.boolean()),
+    imageHeaderLabel: v.optional(v.string()),
+    imageFooterText: v.optional(v.string()),
   },
   handler: async (ctx, { spaceId, ...patch }) => {
     const { org } = await requireOrgContext(ctx);

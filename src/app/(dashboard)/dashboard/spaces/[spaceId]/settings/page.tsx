@@ -41,6 +41,8 @@ export default function SpaceSettingsPage({
   const [collectAuthorEmail, setCollectAuthorEmail] = useState(false);
   const [questions, setQuestions] = useState<SpaceQuestion[]>([]);
   const [isActive, setIsActive] = useState(true);
+  const [imageHeaderLabel, setImageHeaderLabel] = useState("");
+  const [imageFooterText, setImageFooterText] = useState("");
   const [saved, setSaved] = useState(false);
 
   useEffect(() => {
@@ -57,6 +59,8 @@ export default function SpaceSettingsPage({
     setCollectAuthorEmail(space.formConfig.collectAuthorEmail ?? false);
     setQuestions(space.formConfig.questions);
     setIsActive(space.isActive);
+    setImageHeaderLabel(space.imageHeaderLabel ?? "");
+    setImageFooterText(space.imageFooterText ?? "");
   }, [space]);
 
   if (!space) return <p className="text-muted-foreground">Loading…</p>;
@@ -72,6 +76,8 @@ export default function SpaceSettingsPage({
       name,
       description: description || undefined,
       isActive,
+      imageHeaderLabel: imageHeaderLabel || undefined,
+      imageFooterText: imageFooterText || undefined,
       formConfig: {
         ...space!.formConfig,
         headline,
@@ -236,6 +242,35 @@ export default function SpaceSettingsPage({
           </CardHeader>
           <CardContent>
             <QuestionsEditor questions={questions} onChange={setQuestions} />
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Social images</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <p className="text-sm text-muted-foreground">
+              Used by the AI social image generator on approved testimonials.
+            </p>
+            <div className="space-y-2">
+              <Label htmlFor="image-header">Header label (optional)</Label>
+              <Input
+                id="image-header"
+                value={imageHeaderLabel}
+                onChange={(e) => setImageHeaderLabel(e.target.value)}
+                placeholder="e.g. Client Testimonial — leave blank to let AI match the language"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="image-footer">Footer (website / handle, optional)</Label>
+              <Input
+                id="image-footer"
+                value={imageFooterText}
+                onChange={(e) => setImageFooterText(e.target.value)}
+                placeholder="e.g. yoursite.com or @yourhandle"
+              />
+            </div>
           </CardContent>
         </Card>
 

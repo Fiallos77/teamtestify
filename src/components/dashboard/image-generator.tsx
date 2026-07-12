@@ -21,21 +21,42 @@ import {
   type LayoutId,
 } from "@/lib/testimonial-image/types";
 
-type Proposal = { layout: string; headline: string };
-
-async function renderPng(payload: {
-  token: string;
+type Proposal = {
   layout: string;
   headline: string;
-  size: ImageSizeKey;
-}): Promise<Blob> {
-  const res = await fetch("/api/testimonial-image", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(payload),
+  headerLabel: string;
+  backgroundType: string;
+  bgPhotoUrl?: string;
+};
+
+// One client-side retry to match the "first attempt errors, second works"
+// transient behaviour; surfaces the server's message on a hard failure.
+async function renderPng(token: string, footer: string | undefined, p: Proposal, size: ImageSizeKey): Promise<Blob> {
+  const body = JSON.stringify({
+    token,
+    footer: footer ?? "",
+    layout: p.layout,
+    headline: p.headline,
+    headerLabel: p.headerLabel,
+    backgroundType: p.backgroundType,
+    bgPhotoUrl: p.bgPhotoUrl ?? "",
+    size,
   });
-  if (!res.ok) throw new Error(await res.text());
-  return await res.blob();
+  let lastErr = "";
+  for (let attempt = 0; attempt < 2; attempt++) {
+    try {
+      const res = await fetch("/api/testimonial-image", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body,
+      });
+      if (res.ok) return await res.blob();
+      lastErr = (await res.text()) || `Render failed (${res.status})`;
+    } catch (e) {
+      lastErr = e instanceof Error ? e.message : "Network error";
+    }
+  }
+  throw new Error(lastErr);
 }
 
 export function ImageGenerator({ testimonialId }: { testimonialId: Id<"testimonials"> }) {
@@ -47,6 +68,7 @@ export function ImageGenerator({ testimonialId }: { testimonialId: Id<"testimoni
   const [error, setError] = useState<string | null>(null);
   const [proposals, setProposals] = useState<Proposal[]>([]);
   const [token, setToken] = useState<string | null>(null);
+  const [footer, setFooter] = useState<string | undefined>(undefined);
   const [watermark, setWatermark] = useState(false);
   const [selected, setSelected] = useState<number | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
@@ -64,6 +86,7 @@ export function ImageGenerator({ testimonialId }: { testimonialId: Id<"testimoni
       const res = await generate({ testimonialId });
       setProposals(res.proposals);
       setToken(res.token);
+      setFooter(res.footer);
       setWatermark(res.watermark);
     } catch (e) {
       setError(e instanceof Error ? e.message : "Couldn't generate image proposals.");
@@ -78,10 +101,10 @@ export function ImageGenerator({ testimonialId }: { testimonialId: Id<"testimoni
     setPreviewUrl(null);
     setError(null);
     try {
-      const blob = await renderPng({ token, ...proposals[index], size: "square" });
+      const blob = await renderPng(token, footer, proposals[index], "square");
       setPreviewUrl(URL.createObjectURL(blob));
-    } catch {
-      setError("Couldn't render the preview.");
+    } catch (e) {
+      setError(e instanceof Error ? `Couldn't render the preview: ${e.message}` : "Couldn't render the preview.");
     }
   }
 
@@ -90,15 +113,15 @@ export function ImageGenerator({ testimonialId }: { testimonialId: Id<"testimoni
     setDownloading(size);
     setError(null);
     try {
-      const blob = await renderPng({ token, ...proposals[selected], size });
+      const blob = await renderPng(token, footer, proposals[selected], size);
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
       a.download = `testimonial-${size}.png`;
       a.click();
       URL.revokeObjectURL(url);
-    } catch {
-      setError("Couldn't render that size. Try again.");
+    } catch (e) {
+      setError(e instanceof Error ? `Couldn't render ${IMAGE_SIZES[size].label}: ${e.message}` : "Couldn't render that size.");
     } finally {
       setDownloading(null);
     }
@@ -155,6 +178,9 @@ export function ImageGenerator({ testimonialId }: { testimonialId: Id<"testimoni
                       {LAYOUT_LABELS[p.layout as LayoutId] ?? p.layout}
                     </span>
                     <span className="mt-1 block text-muted-foreground">{p.headline}</span>
+                    <span className="mt-1 block text-xs text-muted-foreground/70">
+                      {p.backgroundType} background
+                    </span>
                   </button>
                 ))}
               </div>
@@ -165,11 +191,7 @@ export function ImageGenerator({ testimonialId }: { testimonialId: Id<"testimoni
             <div className="space-y-3">
               {previewUrl ? (
                 // eslint-disable-next-line @next/next/no-img-element
-                <img
-                  src={previewUrl}
-                  alt="Preview"
-                  className="mx-auto w-64 rounded-md border"
-                />
+                <img src={previewUrl} alt="Preview" className="mx-auto w-64 rounded-md border" />
               ) : (
                 <p className="text-sm text-muted-foreground">Rendering preview…</p>
               )}

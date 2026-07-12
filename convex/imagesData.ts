@@ -1,5 +1,5 @@
 import { v } from "convex/values";
-import { internalQuery } from "./_generated/server";
+import { internalMutation, internalQuery } from "./_generated/server";
 import { requireOrgContext, requireTestimonialInOrg } from "./lib/authz";
 import { getActiveStorageAdapter } from "./lib/storage";
 import { getEntitlements } from "./entitlements";
@@ -37,6 +37,19 @@ export const getImageProposalContext = internalQuery({
       rating: testimonial.rating,
       primaryColor: space?.branding.primaryColor ?? "#4f46e5",
       watermark: entitlements.aiQuota.watermark,
+      // owner overrides (undefined -> the action uses the AI's default / no footer)
+      headerLabelOverride: space?.imageHeaderLabel,
+      footer: space?.imageFooterText,
+      previousLayouts: org.lastImageLayouts ?? [],
     };
+  },
+});
+
+// Records which 3 layouts a generation used, so the next one can avoid the
+// exact same set. Called by the (use node) action after a successful proposal.
+export const recordImageGeneration = internalMutation({
+  args: { organizationId: v.id("organizations"), layouts: v.array(v.string()) },
+  handler: async (ctx, { organizationId, layouts }) => {
+    await ctx.db.patch(organizationId, { lastImageLayouts: layouts });
   },
 });
