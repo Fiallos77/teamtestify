@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { Heart } from "lucide-react";
+import { Heart, Pause, Play } from "lucide-react";
 import { TestimonialCard } from "./testimonial-card";
 import type { EmbedStyle, EmbedTestimonial } from "./types";
 import { usePrefersReducedMotion } from "@/lib/use-prefers-reduced-motion";
@@ -98,7 +98,8 @@ export function TestimonialMasonryAnimated({
   style: EmbedStyle;
   onCardClick?: (testimonialId: string) => void;
 }) {
-  const [paused, setPaused] = useState(false);
+  const [hoverPaused, setHoverPaused] = useState(false);
+  const [userPaused, setUserPaused] = useState(false);
   const reduceMotion = usePrefersReducedMotion();
   const animate = !reduceMotion;
   if (testimonials.length === 0) return null;
@@ -106,7 +107,7 @@ export function TestimonialMasonryAnimated({
   const direction = style.scrollDirection ?? "vertical";
   const duration = SPEED_SECONDS[style.scrollSpeed ?? "normal"];
   const fadeColor = style.backgroundColor || "var(--background)";
-  const playState = paused ? "paused" : "running";
+  const playState = hoverPaused || userPaused ? "paused" : "running";
   const maxHeight = style.maxHeight ?? DEFAULT_MAX_HEIGHT;
 
   const card = (t: EmbedTestimonial, key: string) => (
@@ -127,8 +128,8 @@ export function TestimonialMasonryAnimated({
       <div
         className={`relative ${animate ? "overflow-hidden" : "overflow-x-auto"}`}
         style={{ maxHeight }}
-        onMouseEnter={() => setPaused(true)}
-        onMouseLeave={() => setPaused(false)}
+        onMouseEnter={() => setHoverPaused(true)}
+        onMouseLeave={() => setHoverPaused(false)}
       >
         <div className="flex flex-col gap-4">
           {lanes.map((lane, i) => (
@@ -160,6 +161,16 @@ export function TestimonialMasonryAnimated({
             </div>
           ))}
         </div>
+        {animate && (
+          <button
+            type="button"
+            onClick={() => setUserPaused((p) => !p)}
+            aria-label={userPaused ? "Play testimonials" : "Pause testimonials"}
+            className="absolute right-2 top-2 z-20 grid size-7 place-items-center rounded-full bg-background/80 text-foreground shadow-sm ring-1 ring-foreground/10 backdrop-blur-sm transition-colors hover:bg-background focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+          >
+            {userPaused ? <Play className="size-4" /> : <Pause className="size-4" />}
+          </button>
+        )}
         <HeartOverlay active={!!style.showHeartAnimation && animate} />
         <div
           className="pointer-events-none absolute inset-y-0 left-0 w-12"
@@ -189,8 +200,8 @@ export function TestimonialMasonryAnimated({
     <div
       className={`relative ${animate ? "overflow-hidden" : "overflow-y-auto"}`}
       style={{ maxHeight }}
-      onMouseEnter={() => setPaused(true)}
-      onMouseLeave={() => setPaused(false)}
+      onMouseEnter={() => setHoverPaused(true)}
+      onMouseLeave={() => setHoverPaused(false)}
     >
       <div className={`grid gap-4 ${colsClass}`}>
         {buckets.map((bucket, i) => (
@@ -218,6 +229,16 @@ export function TestimonialMasonryAnimated({
           </div>
         ))}
       </div>
+      {animate && (
+        <button
+          type="button"
+          onClick={() => setUserPaused((p) => !p)}
+          aria-label={userPaused ? "Play testimonials" : "Pause testimonials"}
+          className="absolute right-2 top-2 z-20 grid size-7 place-items-center rounded-full bg-background/80 text-foreground shadow-sm ring-1 ring-foreground/10 backdrop-blur-sm transition-colors hover:bg-background focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+        >
+          {userPaused ? <Play className="size-4" /> : <Pause className="size-4" />}
+        </button>
+      )}
       <HeartOverlay active={!!style.showHeartAnimation && animate} />
       <div
         className="pointer-events-none absolute inset-x-0 top-0 h-12"
