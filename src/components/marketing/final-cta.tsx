@@ -14,7 +14,7 @@ export function FinalCta() {
         <div className="mt-8">
           <Button
             size="lg"
-            variant="secondary"
+            variant="cta"
             nativeButton={false}
             render={<Link href="/sign-up" />}
           >

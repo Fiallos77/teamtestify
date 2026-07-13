@@ -4,17 +4,20 @@ import { WallOfLovePreview } from "./wall-of-love-preview";
 
 export function Hero() {
   return (
-    <section className="mx-auto max-w-6xl px-4 pt-16 pb-20 sm:px-6 sm:pt-24">
-      <div className="mx-auto max-w-3xl text-center">
-        <h1 className="text-4xl font-semibold tracking-tight sm:text-5xl">
-          Collect customer testimonials — in minutes, not sprints
-        </h1>
-        <p className="mt-4 text-lg text-muted-foreground">
-          TeamTestify is the easy way for freelancers, creators, and small teams to collect video
-          and text testimonials and publish a Wall of Love on their site. No developer required.
+    <section className="mx-auto max-w-6xl px-4 pt-20 pb-24 sm:px-6 sm:pt-32">
+      <div className="mx-auto max-w-4xl text-center">
+        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-muted-foreground">
+          Collect · Moderate · Embed
         </p>
-        <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
-          <Button size="lg" nativeButton={false} render={<Link href="/sign-up" />}>
+        <h1 className="mt-6 text-balance text-5xl font-extrabold leading-[1.02] tracking-[-0.035em] sm:text-7xl lg:text-8xl">
+          Testimonials in <span className="text-cta">minutes</span>, not sprints
+        </h1>
+        <p className="mx-auto mt-6 max-w-xl text-balance text-lg text-muted-foreground sm:text-xl">
+          The easy way for freelancers, creators, and small teams to collect video and text
+          testimonials — and publish a Wall of Love on their site. No developer required.
+        </p>
+        <div className="mt-10 flex flex-col items-center justify-center gap-3 sm:flex-row">
+          <Button size="lg" variant="cta" nativeButton={false} render={<Link href="/sign-up" />}>
             Start for free
           </Button>
           <Button
@@ -26,12 +29,12 @@ export function Hero() {
             See how it works
           </Button>
         </div>
-        <p className="mt-3 text-sm text-muted-foreground">
+        <p className="mt-4 text-sm text-muted-foreground">
           No credit card required · Unlimited collection on every plan
         </p>
       </div>
 
-      <div className="mx-auto mt-14 max-w-4xl">
+      <div className="mx-auto mt-16 max-w-4xl sm:mt-20">
         <WallOfLovePreview />
       </div>
     </section>

@@ -39,7 +39,7 @@ export function Navbar() {
               >
                 Log in
               </Button>
-              <Button size="sm" nativeButton={false} render={<Link href="/sign-up" />}>
+              <Button size="sm" variant="cta" nativeButton={false} render={<Link href="/sign-up" />}>
                 Start for free
               </Button>
             </>

@@ -99,7 +99,7 @@ function TestimonialCard({
               <Badge variant={testimonial.type === "video" ? "default" : "secondary"}>
                 {testimonial.type}
               </Badge>
-              {testimonial.featured && <Badge variant="outline">Featured</Badge>}
+              {testimonial.featured && <Badge variant="cta">Featured</Badge>}
             </div>
           </CardHeader>
           <CardContent>
@@ -110,7 +110,7 @@ function TestimonialCard({
             <div className="mt-4 flex flex-wrap gap-2">
               {testimonial.status === "pending" && (
                 <>
-                  <Button size="sm" onClick={handleApprove}>
+                  <Button size="sm" variant="success" onClick={handleApprove}>
                     Approve
                   </Button>
                   <Button

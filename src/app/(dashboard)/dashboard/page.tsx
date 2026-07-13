@@ -13,21 +13,31 @@ import { Layers, Clock, CheckCircle2, Video } from "lucide-react";
 // tiers are built.
 const PLACEHOLDER_LIMITS = { spaces: 5, videoTestimonials: 20 };
 
+const STAT_TONES = {
+  primary: "bg-primary/10 text-primary",
+  warning: "bg-warning/10 text-warning",
+  success: "bg-success/10 text-success",
+} as const;
+
 function StatCard({
   icon: Icon,
   label,
   value,
   limit,
+  tone = "primary",
 }: {
   icon: React.ComponentType<{ className?: string }>;
   label: string;
   value: number | undefined;
   limit?: number;
+  tone?: keyof typeof STAT_TONES;
 }) {
   return (
     <Card>
       <CardContent className="flex items-center gap-3 py-4">
-        <div className="flex size-9 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
+        <div
+          className={`flex size-9 shrink-0 items-center justify-center rounded-full ${STAT_TONES[tone]}`}
+        >
           <Icon className="size-4" />
         </div>
         <div>
@@ -57,8 +67,8 @@ export default function DashboardPage() {
           value={spaces?.length}
           limit={PLACEHOLDER_LIMITS.spaces}
         />
-        <StatCard icon={Clock} label="Pending review" value={stats?.pending} />
-        <StatCard icon={CheckCircle2} label="Approved" value={stats?.approved} />
+        <StatCard icon={Clock} label="Pending review" value={stats?.pending} tone="warning" />
+        <StatCard icon={CheckCircle2} label="Approved" value={stats?.approved} tone="success" />
         <StatCard
           icon={Video}
           label="Video testimonials"
