@@ -22,6 +22,7 @@ import {
 } from "@/components/ui/select";
 import { ErrorWithUpgradeCta } from "@/components/dashboard/upgrade-cta";
 import { ImageGenerator } from "@/components/dashboard/image-generator";
+import { usePrefersReducedMotion } from "@/lib/use-prefers-reduced-motion";
 
 type Status = "pending" | "approved" | "rejected";
 
@@ -51,6 +52,18 @@ function TestimonialCard({
   const setFeatured = useMutation(api.testimonials.setFeatured);
   const remove = useMutation(api.testimonials.remove);
   const [approveError, setApproveError] = useState<string | null>(null);
+  const [leaving, setLeaving] = useState(false);
+  const reduceMotion = usePrefersReducedMotion();
+
+  // Play the exit, then run the mutation. Reduced motion → remove at once.
+  function animateOut(action: () => void) {
+    if (reduceMotion) {
+      action();
+      return;
+    }
+    setLeaving(true);
+    setTimeout(action, 200);
+  }
 
   async function handleApprove() {
     setApproveError(null);
@@ -62,79 +75,90 @@ function TestimonialCard({
   }
 
   return (
-    <Card>
-      <CardHeader className="flex flex-row items-start justify-between space-y-0">
-        <div>
-          <p className="font-medium">{testimonial.authorName}</p>
-          {(testimonial.authorTitle || testimonial.authorCompany) && (
-            <p className="text-sm text-muted-foreground">
-              {[testimonial.authorTitle, testimonial.authorCompany]
-                .filter(Boolean)
-                .join(" · ")}
-            </p>
-          )}
-          {testimonial.rating && (
-            <p className="text-sm">{"★".repeat(testimonial.rating)}</p>
-          )}
-        </div>
-        <div className="flex gap-2">
-          <Badge variant={testimonial.type === "video" ? "default" : "secondary"}>
-            {testimonial.type}
-          </Badge>
-          {testimonial.featured && <Badge variant="outline">Featured</Badge>}
-        </div>
-      </CardHeader>
-      <CardContent>
-        {testimonial.textContent && <p>{testimonial.textContent}</p>}
-        {testimonial.type === "video" && (
-          <VideoPlayer testimonialId={testimonial._id} />
-        )}
-        <div className="mt-4 flex flex-wrap gap-2">
-          {testimonial.status === "pending" && (
-            <>
-              <Button size="sm" onClick={handleApprove}>
-                Approve
-              </Button>
+    <div
+      data-leaving={leaving}
+      className="grid grid-rows-[1fr] transition-all duration-200 ease-out-strong data-[leaving=true]:grid-rows-[0fr] data-[leaving=true]:opacity-0 data-[leaving=true]:translate-x-2 motion-reduce:transition-none"
+    >
+      <div className="overflow-hidden">
+        <Card>
+          <CardHeader className="flex flex-row items-start justify-between space-y-0">
+            <div>
+              <p className="font-medium">{testimonial.authorName}</p>
+              {(testimonial.authorTitle || testimonial.authorCompany) && (
+                <p className="text-sm text-muted-foreground">
+                  {[testimonial.authorTitle, testimonial.authorCompany]
+                    .filter(Boolean)
+                    .join(" · ")}
+                </p>
+              )}
+              {testimonial.rating && (
+                <p className="text-sm">{"★".repeat(testimonial.rating)}</p>
+              )}
+            </div>
+            <div className="flex gap-2">
+              <Badge variant={testimonial.type === "video" ? "default" : "secondary"}>
+                {testimonial.type}
+              </Badge>
+              {testimonial.featured && <Badge variant="outline">Featured</Badge>}
+            </div>
+          </CardHeader>
+          <CardContent>
+            {testimonial.textContent && <p>{testimonial.textContent}</p>}
+            {testimonial.type === "video" && (
+              <VideoPlayer testimonialId={testimonial._id} />
+            )}
+            <div className="mt-4 flex flex-wrap gap-2">
+              {testimonial.status === "pending" && (
+                <>
+                  <Button size="sm" onClick={handleApprove}>
+                    Approve
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    disabled={leaving}
+                    onClick={() =>
+                      animateOut(() =>
+                        setStatus({ testimonialId: testimonial._id, status: "rejected" })
+                      )
+                    }
+                  >
+                    Reject
+                  </Button>
+                </>
+              )}
+              {approveError && <ErrorWithUpgradeCta message={approveError} />}
+              {testimonial.status === "approved" && (
+                <>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() =>
+                      setFeatured({
+                        testimonialId: testimonial._id,
+                        featured: !testimonial.featured,
+                      })
+                    }
+                  >
+                    {testimonial.featured ? "Unfeature" : "Feature"}
+                  </Button>
+                  <ImageGenerator testimonialId={testimonial._id} />
+                </>
+              )}
               <Button
                 size="sm"
-                variant="outline"
-                onClick={() =>
-                  setStatus({ testimonialId: testimonial._id, status: "rejected" })
-                }
+                variant="ghost"
+                className="text-destructive"
+                disabled={leaving}
+                onClick={() => animateOut(() => remove({ testimonialId: testimonial._id }))}
               >
-                Reject
+                Delete
               </Button>
-            </>
-          )}
-          {approveError && <ErrorWithUpgradeCta message={approveError} />}
-          {testimonial.status === "approved" && (
-            <>
-              <Button
-                size="sm"
-                variant="outline"
-                onClick={() =>
-                  setFeatured({
-                    testimonialId: testimonial._id,
-                    featured: !testimonial.featured,
-                  })
-                }
-              >
-                {testimonial.featured ? "Unfeature" : "Feature"}
-              </Button>
-              <ImageGenerator testimonialId={testimonial._id} />
-            </>
-          )}
-          <Button
-            size="sm"
-            variant="ghost"
-            className="text-destructive"
-            onClick={() => remove({ testimonialId: testimonial._id })}
-          >
-            Delete
-          </Button>
-        </div>
-      </CardContent>
-    </Card>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    </div>
   );
 }
 
