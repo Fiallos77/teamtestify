@@ -72,9 +72,12 @@ export default function CollectionPage({
 
   if (done) {
     return (
-      <div style={brandingStyle} className="min-h-screen">
+      <div
+        style={brandingStyle}
+        className="flex min-h-screen items-center bg-[linear-gradient(165deg,#FFF6EF,#FBF7F2_55%)]"
+      >
         <div className="mx-auto max-w-md p-8 text-center">
-          <p className="text-lg font-medium">
+          <p className="font-heading text-xl font-semibold">
             {space.formConfig.thankYouMessage ?? "Thank you!"}
           </p>
         </div>
@@ -152,22 +155,35 @@ export default function CollectionPage({
   }
 
   return (
-    <div style={brandingStyle} className="min-h-screen">
-      <div className="mx-auto max-w-lg p-8">
-        {space.logoUrl && (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
-            src={space.logoUrl}
-            alt=""
-            className="mx-auto mb-4 size-20 rounded-full border object-cover"
-          />
-        )}
-        <h1 className="text-2xl font-semibold">{space.formConfig.headline}</h1>
-        {space.formConfig.subheading && (
-          <p className="mt-2 text-muted-foreground">{space.formConfig.subheading}</p>
-        )}
+    <div
+      style={brandingStyle}
+      className="min-h-screen bg-[linear-gradient(165deg,#FFF6EF,#FBF7F2_55%)] py-12"
+    >
+      <div className="mx-auto max-w-lg px-4">
+        <div className="text-center">
+          {space.logoUrl ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={space.logoUrl}
+              alt=""
+              className="mx-auto mb-4 size-14 rounded-2xl border border-border object-cover"
+            />
+          ) : (
+            <span className="mx-auto mb-4 flex size-14 items-center justify-center rounded-2xl bg-[linear-gradient(135deg,var(--primary),var(--amber))] font-heading text-2xl font-extrabold text-white">
+              {space.name.trim().charAt(0).toUpperCase()}
+            </span>
+          )}
+          <h1 className="font-heading text-3xl font-bold tracking-tight">
+            {space.formConfig.headline}
+          </h1>
+          {space.formConfig.subheading && (
+            <p className="mx-auto mt-2 max-w-sm text-muted-foreground">
+              {space.formConfig.subheading}
+            </p>
+          )}
+        </div>
 
-        <form onSubmit={handleSubmit} className="mt-6 space-y-4">
+        <form onSubmit={handleSubmit} className="mt-6">
           <input
             type="text"
             name="website"
@@ -179,37 +195,34 @@ export default function CollectionPage({
           />
 
           {canChooseMode && (
-            <div className="space-y-2">
-              <Label>How would you like to share?</Label>
-              <div className="grid grid-cols-2 gap-2">
-                <button
-                  type="button"
-                  onClick={() => setMode("text")}
-                  className={`rounded-md border px-4 py-2 text-sm font-medium ${
-                    mode === "text"
-                      ? "border-primary bg-primary text-primary-foreground"
-                      : "border-input"
-                  }`}
-                >
-                  Write
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setMode("video")}
-                  className={`rounded-md border px-4 py-2 text-sm font-medium ${
-                    mode === "video"
-                      ? "border-primary bg-primary text-primary-foreground"
-                      : "border-input"
-                  }`}
-                >
-                  Record video
-                </button>
-              </div>
+            <div className="mb-5 flex gap-1.5 rounded-2xl border border-border bg-muted p-1.5">
+              <button
+                type="button"
+                onClick={() => setMode("text")}
+                className={`flex-1 rounded-xl py-2.5 text-sm font-semibold transition-colors ${
+                  mode === "text"
+                    ? "bg-card text-foreground shadow-sm"
+                    : "text-muted-foreground"
+                }`}
+              >
+                ✍️ Write
+              </button>
+              <button
+                type="button"
+                onClick={() => setMode("video")}
+                className={`flex-1 rounded-xl py-2.5 text-sm font-semibold transition-colors ${
+                  mode === "video"
+                    ? "bg-card text-foreground shadow-sm"
+                    : "text-muted-foreground"
+                }`}
+              >
+                🎥 Record video
+              </button>
             </div>
           )}
 
           {effectiveMode && (
-            <>
+            <div className="space-y-4 rounded-[20px] border border-border bg-card p-7 shadow-[0_14px_38px_rgba(28,20,24,0.08)]">
               <div className="space-y-2">
                 <Label htmlFor="author-name">Your name</Label>
                 <Input
@@ -265,15 +278,15 @@ export default function CollectionPage({
               )}
 
               {space.formConfig.collectRating && (
-                <div className="space-y-2">
-                  <Label>Rating</Label>
-                  <div className="flex gap-1">
+                <div className="space-y-2 text-center">
+                  <Label className="justify-center">Rating</Label>
+                  <div className="flex justify-center gap-1 text-3xl">
                     {[1, 2, 3, 4, 5].map((n) => (
                       <button
                         type="button"
                         key={n}
                         onClick={() => setRating(n)}
-                        className={n <= rating ? "text-primary" : "text-muted-foreground"}
+                        className={n <= rating ? "text-amber" : "text-border"}
                         aria-label={`${n} stars`}
                       >
                         ★
@@ -287,15 +300,18 @@ export default function CollectionPage({
                   Both modes show them as talking points; the single input is
                   the main textarea (text) or the recording (video). */}
               {space.formConfig.questions.length > 0 && (
-                <div className="space-y-3 rounded-md border bg-muted/40 p-4">
-                  <p className="text-sm font-medium">
+                <div className="space-y-2 rounded-2xl border border-primary/20 bg-accent p-4">
+                  <p className="text-sm font-semibold text-accent-foreground">
                     {effectiveMode === "video"
                       ? "While recording, try to mention:"
                       : "While sharing your testimonial, consider mentioning:"}
                   </p>
-                  <ul className="list-inside list-disc space-y-1 text-sm text-muted-foreground">
+                  <ul className="space-y-1 text-sm text-muted-foreground">
                     {space.formConfig.questions.map((q) => (
-                      <li key={q.id}>{q.label}</li>
+                      <li key={q.id} className="flex gap-2">
+                        <span className="font-bold text-primary">•</span>
+                        {q.label}
+                      </li>
                     ))}
                   </ul>
                 </div>
@@ -325,7 +341,7 @@ export default function CollectionPage({
               <Button type="submit" disabled={submitting} className="w-full">
                 {submitting ? "Submitting…" : "Submit testimonial"}
               </Button>
-            </>
+            </div>
           )}
         </form>
       </div>

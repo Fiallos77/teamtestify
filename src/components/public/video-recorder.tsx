@@ -111,9 +111,9 @@ export function VideoRecorder({
   return (
     <div className="space-y-3">
       {previewUrl ? (
-        <video src={previewUrl} controls className="w-full rounded-md" />
+        <video src={previewUrl} controls className="w-full rounded-2xl" />
       ) : (
-        <video ref={videoRef} className="w-full rounded-md bg-black" />
+        <video ref={videoRef} className="w-full rounded-2xl bg-foreground" />
       )}
       <div className="flex items-center gap-3">
         {!recording && !previewUrl && (
