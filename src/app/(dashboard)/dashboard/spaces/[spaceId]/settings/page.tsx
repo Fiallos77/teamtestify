@@ -112,7 +112,7 @@ export default function SpaceSettingsPage({
         <Tabs defaultValue="basico">
           <TabsList>
             <TabsTrigger value="basico">Básico</TabsTrigger>
-            <TabsTrigger value="ia">Asistente IA</TabsTrigger>
+            <TabsTrigger value="ia">AI Assistant</TabsTrigger>
           </TabsList>
 
           <TabsContent value="basico" className="space-y-6 pt-4">
@@ -242,28 +242,12 @@ export default function SpaceSettingsPage({
           </TabsContent>
 
           <TabsContent value="ia" className="space-y-6 pt-4">
-            <Card>
-              <CardHeader>
-                <CardTitle>Descripción de negocio</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-2">
-                <Label htmlFor="business-description">Tu negocio, en una frase</Label>
-                <Textarea
-                  id="business-description"
-                  value={businessDescription}
-                  onChange={(e) => setBusinessDescription(e.target.value)}
-                  placeholder="p. ej. Soy diseñador de interiores freelance para cafés y restaurantes pequeños."
-                  rows={2}
-                />
-                <p className="text-sm text-muted-foreground">
-                  El asistente de IA usa esto para redactar tus mensajes de solicitud.
-                </p>
-              </CardContent>
-            </Card>
-
+            {/* Sections 1–2 (Your Business + Generated) live in RequestAssistant;
+                businessDescription is controlled here so the page Save persists it. */}
             <RequestAssistant
               spaceId={id}
-              initialDescription={businessDescription}
+              businessDescription={businessDescription}
+              onBusinessDescriptionChange={setBusinessDescription}
               cachedKit={
                 space.requestAssistant
                   ? {
@@ -277,9 +261,10 @@ export default function SpaceSettingsPage({
               onApplyGuideQuestions={applyGuideQuestions}
             />
 
+            {/* Section 3 — Customize Your Questions */}
             <Card>
               <CardHeader>
-                <CardTitle>Preguntas guía</CardTitle>
+                <CardTitle>Guide Questions</CardTitle>
               </CardHeader>
               <CardContent>
                 <QuestionsEditor questions={questions} onChange={setQuestions} />
