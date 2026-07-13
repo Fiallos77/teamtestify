@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { Heart } from "lucide-react";
 import { TestimonialCard } from "./testimonial-card";
 import type { EmbedStyle, EmbedTestimonial } from "./types";
+import { usePrefersReducedMotion } from "@/lib/use-prefers-reduced-motion";
 
 const SPEED_SECONDS: Record<NonNullable<EmbedStyle["scrollSpeed"]>, number> = {
   slow: 55,
@@ -98,6 +99,8 @@ export function TestimonialMasonryAnimated({
   onCardClick?: (testimonialId: string) => void;
 }) {
   const [paused, setPaused] = useState(false);
+  const reduceMotion = usePrefersReducedMotion();
+  const animate = !reduceMotion;
   if (testimonials.length === 0) return null;
 
   const direction = style.scrollDirection ?? "vertical";
@@ -122,7 +125,7 @@ export function TestimonialMasonryAnimated({
 
     return (
       <div
-        className="relative overflow-hidden"
+        className={`relative ${animate ? "overflow-hidden" : "overflow-x-auto"}`}
         style={{ maxHeight }}
         onMouseEnter={() => setPaused(true)}
         onMouseLeave={() => setPaused(false)}
@@ -132,15 +135,19 @@ export function TestimonialMasonryAnimated({
             <div key={i} className="overflow-hidden">
               <div
                 className="flex w-max gap-4"
-                style={track(
-                  "marquee-horizontal",
-                  duration,
-                  playState,
-                  `-${(i * duration) / (rows + 1)}s`,
-                  style.reverseDirection
-                )}
+                style={
+                  animate
+                    ? track(
+                        "marquee-horizontal",
+                        duration,
+                        playState,
+                        `-${(i * duration) / (rows + 1)}s`,
+                        style.reverseDirection
+                      )
+                    : undefined
+                }
               >
-                {[0, 1].map((copy) => (
+                {(animate ? [0, 1] : [0]).map((copy) => (
                   <div key={copy} className="flex w-max gap-4">
                     {lane.map((t) => (
                       <div key={`${copy}-${t.id}`} className="w-72 shrink-0">
@@ -153,7 +160,7 @@ export function TestimonialMasonryAnimated({
             </div>
           ))}
         </div>
-        <HeartOverlay active={!!style.showHeartAnimation} />
+        <HeartOverlay active={!!style.showHeartAnimation && animate} />
         <div
           className="pointer-events-none absolute inset-y-0 left-0 w-12"
           style={{ background: `linear-gradient(to right, ${fadeColor}, transparent)` }}
@@ -180,7 +187,7 @@ export function TestimonialMasonryAnimated({
 
   return (
     <div
-      className="relative overflow-hidden"
+      className={`relative ${animate ? "overflow-hidden" : "overflow-y-auto"}`}
       style={{ maxHeight }}
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => setPaused(false)}
@@ -192,22 +199,26 @@ export function TestimonialMasonryAnimated({
               className="flex flex-col gap-4"
               // Slight per-column offset keeps parallel columns from looking
               // perfectly synchronized, closer to a natural "wall" feel.
-              style={track(
-                "marquee-vertical",
-                duration,
-                playState,
-                `-${(i * duration) / (columns + 1)}s`,
-                style.reverseDirection
-              )}
+              style={
+                animate
+                  ? track(
+                      "marquee-vertical",
+                      duration,
+                      playState,
+                      `-${(i * duration) / (columns + 1)}s`,
+                      style.reverseDirection
+                    )
+                  : undefined
+              }
             >
-              {[0, 1].map((copy) =>
+              {(animate ? [0, 1] : [0]).map((copy) =>
                 bucket.map((t) => card(t, `${copy}-${t.id}`))
               )}
             </div>
           </div>
         ))}
       </div>
-      <HeartOverlay active={!!style.showHeartAnimation} />
+      <HeartOverlay active={!!style.showHeartAnimation && animate} />
       <div
         className="pointer-events-none absolute inset-x-0 top-0 h-12"
         style={{ background: `linear-gradient(to bottom, ${fadeColor}, transparent)` }}
