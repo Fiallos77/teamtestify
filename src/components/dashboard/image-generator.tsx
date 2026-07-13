@@ -20,6 +20,7 @@ import {
   type ImageSizeKey,
   type LayoutId,
 } from "@/lib/testimonial-image/types";
+import { AiQuotaUpgradeAlert } from "./ai-quota-upgrade-alert";
 
 type Proposal = {
   layout: string;
@@ -154,11 +155,7 @@ export function ImageGenerator({ testimonialId }: { testimonialId: Id<"testimoni
             )}
           </div>
 
-          {outOfCredits && !proposals.length && (
-            <p className="text-sm text-muted-foreground">
-              You&apos;ve used your image generations for this month.
-            </p>
-          )}
+          {outOfCredits && <AiQuotaUpgradeAlert />}
           {error && <p className="text-sm text-destructive">{error}</p>}
 
           {proposals.length > 0 && (

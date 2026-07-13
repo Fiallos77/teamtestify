@@ -10,6 +10,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { AiQuotaUpgradeAlert } from "./ai-quota-upgrade-alert";
 
 type Kit = {
   outreachEmail: string;
@@ -149,11 +150,7 @@ export function RequestAssistant({
             )}
           </div>
 
-          {outOfCredits && (
-            <p className="text-sm text-muted-foreground">
-              You&apos;ve used your request generations for this month.
-            </p>
-          )}
+          {outOfCredits && <AiQuotaUpgradeAlert />}
           {error && <p className="text-sm text-destructive">{error}</p>}
         </CardContent>
       </Card>
