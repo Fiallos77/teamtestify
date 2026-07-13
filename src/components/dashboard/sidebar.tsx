@@ -23,7 +23,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
-import { ArrowLeft, Plus, Settings } from "lucide-react";
+import { ArrowLeft, Inbox, LayoutGrid, Palette, Plus, Settings, Share2 } from "lucide-react";
 
 function slugify(value: string) {
   return value
@@ -158,10 +158,10 @@ function DashboardNav() {
             <div
               key={space._id}
               className={cn(
-                "group/space-row flex items-center gap-1 rounded-md pr-1",
+                "group/space-row flex items-center gap-1 rounded-lg pr-1",
                 active
-                  ? "bg-accent font-medium text-foreground"
-                  : "text-muted-foreground hover:bg-accent/50 hover:text-foreground"
+                  ? "bg-sidebar-primary/18 font-medium text-sidebar-primary-foreground"
+                  : "text-sidebar-foreground/62 hover:bg-sidebar-accent hover:text-sidebar-foreground"
               )}
             >
               <Link href={href} className="min-w-0 flex-1 truncate px-2 py-1.5 text-sm">
@@ -184,11 +184,11 @@ function SpaceSectionNav({ spaceId }: { spaceId: Id<"spaces"> }) {
   const pendingCount = useQuery(api.testimonials.getPendingCount, { spaceId });
   const base = `/dashboard/spaces/${spaceId}`;
   const sections = [
-    { href: base, label: "Inbox", showDot: !!pendingCount },
-    { href: `${base}/widgets`, label: "Widgets" },
-    { href: `${base}/settings`, label: "Settings" },
-    { href: `${base}/branding`, label: "Branding" },
-    { href: `${base}/share`, label: "Share" },
+    { href: base, label: "Inbox", icon: Inbox, showDot: !!pendingCount },
+    { href: `${base}/widgets`, label: "Widgets", icon: LayoutGrid },
+    { href: `${base}/settings`, label: "Settings", icon: Settings },
+    { href: `${base}/branding`, label: "Branding", icon: Palette },
+    { href: `${base}/share`, label: "Share", icon: Share2 },
   ];
 
   return (
@@ -196,7 +196,7 @@ function SpaceSectionNav({ spaceId }: { spaceId: Id<"spaces"> }) {
       <div className="p-3">
         <Link
           href="/dashboard"
-          className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground"
+          className="flex items-center gap-1.5 text-sm text-sidebar-foreground/62 hover:text-sidebar-foreground"
         >
           <ArrowLeft className="size-3.5" />
           Back
@@ -212,17 +212,20 @@ function SpaceSectionNav({ spaceId }: { spaceId: Id<"spaces"> }) {
               key={section.href}
               href={section.href}
               className={cn(
-                "flex items-center justify-between rounded-md px-2 py-1.5 text-sm",
+                "flex items-center justify-between gap-2 rounded-lg px-2.5 py-2 text-sm",
                 active
-                  ? "bg-accent font-medium text-foreground"
-                  : "text-muted-foreground hover:bg-accent/50 hover:text-foreground"
+                  ? "bg-sidebar-primary/18 font-medium text-sidebar-primary-foreground"
+                  : "text-sidebar-foreground/62 hover:bg-sidebar-accent hover:text-sidebar-foreground"
               )}
             >
-              {section.label}
+              <span className="flex items-center gap-2.5">
+                <section.icon className="size-4" />
+                {section.label}
+              </span>
               {section.showDot && (
                 <span
                   aria-label="New submissions waiting"
-                  className="size-2 shrink-0 rounded-full bg-red-500"
+                  className="size-2 shrink-0 rounded-full bg-destructive"
                 />
               )}
             </Link>
@@ -240,9 +243,12 @@ export function Sidebar() {
 
   return (
     <aside className="dark flex h-screen w-60 shrink-0 flex-col border-r bg-sidebar text-sidebar-foreground">
-      <div className="space-y-2 border-b p-3">
-        <Link href="/dashboard" className="block truncate font-semibold">
-          Testimonial Studio
+      <div className="space-y-3 border-b p-3">
+        <Link href="/dashboard" className="flex items-center gap-2">
+          <span className="flex size-7 shrink-0 items-center justify-center rounded-lg bg-primary font-heading text-base font-extrabold text-primary-foreground">
+            T
+          </span>
+          <span className="truncate font-heading text-[15px] font-bold">Testimonial Studio</span>
         </Link>
         <OrgSwitcher />
       </div>

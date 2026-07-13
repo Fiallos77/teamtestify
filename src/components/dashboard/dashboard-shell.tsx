@@ -4,6 +4,7 @@ import { ReactNode } from "react";
 import { useConvexAuth, useQuery } from "convex/react";
 import { api } from "../../../convex/_generated/api";
 import { Sidebar } from "@/components/dashboard/sidebar";
+import { DashboardTopbar } from "@/components/dashboard/dashboard-topbar";
 import { UserMenu } from "@/components/dashboard/user-menu";
 import { OrganizationRequired } from "@/components/dashboard/organization-required";
 
@@ -35,7 +36,10 @@ export function DashboardShell({ children }: { children: ReactNode }) {
   return (
     <div className="flex min-h-screen bg-background text-foreground">
       <Sidebar />
-      <main className="min-w-0 flex-1 overflow-y-auto p-6">{children}</main>
+      <div className="flex min-w-0 flex-1 flex-col">
+        <DashboardTopbar />
+        <main className="min-w-0 flex-1 overflow-y-auto p-6">{children}</main>
+      </div>
     </div>
   );
 }
