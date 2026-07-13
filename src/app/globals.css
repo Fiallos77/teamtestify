@@ -25,6 +25,8 @@
   --color-success-foreground: var(--success-foreground);
   --color-warning: var(--warning);
   --color-warning-foreground: var(--warning-foreground);
+  --color-amber: var(--amber);
+  --color-amber-foreground: var(--amber-foreground);
   --color-destructive: var(--destructive);
   --color-destructive-foreground: var(--destructive-foreground);
   --color-border: var(--border);
@@ -91,6 +93,8 @@
   --success-foreground: #FFFFFF;
   --warning: #E8871A;
   --warning-foreground: #1C1418;
+  --amber: #FFB020; /* Glow Amber — stars, badges, celebration (not the semantic warning) */
+  --amber-foreground: #1C1418;
   --destructive: #C6371B; /* warm error, not pure red */
   --destructive-foreground: #FFFFFF;
 
@@ -143,6 +147,8 @@
   --success-foreground: #1C1418;
   --warning: #FFB020;
   --warning-foreground: #1C1418;
+  --amber: #FFB020;
+  --amber-foreground: #1C1418;
   --destructive: #FF7A5C; /* Coral hover — brighter, legible on Ink */
   --destructive-foreground: #1C1418;
 

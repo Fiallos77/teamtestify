@@ -22,18 +22,34 @@ const ITEMS = [
 export function ProblemBenefit() {
   return (
     <section className="mx-auto max-w-6xl px-4 py-16 sm:px-6">
-      <div className="grid gap-6 sm:grid-cols-3">
-        {ITEMS.map((item) => (
-          <Card key={item.title}>
-            <CardHeader>
-              <item.icon className="size-6 text-primary" />
-              <CardTitle className="mt-2 text-base">{item.title}</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-sm text-muted-foreground">{item.body}</p>
-            </CardContent>
-          </Card>
-        ))}
+      <div className="grid gap-4 sm:grid-cols-3">
+        {ITEMS.map((item, i) => {
+          const isHighlight = i === ITEMS.length - 1;
+          return (
+            <Card
+              key={item.title}
+              className={isHighlight ? "dark bg-background text-foreground" : undefined}
+            >
+              <CardHeader>
+                <span
+                  className={`flex size-11 items-center justify-center rounded-xl ${isHighlight ? "bg-amber/15" : "bg-accent"}`}
+                >
+                  <item.icon className={`size-5 ${isHighlight ? "text-amber" : "text-primary"}`} />
+                </span>
+                <CardTitle
+                  className={`mt-3 text-base font-heading ${isHighlight ? "text-amber" : ""}`}
+                >
+                  {item.title}
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className={`text-sm ${isHighlight ? "text-foreground/70" : "text-muted-foreground"}`}>
+                  {item.body}
+                </p>
+              </CardContent>
+            </Card>
+          );
+        })}
       </div>
     </section>
   );
