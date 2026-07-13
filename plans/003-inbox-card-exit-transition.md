@@ -1,6 +1,6 @@
 # 003 — Soften inbox card removal (exit transition on reject/delete)
 
-- **Status**: TODO
+- **Status**: DONE (implemented in f73ae2a)
 - **Commit**: 7c69bce
 - **Severity**: LOW (additive — "missed opportunity", AUDIT §8)
 - **Category**: Missed opportunity / Interruptibility
