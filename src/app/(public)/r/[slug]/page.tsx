@@ -34,7 +34,6 @@ export default function CollectionPage({
   const [authorTitle, setAuthorTitle] = useState("");
   const [authorCompany, setAuthorCompany] = useState("");
   const [rating, setRating] = useState(5);
-  const [answers, setAnswers] = useState<Record<string, string>>({});
   const [textContent, setTextContent] = useState("");
   const [videoFile, setVideoFile] = useState<File | null>(null);
   const [photoFile, setPhotoFile] = useState<File | null>(null);
@@ -116,14 +115,6 @@ export default function CollectionPage({
         authorCompany: authorCompany || undefined,
         authorPhotoStorageId,
         rating: space.formConfig.collectRating ? rating : undefined,
-        // Written answers only make sense in text mode — in video mode the
-        // questions are shown as talking points to address on camera instead.
-        answers:
-          effectiveMode === "text"
-            ? space.formConfig.questions
-                .map((q) => ({ questionId: q.id, answer: (answers[q.id] ?? "").trim() }))
-                .filter((a) => a.answer)
-            : [],
         website: website || undefined,
       };
 
@@ -292,38 +283,21 @@ export default function CollectionPage({
                 </div>
               )}
 
+              {/* Guide questions are prompts only — never response fields.
+                  Both modes show them as talking points; the single input is
+                  the main textarea (text) or the recording (video). */}
               {space.formConfig.questions.length > 0 && (
                 <div className="space-y-3 rounded-md border bg-muted/40 p-4">
-                  {effectiveMode === "video" ? (
-                    <>
-                      <p className="text-sm font-medium">While recording, try to mention:</p>
-                      <ul className="list-inside list-disc space-y-1 text-sm text-muted-foreground">
-                        {space.formConfig.questions.map((q) => (
-                          <li key={q.id}>{q.label}</li>
-                        ))}
-                      </ul>
-                    </>
-                  ) : (
-                    <>
-                      <p className="text-sm font-medium">A couple of questions to guide you</p>
-                      {space.formConfig.questions.map((q) => (
-                        <div key={q.id} className="space-y-2">
-                          <Label htmlFor={`question-${q.id}`}>
-                            {q.label}
-                            {q.required && " *"}
-                          </Label>
-                          <Textarea
-                            id={`question-${q.id}`}
-                            required={q.required}
-                            value={answers[q.id] ?? ""}
-                            onChange={(e) =>
-                              setAnswers((prev) => ({ ...prev, [q.id]: e.target.value }))
-                            }
-                          />
-                        </div>
-                      ))}
-                    </>
-                  )}
+                  <p className="text-sm font-medium">
+                    {effectiveMode === "video"
+                      ? "While recording, try to mention:"
+                      : "While sharing your testimonial, consider mentioning:"}
+                  </p>
+                  <ul className="list-inside list-disc space-y-1 text-sm text-muted-foreground">
+                    {space.formConfig.questions.map((q) => (
+                      <li key={q.id}>{q.label}</li>
+                    ))}
+                  </ul>
                 </div>
               )}
 
