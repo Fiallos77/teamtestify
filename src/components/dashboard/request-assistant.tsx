@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useAction, useQuery } from "convex/react";
-import { Check, Copy, Sparkles } from "lucide-react";
+import { Check, Copy, Loader2, Sparkles } from "lucide-react";
 import { api } from "../../../convex/_generated/api";
 import type { Id } from "../../../convex/_generated/dataModel";
 import { Button } from "@/components/ui/button";
@@ -134,7 +134,11 @@ export function RequestAssistant({
               disabled={loading || !businessDescription.trim() || outOfCredits}
               title="Generate outreach messages and guide questions based on your description"
             >
-              <Sparkles className="size-4" />
+              {loading ? (
+                <Loader2 className="size-4 animate-spin" />
+              ) : (
+                <Sparkles className="size-4" />
+              )}
               {loading ? "Generating…" : "AI Assistant"}
             </Button>
             {usage && (
