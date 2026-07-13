@@ -1,6 +1,6 @@
 "use client";
 
-import { use, useState } from "react";
+import { use, useEffect, useState } from "react";
 import { useMutation, useQuery } from "convex/react";
 import { api } from "../../../../../../convex/_generated/api";
 import type { Id } from "../../../../../../convex/_generated/dataModel";
@@ -13,6 +13,13 @@ import {
   TabsList,
   TabsTrigger,
 } from "@/components/ui/tabs";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { ErrorWithUpgradeCta } from "@/components/dashboard/upgrade-cta";
 import { ImageGenerator } from "@/components/dashboard/image-generator";
 
@@ -131,6 +138,8 @@ function TestimonialCard({
   );
 }
 
+const PAGE_SIZE = 10;
+
 export default function InboxPage({
   params,
 }: {
@@ -138,28 +147,98 @@ export default function InboxPage({
 }) {
   const { spaceId } = use(params);
   const [tab, setTab] = useState<Status>("pending");
-  const testimonials = useQuery(api.testimonials.listBySpace, {
+  const [currentPage, setCurrentPage] = useState(1);
+  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
+
+  const result = useQuery(api.testimonials.listBySpace, {
     spaceId: spaceId as Id<"spaces">,
     status: tab,
-  })?.items;
+    page: currentPage,
+    limit: PAGE_SIZE,
+    sortOrder,
+  });
+
+  const total = result?.total ?? 0;
+  const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
+  const start = total === 0 ? 0 : (currentPage - 1) * PAGE_SIZE + 1;
+  const end = Math.min(currentPage * PAGE_SIZE, total);
+
+  // After approvals/deletions shrink a tab, snap back if we're past the last
+  // page (skip while loading, when total is momentarily 0).
+  useEffect(() => {
+    if (result !== undefined && currentPage > totalPages) {
+      setCurrentPage(totalPages);
+    }
+  }, [result, currentPage, totalPages]);
+
+  // Changing tab or sort resets to the first page.
+  function handleTabChange(value: string) {
+    setTab(value as Status);
+    setCurrentPage(1);
+  }
+  function handleSortChange(value: "asc" | "desc" | null) {
+    if (!value) return;
+    setSortOrder(value);
+    setCurrentPage(1);
+  }
 
   return (
-    <Tabs value={tab} onValueChange={(v) => setTab(v as Status)}>
-      <TabsList>
-        <TabsTrigger value="pending">Pending</TabsTrigger>
-        <TabsTrigger value="approved">Approved</TabsTrigger>
-        <TabsTrigger value="rejected">Rejected</TabsTrigger>
-      </TabsList>
+    <Tabs value={tab} onValueChange={handleTabChange}>
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <TabsList>
+          <TabsTrigger value="pending">Pending</TabsTrigger>
+          <TabsTrigger value="approved">Approved</TabsTrigger>
+          <TabsTrigger value="rejected">Rejected</TabsTrigger>
+        </TabsList>
+        <Select value={sortOrder} onValueChange={handleSortChange}>
+          <SelectTrigger className="w-40">
+            <SelectValue>
+              {(v: string) => (v === "asc" ? "Oldest first" : "Newest first")}
+            </SelectValue>
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="desc">Newest first</SelectItem>
+            <SelectItem value="asc">Oldest first</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+
       <TabsContent value={tab} className="mt-4 space-y-4">
-        {testimonials === undefined && (
+        {result === undefined && (
           <p className="text-muted-foreground">Loading…</p>
         )}
-        {testimonials?.length === 0 && (
+        {result !== undefined && total === 0 && (
           <p className="text-muted-foreground">Nothing here yet.</p>
         )}
-        {testimonials?.map((t) => (
+        {result?.items.map((t) => (
           <TestimonialCard key={t._id} testimonial={t} />
         ))}
+
+        {result !== undefined && total > 0 && (
+          <div className="flex items-center justify-between pt-2">
+            <p className="text-sm text-muted-foreground">
+              {start}-{end} of {total}
+            </p>
+            <div className="flex gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                disabled={currentPage === 1}
+                onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+              >
+                Prev
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                disabled={currentPage >= totalPages}
+                onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+              >
+                Next
+              </Button>
+            </div>
+          </div>
+        )}
       </TabsContent>
     </Tabs>
   );
