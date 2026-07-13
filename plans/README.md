@@ -7,7 +7,7 @@ and a feel-check. An executor needs no other context.
 | # | Title | Severity | Category | Status |
 |---|-------|----------|----------|--------|
 | [001](001-marquee-reduced-motion.md) | Gate the Wall-of-Love marquee behind `prefers-reduced-motion` | HIGH | Accessibility | DONE (b0126e5) |
-| [002](002-marquee-pause-control.md) | Add a keyboard/touch-reachable pause control to the marquee | MEDIUM | Accessibility | TODO |
+| [002](002-marquee-pause-control.md) | Add a keyboard/touch-reachable pause control to the marquee | MEDIUM | Accessibility | DONE (75bc126) |
 | [003](003-inbox-card-exit-transition.md) | Soften inbox card removal (exit transition on reject/delete) | LOW | Missed opportunity | TODO |
 
 ## Recommended execution order

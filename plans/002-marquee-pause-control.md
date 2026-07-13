@@ -1,6 +1,6 @@
 # 002 — Add a keyboard/touch-reachable pause control to the marquee
 
-- **Status**: TODO
+- **Status**: DONE (implemented in 75bc126)
 - **Commit**: 7c69bce
 - **Severity**: MEDIUM
 - **Category**: Accessibility (AUDIT §6; WCAG 2.2.2 Pause/Stop/Hide)
