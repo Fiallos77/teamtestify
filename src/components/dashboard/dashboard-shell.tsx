@@ -18,12 +18,12 @@ export function DashboardShell({ children }: { children: ReactNode }) {
   const activeOrg = useQuery(api.organizations.getActive, isAuthenticated ? {} : "skip");
 
   if (activeOrg === undefined) {
-    return <div className="theme-dashboard dark min-h-screen bg-background text-foreground" />;
+    return <div className="min-h-screen bg-background text-foreground" />;
   }
 
   if (!activeOrg) {
     return (
-      <div className="theme-dashboard dark min-h-screen bg-background text-foreground">
+      <div className="min-h-screen bg-background text-foreground">
         <div className="flex justify-end p-3">
           <UserMenu />
         </div>
@@ -33,7 +33,7 @@ export function DashboardShell({ children }: { children: ReactNode }) {
   }
 
   return (
-    <div className="theme-dashboard dark flex min-h-screen bg-background text-foreground">
+    <div className="flex min-h-screen bg-background text-foreground">
       <Sidebar />
       <main className="min-w-0 flex-1 overflow-y-auto p-6">{children}</main>
     </div>

@@ -239,7 +239,7 @@ export function Sidebar() {
   const spaceId = spaceMatch?.[1] as Id<"spaces"> | undefined;
 
   return (
-    <aside className="flex h-screen w-60 shrink-0 flex-col border-r">
+    <aside className="dark flex h-screen w-60 shrink-0 flex-col border-r bg-sidebar text-sidebar-foreground">
       <div className="space-y-2 border-b p-3">
         <Link href="/dashboard" className="block truncate font-semibold">
           Testimonial Studio
