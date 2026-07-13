@@ -41,10 +41,13 @@ function WidgetEditor({
 }) {
   const update = useMutation(api.widgets.update);
   const widget = useQuery(api.widgets.getById, { widgetId });
+  // The widget picker needs every approved testimonial, so opt out of the
+  // paginated default with a high limit and read the items array.
   const approvedTestimonials = useQuery(api.testimonials.listBySpace, {
     spaceId,
     status: "approved",
-  });
+    limit: 1000,
+  })?.items;
 
   const [name, setName] = useState("");
   const [type, setType] = useState<"wall" | "single">("wall");

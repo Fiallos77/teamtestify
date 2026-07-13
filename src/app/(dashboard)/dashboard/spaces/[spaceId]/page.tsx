@@ -141,7 +141,7 @@ export default function InboxPage({
   const testimonials = useQuery(api.testimonials.listBySpace, {
     spaceId: spaceId as Id<"spaces">,
     status: tab,
-  });
+  })?.items;
 
   return (
     <Tabs value={tab} onValueChange={(v) => setTab(v as Status)}>

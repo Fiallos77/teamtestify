@@ -51,24 +51,39 @@ export const listBySpace = query({
     status: v.optional(
       v.union(v.literal("pending"), v.literal("approved"), v.literal("rejected"))
     ),
+    page: v.optional(v.number()),
+    limit: v.optional(v.number()),
+    sortOrder: v.optional(v.union(v.literal("asc"), v.literal("desc"))),
   },
-  handler: async (ctx, { spaceId, status }) => {
+  handler: async (ctx, { spaceId, status, page = 1, limit = 10, sortOrder = "desc" }) => {
     const orgContext = await tryOrgContext(ctx);
-    if (!orgContext) return [];
+    if (!orgContext) return { items: [], total: 0 };
     await requireSpaceInOrg(ctx, spaceId, orgContext.org._id);
 
-    if (status) {
-      return await ctx.db
-        .query("testimonials")
-        .withIndex("by_space_and_status", (q) =>
-          q.eq("spaceId", spaceId).eq("status", status)
-        )
-        .collect();
-    }
-    return await ctx.db
-      .query("testimonials")
-      .withIndex("by_space", (q) => q.eq("spaceId", spaceId))
-      .collect();
+    // Convex has no offset cursor, and `total` needs the full count regardless,
+    // so we read the space+status range in the requested order and slice the
+    // page. Ordering is by _creationTime within the index range: "desc" is
+    // newest first.
+    const rows = status
+      ? await ctx.db
+          .query("testimonials")
+          .withIndex("by_space_and_status", (q) =>
+            q.eq("spaceId", spaceId).eq("status", status)
+          )
+          .order(sortOrder)
+          .collect()
+      : await ctx.db
+          .query("testimonials")
+          .withIndex("by_space", (q) => q.eq("spaceId", spaceId))
+          .order(sortOrder)
+          .collect();
+
+    const total = rows.length;
+    const safePage = Math.max(1, page);
+    const safeLimit = Math.max(1, limit);
+    const start = (safePage - 1) * safeLimit;
+    const items = rows.slice(start, start + safeLimit);
+    return { items, total };
   },
 });
 

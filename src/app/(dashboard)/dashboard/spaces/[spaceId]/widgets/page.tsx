@@ -35,10 +35,13 @@ export default function WidgetsPage({
   const { spaceId } = use(params);
   const id = spaceId as Id<"spaces">;
   const widgets = useQuery(api.widgets.listBySpace, { spaceId: id });
+  // The widget picker needs every approved testimonial, so opt out of the
+  // paginated default with a high limit and read the items array.
   const approvedTestimonials = useQuery(api.testimonials.listBySpace, {
     spaceId: id,
     status: "approved",
-  });
+    limit: 1000,
+  })?.items;
   const createWidget = useMutation(api.widgets.create);
 
   const [open, setOpen] = useState(false);
