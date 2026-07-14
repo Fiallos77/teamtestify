@@ -56,37 +56,50 @@ export function CollectionPagePreview({
   } as React.CSSProperties;
 
   return (
-    <div style={brandingStyle} className="rounded-lg border p-6">
-      {logoUrl && (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img src={logoUrl} alt="" className="mx-auto mb-4 size-16 rounded-full border object-cover" />
-      )}
-      <h1 className="text-xl font-semibold">{headline || "Share your experience"}</h1>
-      {subheading && <p className="mt-2 text-sm text-muted-foreground">{subheading}</p>}
-
-      <div className="mt-5 space-y-3">
-        {canChooseMode && (
-          <div className="grid grid-cols-2 gap-2">
-            <button
-              type="button"
-              onClick={() => setMode("text")}
-              className={`rounded-md border px-3 py-1.5 text-sm font-medium ${
-                mode === "text" ? "border-primary bg-primary text-primary-foreground" : "border-input"
-              }`}
-            >
-              Write
-            </button>
-            <button
-              type="button"
-              onClick={() => setMode("video")}
-              className={`rounded-md border px-3 py-1.5 text-sm font-medium ${
-                mode === "video" ? "border-primary bg-primary text-primary-foreground" : "border-input"
-              }`}
-            >
-              Record video
-            </button>
-          </div>
+    <div className="overflow-hidden rounded-2xl border shadow-[0_14px_34px_rgba(28,20,24,0.1)]">
+      <div className="flex items-center gap-1.5 border-b bg-muted/60 px-3 py-2">
+        <span className="size-2.5 rounded-full bg-border" />
+        <span className="size-2.5 rounded-full bg-border" />
+        <span className="size-2.5 rounded-full bg-border" />
+      </div>
+      <div
+        style={brandingStyle}
+        className="max-h-[560px] overflow-auto bg-[linear-gradient(165deg,#FFF6EF,#FBF7F2_55%)] p-6"
+      >
+        {logoUrl && (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={logoUrl} alt="" className="mx-auto mb-4 size-16 rounded-2xl border object-cover" />
         )}
+        <h1 className="text-center font-heading text-xl font-bold">
+          {headline || "Share your experience"}
+        </h1>
+        {subheading && (
+          <p className="mt-2 text-center text-sm text-muted-foreground">{subheading}</p>
+        )}
+
+        <div className="mt-5 space-y-3 rounded-2xl border bg-card p-4">
+          {canChooseMode && (
+            <div className="flex gap-1 rounded-xl border bg-muted p-1">
+              <button
+                type="button"
+                onClick={() => setMode("text")}
+                className={`flex-1 rounded-lg py-1.5 text-sm font-medium ${
+                  mode === "text" ? "bg-card text-foreground shadow-sm" : "text-muted-foreground"
+                }`}
+              >
+                Write
+              </button>
+              <button
+                type="button"
+                onClick={() => setMode("video")}
+                className={`flex-1 rounded-lg py-1.5 text-sm font-medium ${
+                  mode === "video" ? "bg-card text-foreground shadow-sm" : "text-muted-foreground"
+                }`}
+              >
+                Record video
+              </button>
+            </div>
+          )}
 
         {effectiveMode && (
           <>
@@ -122,17 +135,19 @@ export function CollectionPagePreview({
             )}
 
             {collectRating && (
-              <div className="space-y-1.5">
-                <Label className="text-xs">Rating</Label>
-                <div className="flex gap-1 text-primary">★★★★★</div>
+              <div className="space-y-1.5 text-center">
+                <Label className="justify-center text-xs">Rating</Label>
+                <div className="flex justify-center gap-1 text-amber">★★★★★</div>
               </div>
             )}
 
             {questions.length > 0 && (
-              <div className="space-y-2 rounded-md border bg-muted/40 p-3">
+              <div className="space-y-2 rounded-xl border border-primary/20 bg-accent p-3">
                 {effectiveMode === "video" ? (
                   <>
-                    <p className="text-xs font-medium">While recording, try to mention:</p>
+                    <p className="text-xs font-semibold text-accent-foreground">
+                      While recording, try to mention:
+                    </p>
                     <ul className="list-inside list-disc text-xs text-muted-foreground">
                       {questions.map((q) => (
                         <li key={q.id}>{q.label || "Untitled question"}</li>
@@ -141,7 +156,9 @@ export function CollectionPagePreview({
                   </>
                 ) : (
                   <>
-                    <p className="text-xs font-medium">A couple of questions to guide you</p>
+                    <p className="text-xs font-semibold text-accent-foreground">
+                      A couple of questions to guide you
+                    </p>
                     {questions.map((q) => (
                       <div key={q.id} className="space-y-1">
                         <Label className="text-xs">{q.label || "Untitled question"}</Label>
@@ -166,6 +183,7 @@ export function CollectionPagePreview({
             </Button>
           </>
         )}
+        </div>
       </div>
     </div>
   );

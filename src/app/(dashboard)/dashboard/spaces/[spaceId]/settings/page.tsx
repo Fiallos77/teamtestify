@@ -109,37 +109,37 @@ export default function SpaceSettingsPage({
   return (
     <div className="grid gap-6 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
       <div className="max-w-2xl space-y-6">
-        <Tabs defaultValue="basico">
+        <Tabs defaultValue="basic">
           <TabsList>
-            <TabsTrigger value="basico">Básico</TabsTrigger>
-            <TabsTrigger value="ia">AI Assistant</TabsTrigger>
+            <TabsTrigger value="basic">Basic</TabsTrigger>
+            <TabsTrigger value="ai">✦ AI Assistant</TabsTrigger>
           </TabsList>
 
-          <TabsContent value="basico" className="space-y-6 pt-4">
-            {/* Section 1 — Identificación */}
+          <TabsContent value="basic" className="space-y-6 pt-4">
+            {/* Section 1 — Details */}
             <Card>
               <CardHeader>
-                <CardTitle>Identificación</CardTitle>
+                <CardTitle>Details</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="space-name">Nombre del espacio</Label>
+                  <Label htmlFor="space-name">Space name</Label>
                   <Input id="space-name" value={name} onChange={(e) => setName(e.target.value)} />
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="space-description">Descripción interna (opcional)</Label>
+                  <Label htmlFor="space-description">Internal description (optional)</Label>
                   <Textarea
                     id="space-description"
                     value={description}
                     onChange={(e) => setDescription(e.target.value)}
-                    placeholder="Para qué es este espacio — solo visible para tu equipo."
+                    placeholder="What this space is for — only visible to your team."
                     rows={2}
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <Label>Enlace público</Label>
+                  <Label>Public link</Label>
                   <div className="flex items-center gap-2">
                     <Input readOnly value={publicUrl} />
                     <Button
@@ -147,19 +147,19 @@ export default function SpaceSettingsPage({
                       variant="outline"
                       onClick={() => navigator.clipboard.writeText(publicUrl)}
                     >
-                      Copiar
+                      Copy
                     </Button>
                   </div>
                 </div>
 
-                <div className="flex items-center justify-between">
+                <div className="flex items-center justify-between rounded-xl border bg-muted/40 p-4">
                   <div>
-                    <Label>Aceptando respuestas</Label>
-                    <p className="text-sm text-muted-foreground">
-                      Controla tu enlace público de arriba. Mientras esté activo, cualquiera con el
-                      enlace puede enviar un testimonio. Desactívalo para pausar la recolección — los
-                      visitantes verán un mensaje de &quot;no disponible&quot; en lugar del
-                      formulario, sin borrar nada.
+                    <Label>Accepting responses</Label>
+                    <p className="mt-1 text-sm text-muted-foreground">
+                      Controls your public link above. While active, anyone with the link can
+                      submit a testimonial. Turn it off to pause collection — visitors will see
+                      an &quot;unavailable&quot; message instead of the form, without deleting
+                      anything.
                     </p>
                   </div>
                   <Switch checked={isActive} onCheckedChange={setIsActive} />
@@ -167,14 +167,14 @@ export default function SpaceSettingsPage({
               </CardContent>
             </Card>
 
-            {/* Section 2 — Textos del formulario */}
+            {/* Section 2 — Form text */}
             <Card>
               <CardHeader>
-                <CardTitle>Textos del formulario</CardTitle>
+                <CardTitle>Form text</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="headline">Título</Label>
+                  <Label htmlFor="headline">Headline</Label>
                   <Input
                     id="headline"
                     value={headline}
@@ -183,17 +183,17 @@ export default function SpaceSettingsPage({
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="subheading">Descripción</Label>
+                  <Label htmlFor="subheading">Description</Label>
                   <Textarea
                     id="subheading"
                     value={subheading}
                     onChange={(e) => setSubheading(e.target.value)}
-                    placeholder="Una línea breve explicando qué estás pidiendo."
+                    placeholder="A short line explaining what you're asking for."
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="thank-you">Mensaje de gracias</Label>
+                  <Label htmlFor="thank-you">Thank-you message</Label>
                   <Textarea
                     id="thank-you"
                     value={thankYouMessage}
@@ -203,36 +203,36 @@ export default function SpaceSettingsPage({
               </CardContent>
             </Card>
 
-            {/* Section 3 — Recopilar datos */}
+            {/* Section 3 — Collect data */}
             <Card>
               <CardHeader>
-                <CardTitle>Recopilar datos</CardTitle>
+                <CardTitle>Collect data</CardTitle>
               </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <Label>Permitir testimonios de texto</Label>
+              <CardContent className="space-y-3">
+                <div className="flex items-center justify-between rounded-xl bg-muted/40 p-3.5">
+                  <Label>Allow text testimonials</Label>
                   <Switch checked={allowText} onCheckedChange={setAllowText} />
                 </div>
-                <div className="flex items-center justify-between">
-                  <Label>Permitir testimonios de video</Label>
+                <div className="flex items-center justify-between rounded-xl bg-muted/40 p-3.5">
+                  <Label>Allow video testimonials</Label>
                   <Switch checked={allowVideo} onCheckedChange={setAllowVideo} />
                 </div>
-                <div className="flex items-center justify-between">
-                  <Label>Recopilar calificación</Label>
+                <div className="flex items-center justify-between rounded-xl bg-muted/40 p-3.5">
+                  <Label>Collect rating</Label>
                   <Switch checked={collectRating} onCheckedChange={setCollectRating} />
                 </div>
-                <div className="flex items-center justify-between">
-                  <Label>Recopilar nombre, empresa y cargo</Label>
+                <div className="flex items-center justify-between rounded-xl bg-muted/40 p-3.5">
+                  <Label>Collect name, company &amp; title</Label>
                   <Switch
                     checked={collectNameCompanyPhoto}
                     onCheckedChange={setCollectNameCompanyPhoto}
                   />
                 </div>
-                <div className="flex items-center justify-between">
+                <div className="flex items-center justify-between rounded-xl bg-muted/40 p-3.5">
                   <div>
-                    <Label>Recopilar email del autor</Label>
-                    <p className="text-sm text-muted-foreground">
-                      Opcional — desactivado por defecto para mantener el formulario ágil.
+                    <Label>Collect author email</Label>
+                    <p className="mt-1 text-sm text-muted-foreground">
+                      Optional — off by default to keep the form quick.
                     </p>
                   </div>
                   <Switch checked={collectAuthorEmail} onCheckedChange={setCollectAuthorEmail} />
@@ -241,7 +241,7 @@ export default function SpaceSettingsPage({
             </Card>
           </TabsContent>
 
-          <TabsContent value="ia" className="space-y-6 pt-4">
+          <TabsContent value="ai" className="space-y-6 pt-4">
             {/* Sections 1–2 (Your Business + Generated) live in RequestAssistant;
                 businessDescription is controlled here so the page Save persists it. */}
             <RequestAssistant
@@ -274,12 +274,14 @@ export default function SpaceSettingsPage({
         </Tabs>
 
         <div className="flex items-center gap-3">
-          <Button onClick={handleSave}>Guardar cambios</Button>
+          <Button onClick={handleSave}>Save changes</Button>
         </div>
       </div>
 
       <div className="lg:sticky lg:top-6 lg:self-start">
-        <p className="mb-3 text-sm font-medium text-muted-foreground">Vista previa en vivo</p>
+        <p className="mb-3 font-mono text-xs uppercase tracking-widest text-muted-foreground">
+          Live preview
+        </p>
         <CollectionPagePreview
           headline={headline}
           subheading={subheading}
@@ -299,7 +301,7 @@ export default function SpaceSettingsPage({
         <div
           role="status"
           aria-live="polite"
-          className="fixed bottom-4 right-4 z-50 rounded-md bg-foreground px-4 py-2 text-sm text-background shadow-lg animate-in fade-in slide-in-from-bottom-2"
+          className="fixed bottom-4 right-4 z-50 rounded-xl bg-foreground px-4 py-2 text-sm text-background shadow-lg animate-in fade-in slide-in-from-bottom-2"
         >
           Questions saved
         </div>
