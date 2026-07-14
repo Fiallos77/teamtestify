@@ -20,7 +20,7 @@ export function HowItWorks() {
         <h2 className="text-center font-heading text-2xl font-bold tracking-tight sm:text-3xl">
           How it works
         </h2>
-        <div className="mt-10 grid gap-8 sm:grid-cols-3">
+        <div className="mt-10 grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
           {STEPS.map((step, i) => (
             <div key={step.title} className="text-center">
               <div className="mx-auto flex size-14 items-center justify-center rounded-full bg-primary font-heading text-xl font-extrabold text-primary-foreground">

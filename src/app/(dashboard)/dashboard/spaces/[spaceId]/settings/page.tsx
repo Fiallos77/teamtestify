@@ -140,8 +140,8 @@ export default function SpaceSettingsPage({
 
                 <div className="space-y-2">
                   <Label>Public link</Label>
-                  <div className="flex items-center gap-2">
-                    <Input readOnly value={publicUrl} />
+                  <div className="flex flex-wrap items-center gap-2">
+                    <Input readOnly value={publicUrl} className="min-w-0 flex-1" />
                     <Button
                       type="button"
                       variant="outline"

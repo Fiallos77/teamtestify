@@ -28,7 +28,7 @@ function getTitle(pathname: string): string {
 export function DashboardTopbar() {
   const pathname = usePathname();
   return (
-    <div className="flex h-14 shrink-0 items-center border-b bg-background/90 px-6 backdrop-blur">
+    <div className="flex h-14 shrink-0 items-center border-b bg-background/90 pr-4 pl-16 backdrop-blur sm:pr-6 lg:px-6">
       <h1 className="font-heading text-lg font-bold tracking-tight">{getTitle(pathname)}</h1>
     </div>
   );

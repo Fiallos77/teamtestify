@@ -222,7 +222,7 @@ function WidgetEditor({
 
           <div className="space-y-2">
             <Label htmlFor="accent-color">Accent color</Label>
-            <div className="flex items-center gap-2">
+            <div className="flex flex-wrap items-center gap-2">
               <input
                 id="accent-color"
                 type="color"
@@ -251,7 +251,7 @@ function WidgetEditor({
 
           <div className="space-y-2">
             <Label htmlFor="background-color">Background color</Label>
-            <div className="flex items-center gap-2">
+            <div className="flex flex-wrap items-center gap-2">
               <input
                 id="background-color"
                 type="color"
@@ -512,8 +512,8 @@ function WidgetEditor({
           <p className="mb-3 text-sm text-muted-foreground">
             A direct link you can share anywhere — no need to embed it on your own site.
           </p>
-          <div className="flex items-center gap-2">
-            <Input readOnly value={hostedUrl} className="text-xs" />
+          <div className="flex flex-wrap items-center gap-2">
+            <Input readOnly value={hostedUrl} className="min-w-0 flex-1 text-xs" />
             <Button variant="outline" onClick={() => navigator.clipboard.writeText(hostedUrl)}>
               Copy
             </Button>

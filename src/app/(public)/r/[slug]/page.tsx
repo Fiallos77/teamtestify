@@ -199,7 +199,7 @@ export default function CollectionPage({
               <button
                 type="button"
                 onClick={() => setMode("text")}
-                className={`flex-1 rounded-xl py-2.5 text-sm font-semibold transition-colors ${
+                className={`flex-1 min-h-11 rounded-xl py-2.5 text-sm font-semibold transition-colors ${
                   mode === "text"
                     ? "bg-card text-foreground shadow-sm"
                     : "text-muted-foreground"
@@ -210,7 +210,7 @@ export default function CollectionPage({
               <button
                 type="button"
                 onClick={() => setMode("video")}
-                className={`flex-1 rounded-xl py-2.5 text-sm font-semibold transition-colors ${
+                className={`flex-1 min-h-11 rounded-xl py-2.5 text-sm font-semibold transition-colors ${
                   mode === "video"
                     ? "bg-card text-foreground shadow-sm"
                     : "text-muted-foreground"
@@ -286,7 +286,7 @@ export default function CollectionPage({
                         type="button"
                         key={n}
                         onClick={() => setRating(n)}
-                        className={n <= rating ? "text-primary" : "text-border"}
+                        className={`flex size-11 items-center justify-center ${n <= rating ? "text-primary" : "text-border"}`}
                         aria-label={`${n} stars`}
                       >
                         ★

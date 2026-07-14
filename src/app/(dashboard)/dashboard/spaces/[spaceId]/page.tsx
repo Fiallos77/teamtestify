@@ -80,7 +80,7 @@ function TestimonialCard({
     >
       <div className="overflow-hidden">
         <Card className="p-5">
-          <CardHeader className="flex flex-row items-start justify-between gap-4 space-y-0 px-0">
+          <CardHeader className="flex flex-col gap-3 space-y-0 px-0 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
             <div className="flex items-center gap-3">
               <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-[linear-gradient(135deg,var(--primary),var(--amber))] font-heading text-sm font-bold text-white">
                 {initial}
@@ -103,7 +103,7 @@ function TestimonialCard({
                 )}
               </div>
             </div>
-            <div className="flex shrink-0 flex-col items-end gap-1.5">
+            <div className="flex shrink-0 flex-row items-center gap-2 sm:flex-col sm:items-end sm:gap-1.5">
               {testimonial.rating && (
                 <span className="text-sm tracking-tight text-amber">
                   {"★".repeat(testimonial.rating)}
@@ -242,7 +242,7 @@ export default function InboxPage({
         <button
           type="button"
           onClick={() => handleSortChange(sortOrder === "asc" ? "desc" : "asc")}
-          className="flex items-center gap-2 rounded-lg border border-input bg-card px-3.5 py-2 text-sm font-medium hover:bg-muted"
+          className="flex h-11 items-center gap-2 rounded-lg border border-input bg-card px-3.5 text-sm font-medium hover:bg-muted lg:h-auto lg:py-2"
         >
           ↕ {sortOrder === "asc" ? "Oldest first" : "Newest first"}
         </button>

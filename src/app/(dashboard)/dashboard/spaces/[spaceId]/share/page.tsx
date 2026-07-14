@@ -63,7 +63,7 @@ export default function SpaceSharePage({
           <CardTitle className="text-destructive">Danger zone</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <p className="text-sm font-medium">Delete this space</p>
               <p className="text-sm text-muted-foreground">

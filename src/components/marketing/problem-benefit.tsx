@@ -22,7 +22,7 @@ const ITEMS = [
 export function ProblemBenefit() {
   return (
     <section className="mx-auto max-w-6xl px-4 py-16 sm:px-6">
-      <div className="grid gap-4 sm:grid-cols-3">
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {ITEMS.map((item, i) => {
           const isHighlight = i === ITEMS.length - 1;
           return (

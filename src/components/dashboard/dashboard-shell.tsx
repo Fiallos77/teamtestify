@@ -42,7 +42,7 @@ export function DashboardShell({ children }: { children: ReactNode }) {
           which drags the whole page (and the sidebar) down with it. */}
       <div className="flex min-h-0 min-w-0 flex-1 flex-col">
         <DashboardTopbar />
-        <main className="min-h-0 min-w-0 flex-1 overflow-y-auto p-6">{children}</main>
+        <main className="min-h-0 min-w-0 flex-1 overflow-y-auto p-4 sm:p-6">{children}</main>
       </div>
     </div>
   );

@@ -23,7 +23,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
-import { ArrowLeft, Inbox, LayoutGrid, Palette, Plus, Settings, Share2 } from "lucide-react";
+import { ArrowLeft, Inbox, LayoutGrid, Menu, Palette, Plus, Settings, Share2 } from "lucide-react";
 
 function slugify(value: string) {
   return value
@@ -236,13 +236,13 @@ function SpaceSectionNav({ spaceId }: { spaceId: Id<"spaces"> }) {
   );
 }
 
-export function Sidebar() {
-  const pathname = usePathname();
-  const spaceMatch = pathname.match(/^\/dashboard\/spaces\/([^/]+)/);
-  const spaceId = spaceMatch?.[1] as Id<"spaces"> | undefined;
-
+// Shared body for both the always-visible desktop rail and the mobile
+// disclosure drawer below — same content, rendered in whichever one is
+// visible at the current breakpoint, so there's exactly one implementation
+// of the sidebar's contents even though there are two containers.
+function SidebarContent({ spaceId }: { spaceId: Id<"spaces"> | undefined }) {
   return (
-    <aside className="dark sticky top-0 flex h-screen w-60 shrink-0 flex-col border-r bg-sidebar text-sidebar-foreground">
+    <>
       <div className="space-y-3 border-b p-3">
         <Link href="/dashboard" className="flex items-center gap-2">
           <span className="flex size-7 shrink-0 items-center justify-center rounded-lg bg-primary font-heading text-base font-extrabold text-primary-foreground">
@@ -263,6 +263,37 @@ export function Sidebar() {
         </Link>
         <UserMenu />
       </div>
-    </aside>
+    </>
+  );
+}
+
+export function Sidebar() {
+  const pathname = usePathname();
+  const spaceMatch = pathname.match(/^\/dashboard\/spaces\/([^/]+)/);
+  const spaceId = spaceMatch?.[1] as Id<"spaces"> | undefined;
+
+  return (
+    <>
+      {/* Mobile/tablet (<1024px): collapsed behind a hamburger disclosure.
+          Native <details>/<summary> — no React state, no new component —
+          so opening/closing is plain HTML behavior, not a functional change. */}
+      <details className="lg:hidden">
+        <summary
+          aria-label="Open navigation menu"
+          className="dark fixed top-2 left-2 z-50 flex size-11 cursor-pointer list-none items-center justify-center rounded-lg border bg-sidebar text-sidebar-foreground shadow-md [&::-webkit-details-marker]:hidden"
+        >
+          <Menu className="size-5" />
+        </summary>
+        <div aria-hidden="true" className="fixed inset-0 z-40 bg-foreground/40" />
+        <aside className="dark fixed inset-y-0 left-0 z-50 flex h-screen w-72 max-w-[85vw] flex-col border-r bg-sidebar text-sidebar-foreground">
+          <SidebarContent spaceId={spaceId} />
+        </aside>
+      </details>
+
+      {/* Desktop (≥1024px): always-visible persistent rail. */}
+      <aside className="dark sticky top-0 hidden h-screen w-60 shrink-0 flex-col border-r bg-sidebar text-sidebar-foreground lg:flex">
+        <SidebarContent spaceId={spaceId} />
+      </aside>
+    </>
   );
 }

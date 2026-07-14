@@ -103,7 +103,7 @@ export function BrandingEditor({
 
       <div className="space-y-2">
         <Label htmlFor="primary-color">Primary color</Label>
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           <input
             id="primary-color"
             type="color"
