@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useMutation, useQuery } from "convex/react";
@@ -23,7 +23,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
-import { ArrowLeft, Inbox, LayoutGrid, Menu, Palette, Plus, Settings, Share2 } from "lucide-react";
+import { ArrowLeft, Inbox, LayoutGrid, Menu, Palette, Plus, Settings, Share2, X } from "lucide-react";
 
 function slugify(value: string) {
   return value
@@ -272,23 +272,72 @@ export function Sidebar() {
   const spaceMatch = pathname.match(/^\/dashboard\/spaces\/([^/]+)/);
   const spaceId = spaceMatch?.[1] as Id<"spaces"> | undefined;
 
+  // Mobile/tablet (<1024px) nav lives behind this toggle. State-driven
+  // (not the earlier <details>/<summary> version) specifically so it can
+  // close itself: on navigation, on backdrop click, and via its own X
+  // button — none of which a native disclosure can do without JS, and the
+  // previous version had no visible way to close it once open (the drawer
+  // painted over the hamburger button at the same z-index).
+  const [mobileOpen, setMobileOpen] = useState(false);
+
+  // Reset on navigation — covers tapping any sidebar link. Adjusted during
+  // render (React's documented pattern for "reset state when a value
+  // changes") rather than in an effect, so this doesn't cost an extra
+  // render pass after the route change.
+  const [lastPathname, setLastPathname] = useState(pathname);
+  if (pathname !== lastPathname) {
+    setLastPathname(pathname);
+    setMobileOpen(false);
+  }
+
+  // Reset if the viewport crosses into desktop width (e.g. rotating a
+  // tablet or resizing the window) so the drawer can never be left "open"
+  // in state behind the now-hidden mobile UI.
+  useEffect(() => {
+    const query = window.matchMedia("(min-width: 1024px)");
+    const onChange = () => setMobileOpen(false);
+    query.addEventListener("change", onChange);
+    return () => query.removeEventListener("change", onChange);
+  }, []);
+
   return (
     <>
-      {/* Mobile/tablet (<1024px): collapsed behind a hamburger disclosure.
-          Native <details>/<summary> — no React state, no new component —
-          so opening/closing is plain HTML behavior, not a functional change. */}
-      <details className="lg:hidden">
-        <summary
-          aria-label="Open navigation menu"
-          className="dark fixed top-2 left-2 z-50 flex size-11 cursor-pointer list-none items-center justify-center rounded-lg border bg-sidebar text-sidebar-foreground shadow-md [&::-webkit-details-marker]:hidden"
-        >
-          <Menu className="size-5" />
-        </summary>
-        <div aria-hidden="true" className="fixed inset-0 z-40 bg-foreground/40" />
-        <aside className="dark fixed inset-y-0 left-0 z-50 flex h-screen w-72 max-w-[85vw] flex-col border-r bg-sidebar text-sidebar-foreground">
-          <SidebarContent spaceId={spaceId} />
-        </aside>
-      </details>
+      {/* Mobile/tablet (<1024px): collapsed behind a hamburger toggle. */}
+      <div className="lg:hidden">
+        {!mobileOpen && (
+          <button
+            type="button"
+            aria-label="Open navigation menu"
+            onClick={() => setMobileOpen(true)}
+            className="dark fixed top-2 left-2 z-30 flex size-11 items-center justify-center rounded-lg border bg-sidebar text-sidebar-foreground shadow-md"
+          >
+            <Menu className="size-5" />
+          </button>
+        )}
+
+        {mobileOpen && (
+          <>
+            <div
+              aria-hidden="true"
+              onClick={() => setMobileOpen(false)}
+              className="fixed inset-0 z-40 bg-foreground/40"
+            />
+            <aside className="dark fixed inset-y-0 left-0 z-50 flex h-screen w-72 max-w-[85vw] flex-col border-r bg-sidebar text-sidebar-foreground">
+              <div className="flex justify-end p-2">
+                <button
+                  type="button"
+                  aria-label="Close navigation menu"
+                  onClick={() => setMobileOpen(false)}
+                  className="flex size-11 items-center justify-center rounded-lg text-sidebar-foreground hover:bg-sidebar-accent"
+                >
+                  <X className="size-5" />
+                </button>
+              </div>
+              <SidebarContent spaceId={spaceId} />
+            </aside>
+          </>
+        )}
+      </div>
 
       {/* Desktop (≥1024px): always-visible persistent rail. */}
       <aside className="dark sticky top-0 hidden h-screen w-60 shrink-0 flex-col border-r bg-sidebar text-sidebar-foreground lg:flex">
