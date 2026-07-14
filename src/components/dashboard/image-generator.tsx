@@ -167,7 +167,7 @@ export function ImageGenerator({ testimonialId }: { testimonialId: Id<"testimoni
                     key={i}
                     type="button"
                     onClick={() => pick(i)}
-                    className={`rounded-md border p-3 text-left text-sm ${
+                    className={`rounded-xl border p-3 text-left text-sm ${
                       selected === i ? "border-primary ring-2 ring-primary/40" : "border-input"
                     }`}
                   >
@@ -188,7 +188,7 @@ export function ImageGenerator({ testimonialId }: { testimonialId: Id<"testimoni
             <div className="space-y-3">
               {previewUrl ? (
                 // eslint-disable-next-line @next/next/no-img-element
-                <img src={previewUrl} alt="Preview" className="mx-auto w-64 rounded-md border" />
+                <img src={previewUrl} alt="Preview" className="mx-auto w-64 rounded-xl border" />
               ) : (
                 <p className="text-sm text-muted-foreground">Rendering preview…</p>
               )}
