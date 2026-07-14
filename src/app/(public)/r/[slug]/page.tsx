@@ -286,7 +286,7 @@ export default function CollectionPage({
                         type="button"
                         key={n}
                         onClick={() => setRating(n)}
-                        className={n <= rating ? "text-amber" : "text-border"}
+                        className={n <= rating ? "text-primary" : "text-border"}
                         aria-label={`${n} stars`}
                       >
                         ★

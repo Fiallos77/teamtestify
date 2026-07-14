@@ -137,7 +137,7 @@ export function CollectionPagePreview({
             {collectRating && (
               <div className="space-y-1.5 text-center">
                 <Label className="justify-center text-xs">Rating</Label>
-                <div className="flex justify-center gap-1 text-amber">★★★★★</div>
+                <div className="flex justify-center gap-1 text-primary">★★★★★</div>
               </div>
             )}
 

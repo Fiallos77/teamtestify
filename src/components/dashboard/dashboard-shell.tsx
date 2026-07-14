@@ -34,11 +34,15 @@ export function DashboardShell({ children }: { children: ReactNode }) {
   }
 
   return (
-    <div className="flex min-h-screen bg-background text-foreground">
+    <div className="flex h-screen bg-background text-foreground">
       <Sidebar />
-      <div className="flex min-w-0 flex-1 flex-col">
+      {/* min-h-0 at every nested flex level below h-screen is required so
+          `main` actually scrolls internally (flexbug #1) — without it, a tall
+          Inbox list grows this column past the viewport instead of scrolling,
+          which drags the whole page (and the sidebar) down with it. */}
+      <div className="flex min-h-0 min-w-0 flex-1 flex-col">
         <DashboardTopbar />
-        <main className="min-w-0 flex-1 overflow-y-auto p-6">{children}</main>
+        <main className="min-h-0 min-w-0 flex-1 overflow-y-auto p-6">{children}</main>
       </div>
     </div>
   );
