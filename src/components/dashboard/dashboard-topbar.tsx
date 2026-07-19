@@ -8,17 +8,20 @@ import { usePathname } from "next/navigation";
 // components render this text in different contexts (nav link vs. page
 // heading).
 const SPACE_SECTION_LABELS: Array<{ suffix: string; label: string }> = [
+  { suffix: "/inbox", label: "Inbox" },
   { suffix: "/widgets", label: "Widgets" },
   { suffix: "/settings", label: "Settings" },
   { suffix: "/share", label: "Share" },
 ];
 
 function getTitle(pathname: string): string {
-  const spaceMatch = pathname.match(/^\/dashboard\/spaces\/[^/]+(.*)$/);
+  const spaceMatch = pathname.match(/^\/dashboard\/spaces\/([^/]+)(.*)$/);
   if (spaceMatch) {
-    const rest = spaceMatch[1] ?? "";
-    const section = SPACE_SECTION_LABELS.find((s) => rest.startsWith(s.suffix));
-    return section?.label ?? "Inbox";
+    const [, segment, rest] = spaceMatch;
+    if (segment === "new") return "New space";
+    const section = SPACE_SECTION_LABELS.find((s) => (rest ?? "").startsWith(s.suffix));
+    // The bare /dashboard/spaces/[id] route is the space Overview.
+    return section?.label ?? "Overview";
   }
   if (pathname === "/dashboard/settings") return "Account settings";
   return "Dashboard";

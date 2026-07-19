@@ -29,6 +29,26 @@ export const getOrgStats = query({
   },
 });
 
+// Per-space counts for the space Overview: total received (any status),
+// pending, and approved. Page-safe (zeros before an org is active).
+export const getSpaceStats = query({
+  args: { spaceId: v.id("spaces") },
+  handler: async (ctx, { spaceId }) => {
+    const orgContext = await tryOrgContext(ctx);
+    if (!orgContext) return { total: 0, pending: 0, approved: 0 };
+    await requireSpaceInOrg(ctx, spaceId, orgContext.org._id);
+    const all = await ctx.db
+      .query("testimonials")
+      .withIndex("by_space", (q) => q.eq("spaceId", spaceId))
+      .collect();
+    return {
+      total: all.length,
+      pending: all.filter((t) => t.status === "pending").length,
+      approved: all.filter((t) => t.status === "approved").length,
+    };
+  },
+});
+
 // Powers the red notification dot on the Inbox tab so a founder working in
 // another tab (Settings, Widgets, ...) notices a new submission arrived.
 export const getPendingCount = query({

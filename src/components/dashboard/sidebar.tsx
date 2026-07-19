@@ -11,7 +11,17 @@ import { UserMenu } from "@/components/dashboard/user-menu";
 import { SpaceQuickMenu } from "@/components/dashboard/space-quick-menu";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { ArrowLeft, Inbox, LayoutGrid, Menu, Plus, Settings, Share2, X } from "lucide-react";
+import {
+  ArrowLeft,
+  Inbox,
+  LayoutDashboard,
+  LayoutGrid,
+  Menu,
+  Plus,
+  Settings,
+  Share2,
+  X,
+} from "lucide-react";
 
 // Space creation lives on its own page (/dashboard/spaces/new) using the same
 // tabbed editor as settings, so this is just an entry point to it.
@@ -78,7 +88,8 @@ function SpaceSectionNav({ spaceId }: { spaceId: Id<"spaces"> }) {
   const pendingCount = useQuery(api.testimonials.getPendingCount, { spaceId });
   const base = `/dashboard/spaces/${spaceId}`;
   const sections = [
-    { href: base, label: "Inbox", icon: Inbox, showDot: !!pendingCount },
+    { href: base, label: "Overview", icon: LayoutDashboard, showDot: false },
+    { href: `${base}/inbox`, label: "Inbox", icon: Inbox, showDot: !!pendingCount },
     { href: `${base}/widgets`, label: "Widgets", icon: LayoutGrid },
     { href: `${base}/settings`, label: "Settings", icon: Settings },
     { href: `${base}/share`, label: "Share", icon: Share2 },

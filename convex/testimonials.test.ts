@@ -160,3 +160,30 @@ describe("testimonials.setStatus entitlement enforcement", () => {
     expect(testimonial?.status).toBe("rejected");
   });
 });
+
+describe("testimonials.getSpaceStats", () => {
+  test("counts total received, pending and approved for the space", async () => {
+    const t = newTestConvex();
+    const { organizationId, spaceId, asUser } = await seedOrgContext(t);
+    await seedPendingTestimonial(t, organizationId, spaceId, "text", "pending");
+    await seedPendingTestimonial(t, organizationId, spaceId, "text", "pending");
+    await seedPendingTestimonial(t, organizationId, spaceId, "video", "approved");
+    // A rejected one still counts toward "total received".
+    const rejected = await seedPendingTestimonial(t, organizationId, spaceId, "text", "pending");
+    await asUser.mutation(api.testimonials.setStatus, {
+      testimonialId: rejected,
+      status: "rejected",
+    });
+
+    const stats = await asUser.query(api.testimonials.getSpaceStats, { spaceId });
+    expect(stats).toEqual({ total: 4, pending: 2, approved: 1 });
+  });
+
+  test("returns zeros for a space with no testimonials", async () => {
+    const t = newTestConvex();
+    const { spaceId, asUser } = await seedOrgContext(t);
+
+    const stats = await asUser.query(api.testimonials.getSpaceStats, { spaceId });
+    expect(stats).toEqual({ total: 0, pending: 0, approved: 0 });
+  });
+});
