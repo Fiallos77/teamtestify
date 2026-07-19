@@ -81,6 +81,7 @@ export const update = mutation({
     spaceId: v.id("spaces"),
     name: v.optional(v.string()),
     description: v.optional(v.string()),
+    publicSlug: v.optional(v.string()),
     formConfig: v.optional(formConfigValidator),
     branding: v.optional(brandingValidator),
     isActive: v.optional(v.boolean()),
@@ -91,6 +92,23 @@ export const update = mutation({
   handler: async (ctx, { spaceId, ...patch }) => {
     const { org } = await requireOrgContext(ctx);
     await requireSpaceInOrg(ctx, spaceId, org._id);
+
+    // A changed slug must stay unique across all spaces (it addresses the
+    // public /r/[slug] page). Keeping the same slug is a no-op; a different
+    // one is rejected if another space already owns it.
+    if (patch.publicSlug !== undefined) {
+      const slug = patch.publicSlug.trim();
+      if (!slug) throw new Error("The public URL slug cannot be empty");
+      const existing = await ctx.db
+        .query("spaces")
+        .withIndex("by_slug", (q) => q.eq("publicSlug", slug))
+        .unique();
+      if (existing && existing._id !== spaceId) {
+        throw new Error("That public URL slug is already taken");
+      }
+      patch.publicSlug = slug;
+    }
+
     await ctx.db.patch(spaceId, patch);
   },
 });

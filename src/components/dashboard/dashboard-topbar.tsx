@@ -10,7 +10,6 @@ import { usePathname } from "next/navigation";
 const SPACE_SECTION_LABELS: Array<{ suffix: string; label: string }> = [
   { suffix: "/widgets", label: "Widgets" },
   { suffix: "/settings", label: "Settings" },
-  { suffix: "/branding", label: "Branding" },
   { suffix: "/share", label: "Share" },
 ];
 

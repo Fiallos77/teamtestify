@@ -24,7 +24,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
-import { ArrowLeft, Inbox, LayoutGrid, Menu, Palette, Plus, Settings, Share2, X } from "lucide-react";
+import { ArrowLeft, Inbox, LayoutGrid, Menu, Plus, Settings, Share2, X } from "lucide-react";
 
 function slugify(value: string) {
   return value
@@ -193,7 +193,6 @@ function SpaceSectionNav({ spaceId }: { spaceId: Id<"spaces"> }) {
     { href: base, label: "Inbox", icon: Inbox, showDot: !!pendingCount },
     { href: `${base}/widgets`, label: "Widgets", icon: LayoutGrid },
     { href: `${base}/settings`, label: "Settings", icon: Settings },
-    { href: `${base}/branding`, label: "Branding", icon: Palette },
     { href: `${base}/share`, label: "Share", icon: Share2 },
   ];
 

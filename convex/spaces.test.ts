@@ -85,3 +85,54 @@ describe("spaces.create entitlement enforcement", () => {
     ).rejects.toThrow();
   });
 });
+
+describe("spaces.update public slug", () => {
+  async function slugOf(
+    t: ReturnType<typeof newTestConvex>,
+    spaceId: Id<"spaces">
+  ): Promise<string | undefined> {
+    return await t.run(async (ctx) => (await ctx.db.get(spaceId))?.publicSlug);
+  }
+
+  test("changes the slug to a new unique value", async () => {
+    const t = newTestConvex();
+    const { asUser } = await seedOrgContext(t);
+    const spaceId = await asUser.mutation(api.spaces.create, createArgs("original-slug"));
+
+    await asUser.mutation(api.spaces.update, { spaceId, publicSlug: "renamed-slug" });
+
+    expect(await slugOf(t, spaceId)).toBe("renamed-slug");
+  });
+
+  test("keeping the same slug is allowed", async () => {
+    const t = newTestConvex();
+    const { asUser } = await seedOrgContext(t);
+    const spaceId = await asUser.mutation(api.spaces.create, createArgs("keep-slug"));
+
+    await asUser.mutation(api.spaces.update, { spaceId, publicSlug: "keep-slug", name: "Renamed" });
+
+    expect(await slugOf(t, spaceId)).toBe("keep-slug");
+  });
+
+  test("rejects a slug already taken by another space", async () => {
+    const t = newTestConvex();
+    const { organizationId, asUser } = await seedOrgContext(t);
+    await makePro(t, organizationId);
+    await asUser.mutation(api.spaces.create, createArgs("taken-slug"));
+    const second = await asUser.mutation(api.spaces.create, createArgs("second-slug"));
+
+    await expect(
+      asUser.mutation(api.spaces.update, { spaceId: second, publicSlug: "taken-slug" })
+    ).rejects.toThrow();
+  });
+
+  test("rejects a blank slug", async () => {
+    const t = newTestConvex();
+    const { asUser } = await seedOrgContext(t);
+    const spaceId = await asUser.mutation(api.spaces.create, createArgs("some-slug"));
+
+    await expect(
+      asUser.mutation(api.spaces.update, { spaceId, publicSlug: "   " })
+    ).rejects.toThrow();
+  });
+});
