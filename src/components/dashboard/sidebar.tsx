@@ -9,7 +9,8 @@ import type { Id } from "../../../convex/_generated/dataModel";
 import { OrgSwitcher } from "@/components/dashboard/org-switcher";
 import { UserMenu } from "@/components/dashboard/user-menu";
 import { SpaceQuickMenu } from "@/components/dashboard/space-quick-menu";
-import { ErrorWithUpgradeCta } from "@/components/dashboard/upgrade-cta";
+import { isUpgradeError } from "@/components/dashboard/upgrade-cta";
+import { PlanLimitUpgradeAlert } from "@/components/dashboard/plan-limit-upgrade-alert";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -123,7 +124,12 @@ function NewSpaceDialog() {
               />
             </div>
           </div>
-          {error && <ErrorWithUpgradeCta message={error} />}
+          {error &&
+            (isUpgradeError(error) ? (
+              <PlanLimitUpgradeAlert title="Space limit reached" message={error} />
+            ) : (
+              <p className="text-sm text-destructive">{error}</p>
+            ))}
         </div>
         <DialogFooter>
           <Button onClick={handleCreate} disabled={!name || !slug || submitting}>
