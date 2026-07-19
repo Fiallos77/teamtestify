@@ -2,142 +2,30 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
-import { useMutation, useQuery } from "convex/react";
+import { usePathname } from "next/navigation";
+import { useQuery } from "convex/react";
 import { api } from "../../../convex/_generated/api";
 import type { Id } from "../../../convex/_generated/dataModel";
 import { OrgSwitcher } from "@/components/dashboard/org-switcher";
 import { UserMenu } from "@/components/dashboard/user-menu";
 import { SpaceQuickMenu } from "@/components/dashboard/space-quick-menu";
-import { isUpgradeError } from "@/components/dashboard/upgrade-cta";
-import { PlanLimitUpgradeAlert } from "@/components/dashboard/plan-limit-upgrade-alert";
 import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
 import { ArrowLeft, Inbox, LayoutGrid, Menu, Plus, Settings, Share2, X } from "lucide-react";
 
-function slugify(value: string) {
-  return value
-    .toLowerCase()
-    .trim()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/(^-|-$)/g, "");
-}
-
-function NewSpaceDialog() {
-  const router = useRouter();
-  const createSpace = useMutation(api.spaces.create);
-  const [open, setOpen] = useState(false);
-  const [name, setName] = useState("");
-  const [description, setDescription] = useState("");
-  const [slug, setSlug] = useState("");
-  const [slugEdited, setSlugEdited] = useState(false);
-  const [submitting, setSubmitting] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-
-  async function handleCreate() {
-    setSubmitting(true);
-    setError(null);
-    try {
-      const id = await createSpace({
-        name,
-        description: description || undefined,
-        publicSlug: slug,
-        formConfig: {
-          headline: `Share your experience with ${name}`,
-          allowText: true,
-          allowVideo: true,
-          collectRating: true,
-          collectNameCompanyPhoto: true,
-          questions: [],
-          thankYouMessage: "Thank you for sharing your feedback!",
-        },
-        branding: {},
-      });
-      setOpen(false);
-      setName("");
-      setDescription("");
-      setSlug("");
-      setSlugEdited(false);
-      router.push(`/dashboard/spaces/${id}`);
-    } catch (e) {
-      setError(e instanceof Error ? e.message : "Something went wrong");
-    } finally {
-      setSubmitting(false);
-    }
-  }
-
+// Space creation lives on its own page (/dashboard/spaces/new) using the same
+// tabbed editor as settings, so this is just an entry point to it.
+function NewSpaceButton() {
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger render={<Button size="sm" className="w-full justify-start gap-2" />}>
-        <Plus className="size-4" />
-        New space
-      </DialogTrigger>
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle>Create a new space</DialogTitle>
-        </DialogHeader>
-        <div className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="space-name">Name</Label>
-            <Input
-              id="space-name"
-              value={name}
-              onChange={(e) => {
-                setName(e.target.value);
-                if (!slugEdited) setSlug(slugify(e.target.value));
-              }}
-              placeholder="Q3 Customer Feedback"
-            />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="space-description">Description (optional)</Label>
-            <Textarea
-              id="space-description"
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              placeholder="What this space is for — only visible to your team."
-              rows={2}
-            />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="space-slug">Public URL slug</Label>
-            <div className="flex items-center gap-2 text-sm text-muted-foreground">
-              <span>/r/</span>
-              <Input
-                id="space-slug"
-                value={slug}
-                onChange={(e) => {
-                  setSlug(slugify(e.target.value));
-                  setSlugEdited(true);
-                }}
-              />
-            </div>
-          </div>
-          {error &&
-            (isUpgradeError(error) ? (
-              <PlanLimitUpgradeAlert title="Space limit reached" message={error} />
-            ) : (
-              <p className="text-sm text-destructive">{error}</p>
-            ))}
-        </div>
-        <DialogFooter>
-          <Button onClick={handleCreate} disabled={!name || !slug || submitting}>
-            Create
-          </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+    <Button
+      size="sm"
+      className="w-full justify-start gap-2"
+      nativeButton={false}
+      render={<Link href="/dashboard/spaces/new" />}
+    >
+      <Plus className="size-4" />
+      New space
+    </Button>
   );
 }
 
@@ -148,7 +36,7 @@ function DashboardNav() {
   return (
     <>
       <div className="p-3">
-        <NewSpaceDialog />
+        <NewSpaceButton />
       </div>
       <nav className="flex-1 space-y-0.5 overflow-y-auto px-2">
         {spaces === undefined && (
@@ -275,7 +163,11 @@ function SidebarContent({ spaceId }: { spaceId: Id<"spaces"> | undefined }) {
 export function Sidebar() {
   const pathname = usePathname();
   const spaceMatch = pathname.match(/^\/dashboard\/spaces\/([^/]+)/);
-  const spaceId = spaceMatch?.[1] as Id<"spaces"> | undefined;
+  // "/spaces/new" is the create page, not a space — keep the main nav there so
+  // we don't query spaces.get with a non-id segment.
+  const candidate = spaceMatch?.[1];
+  const spaceId =
+    candidate && candidate !== "new" ? (candidate as Id<"spaces">) : undefined;
 
   // Mobile/tablet (<1024px) nav lives behind this toggle. State-driven
   // (not the earlier <details>/<summary> version) specifically so it can

@@ -66,7 +66,11 @@ export default function DashboardPage() {
           <div className="flex items-center justify-between gap-2">
             <p className="text-2xl font-semibold capitalize leading-none">{usage?.plan ?? "—"}</p>
             {usage?.plan === "free" && (
-              <Button size="sm" render={<Link href="/dashboard/settings?tab=plan" />}>
+              <Button
+                size="sm"
+                nativeButton={false}
+                render={<Link href="/dashboard/settings?tab=plan" />}
+              >
                 Upgrade
               </Button>
             )}

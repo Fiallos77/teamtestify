@@ -16,7 +16,7 @@ export function AiQuotaUpgradeAlert() {
       <AlertTitle>AI limit reached</AlertTitle>
       <AlertDescription>
         <p>{AI_QUOTA_LIMIT_MESSAGE}</p>
-        <Button render={<Link href={AI_UPGRADE_HREF} />} size="sm" className="mt-1">
+        <Button nativeButton={false} render={<Link href={AI_UPGRADE_HREF} />} size="sm" className="mt-1">
           Upgrade to Pro
         </Button>
       </AlertDescription>

@@ -22,7 +22,7 @@ export function PlanLimitUpgradeAlert({
       <AlertTitle>{title}</AlertTitle>
       <AlertDescription>
         <p>{message}</p>
-        <Button render={<Link href={PLAN_UPGRADE_HREF} />} size="sm" className="mt-1">
+        <Button nativeButton={false} render={<Link href={PLAN_UPGRADE_HREF} />} size="sm" className="mt-1">
           Upgrade to Pro
         </Button>
       </AlertDescription>
