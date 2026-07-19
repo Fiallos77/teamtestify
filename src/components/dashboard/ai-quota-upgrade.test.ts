@@ -8,7 +8,7 @@ import { AI_QUOTA_LIMIT_MESSAGE, AI_UPGRADE_HREF } from "./ai-quota-upgrade";
 describe("AI quota upgrade prompt", () => {
   test("message names the monthly AI limit and the Pro upgrade path", () => {
     expect(AI_QUOTA_LIMIT_MESSAGE).toBe(
-      "You've reached your AI limit for this month. Upgrade to Pro to keep using the AI Assistant and generate unlimited images."
+      "You've reached your AI limit this month. Upgrade to Pro to keep using the AI Assistant and generate unlimited images."
     );
   });
 
