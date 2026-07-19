@@ -31,6 +31,7 @@ import type * as lib_videoValidation from "../lib/videoValidation.js";
 import type * as lib_widgetPayload from "../lib/widgetPayload.js";
 import type * as notifications from "../notifications.js";
 import type * as organizations from "../organizations.js";
+import type * as planUsage from "../planUsage.js";
 import type * as public_ from "../public.js";
 import type * as spaces from "../spaces.js";
 import type * as storageCleanup from "../storageCleanup.js";
@@ -70,6 +71,7 @@ declare const fullApi: ApiFromModules<{
   "lib/widgetPayload": typeof lib_widgetPayload;
   notifications: typeof notifications;
   organizations: typeof organizations;
+  planUsage: typeof planUsage;
   public: typeof public_;
   spaces: typeof spaces;
   storageCleanup: typeof storageCleanup;

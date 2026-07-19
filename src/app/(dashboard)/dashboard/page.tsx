@@ -6,12 +6,8 @@ import { api } from "../../../../convex/_generated/api";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { SpaceQuickMenu } from "@/components/dashboard/space-quick-menu";
+import { PlanUsageCard } from "@/components/dashboard/plan-usage-card";
 import { Layers, Clock, CheckCircle2, Video } from "lucide-react";
-
-// No billing/plans exist yet — these limits are illustrative placeholders
-// for the UI, not enforced anywhere. Swap for real plan data once pricing
-// tiers are built.
-const PLACEHOLDER_LIMITS = { spaces: 5, videoTestimonials: 20 };
 
 const STAT_TONES = {
   primary: "bg-primary/10 text-primary",
@@ -60,21 +56,15 @@ export default function DashboardPage() {
 
   return (
     <div className="mx-auto max-w-4xl">
+      <div className="mb-6">
+        <PlanUsageCard />
+      </div>
+
       <div className="mb-6 grid grid-cols-2 gap-4 lg:grid-cols-4">
-        <StatCard
-          icon={Layers}
-          label="Spaces"
-          value={spaces?.length}
-          limit={PLACEHOLDER_LIMITS.spaces}
-        />
+        <StatCard icon={Layers} label="Spaces" value={spaces?.length} />
         <StatCard icon={Clock} label="Pending review" value={stats?.pending} tone="warning" />
         <StatCard icon={CheckCircle2} label="Approved" value={stats?.approved} tone="success" />
-        <StatCard
-          icon={Video}
-          label="Video testimonials"
-          value={stats?.videoCount}
-          limit={PLACEHOLDER_LIMITS.videoTestimonials}
-        />
+        <StatCard icon={Video} label="Video testimonials" value={stats?.videoCount} />
       </div>
 
       <div className="mb-6">

@@ -222,6 +222,19 @@ export function aiRemaining(quota: AiQuota, usage: AiUsageCounts, feature: AiFea
   return Math.max(0, aiFeatureLimit(quota, feature) - aiFeatureUsed(quota, usage, feature));
 }
 
+// Plan-agnostic monthly totals for summary UIs (the dashboard/plan usage card
+// shows one "AI generations X/Y" figure, not the per-feature split). A combined
+// plan's total is its shared pool; a per_feature plan's total is both buckets
+// added together.
+export function aiTotalLimit(quota: AiQuota): number {
+  if (quota.metering === "combined") return quota.combinedGensPerMonth;
+  return quota.requestGensPerMonth + quota.imageGensPerMonth;
+}
+
+export function aiTotalUsed(usage: AiUsageCounts): number {
+  return usage.requestGenCount + usage.imageGenCount;
+}
+
 // Throws if this feature has no credit left this month. Callers reserve a
 // credit before invoking the AI provider, so the cap fails closed.
 export function assertUnderAiQuota(

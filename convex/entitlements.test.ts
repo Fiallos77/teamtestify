@@ -11,6 +11,8 @@ import {
   aiFeatureLimit,
   aiFeatureUsed,
   aiRemaining,
+  aiTotalLimit,
+  aiTotalUsed,
   assertUnderAiQuota,
   type AiQuota,
   FREE_MAX_SPACES,
@@ -441,5 +443,18 @@ describe("AI quota math", () => {
     const full = { requestGenCount: 60, imageGenCount: 40 };
     expect(aiRemaining(proQuota, full, "request")).toBe(0);
     expect(() => assertUnderAiQuota(proQuota, full, "image")).toThrow();
+  });
+
+  // The dashboard/plan summary card shows a single "AI generations X/Y this
+  // month" figure rather than the per-feature breakdown, so it needs a
+  // plan-agnostic total: per_feature sums both buckets, combined uses the pool.
+  test("aiTotalLimit gives one figure across metering styles", () => {
+    expect(aiTotalLimit(freeQuota)).toBe(4); // 1 request + 3 image
+    expect(aiTotalLimit(proQuota)).toBe(100);
+  });
+
+  test("aiTotalUsed sums request and image counts", () => {
+    expect(aiTotalUsed({ requestGenCount: 1, imageGenCount: 3 })).toBe(4);
+    expect(aiTotalUsed({ requestGenCount: 0, imageGenCount: 0 })).toBe(0);
   });
 });
