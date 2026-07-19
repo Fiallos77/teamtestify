@@ -26,6 +26,22 @@ import {
 } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { testimonialLabel } from "@/lib/testimonial-label";
+import { WIDGETS_LOCKED_MESSAGE, isWidgetsLocked } from "@/components/dashboard/widgets-gate";
+import { Lock } from "lucide-react";
+
+function WidgetsLocked({ spaceId }: { spaceId: string }) {
+  return (
+    <div className="flex flex-col items-center gap-4 rounded-xl border border-dashed py-16 text-center">
+      <div className="flex size-12 items-center justify-center rounded-full bg-muted text-muted-foreground">
+        <Lock className="size-5" />
+      </div>
+      <p className="max-w-sm text-muted-foreground">{WIDGETS_LOCKED_MESSAGE}</p>
+      <Button nativeButton={false} render={<Link href={`/dashboard/spaces/${spaceId}/inbox`} />}>
+        Go to Inbox
+      </Button>
+    </div>
+  );
+}
 
 export default function WidgetsPage({
   params,
@@ -34,6 +50,7 @@ export default function WidgetsPage({
 }) {
   const { spaceId } = use(params);
   const id = spaceId as Id<"spaces">;
+  const stats = useQuery(api.testimonials.getSpaceStats, { spaceId: id });
   const widgets = useQuery(api.widgets.listBySpace, { spaceId: id });
   // The widget picker needs every approved testimonial, so opt out of the
   // paginated default with a high limit and read the items array.
@@ -49,6 +66,9 @@ export default function WidgetsPage({
   const [type, setType] = useState<"wall" | "single">("wall");
   const [singleTestimonialId, setSingleTestimonialId] = useState<string>("");
   const [submitting, setSubmitting] = useState(false);
+
+  if (stats === undefined) return <p className="text-muted-foreground">Loading…</p>;
+  if (isWidgetsLocked(stats.approved)) return <WidgetsLocked spaceId={spaceId} />;
 
   async function handleCreate() {
     setSubmitting(true);
