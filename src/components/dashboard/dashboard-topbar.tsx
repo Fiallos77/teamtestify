@@ -21,7 +21,7 @@ function getTitle(pathname: string): string {
     const section = SPACE_SECTION_LABELS.find((s) => rest.startsWith(s.suffix));
     return section?.label ?? "Inbox";
   }
-  if (pathname === "/dashboard/settings") return "Organization settings";
+  if (pathname === "/dashboard/settings") return "Account settings";
   return "Dashboard";
 }
 

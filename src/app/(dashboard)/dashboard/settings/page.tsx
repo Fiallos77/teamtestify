@@ -1,14 +1,97 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
+import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { useAction, useMutation, useQuery } from "convex/react";
+import { authClient } from "@/lib/auth-client";
 import { api } from "../../../../../convex/_generated/api";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { PlanUsageCard } from "@/components/dashboard/plan-usage-card";
 
-function BillingCard() {
+const TABS = ["profile", "plan", "notifications"] as const;
+type TabValue = (typeof TABS)[number];
+
+function isTabValue(value: string | null): value is TabValue {
+  return value !== null && (TABS as readonly string[]).includes(value);
+}
+
+// --- Profile -----------------------------------------------------------------
+
+function ProfileTab() {
+  const org = useQuery(api.organizations.getActive);
+  const { data: session } = authClient.useSession();
+  const updateName = useMutation(api.organizations.updateName);
+
+  const [name, setName] = useState("");
+  const [saved, setSaved] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    if (!org) return;
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setName(org.name);
+  }, [org]);
+
+  if (!org) return <p className="text-muted-foreground">Loading…</p>;
+
+  async function handleSave() {
+    setSaving(true);
+    setError(null);
+    try {
+      await updateName({ name });
+      setSaved(true);
+      setTimeout(() => setSaved(false), 2000);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Could not save changes");
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>Profile</CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        <div className="space-y-2">
+          <Label htmlFor="org-name">Organization name</Label>
+          <Input
+            id="org-name"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            placeholder="Acme Inc."
+          />
+        </div>
+
+        <div className="space-y-2">
+          <Label>Signed in as</Label>
+          <Input value={session?.user?.email ?? ""} readOnly disabled />
+        </div>
+
+        {error && <p className="text-sm text-destructive">{error}</p>}
+
+        <div className="flex items-center gap-3">
+          <Button onClick={handleSave} disabled={saving || !name.trim()}>
+            {saving ? "Saving…" : "Save changes"}
+          </Button>
+          {saved && <span className="text-sm text-muted-foreground">Saved</span>}
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
+// --- Plan --------------------------------------------------------------------
+
+function PlanTab() {
   const billing = useQuery(api.subscriptions.getBillingInfo);
   const createCheckoutSession = useAction(api.stripe.createCheckoutSession);
   const createPortalSession = useAction(api.stripe.createPortalSession);
@@ -18,13 +101,14 @@ function BillingCard() {
 
   useEffect(() => {
     // window isn't available during SSR, so this can only ever run
-    // post-hydration on the client — there's no lazy-initializer
-    // alternative that would work here.
+    // post-hydration on the client.
     const checkout = new URLSearchParams(window.location.search).get("checkout");
     if (checkout === "success" || checkout === "cancel") {
       // eslint-disable-next-line react-hooks/set-state-in-effect
       setJustReturned(checkout);
-      window.history.replaceState(null, "", window.location.pathname);
+      const url = new URL(window.location.href);
+      url.searchParams.delete("checkout");
+      window.history.replaceState(null, "", url.pathname + url.search);
     }
   }, []);
 
@@ -52,48 +136,81 @@ function BillingCard() {
     }
   }
 
+  const isPro = billing?.plan === "pro";
   const renewalDate = billing?.currentPeriodEnd
     ? new Date(billing.currentPeriodEnd * 1000).toLocaleDateString()
     : null;
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Billing</CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        {justReturned === "success" && (
-          <p className="rounded-md bg-muted p-2 text-sm">
-            Checkout complete — this may take a few seconds to reflect below.
-          </p>
-        )}
-        {justReturned === "cancel" && (
-          <p className="rounded-md bg-muted p-2 text-sm text-muted-foreground">
-            Checkout canceled — no changes were made.
-          </p>
-        )}
+    <div className="space-y-6">
+      {justReturned === "success" && (
+        <p className="rounded-md bg-muted p-2 text-sm">
+          Checkout complete — this may take a few seconds to reflect below.
+        </p>
+      )}
+      {justReturned === "cancel" && (
+        <p className="rounded-md bg-muted p-2 text-sm text-muted-foreground">
+          Checkout canceled — no changes were made.
+        </p>
+      )}
 
-        {billing === undefined ? (
-          <p className="text-sm text-muted-foreground">Loading…</p>
-        ) : (
-          <>
-            <div>
-              <p className="text-sm text-muted-foreground">Current plan</p>
-              <p className="text-lg font-medium capitalize">{billing?.plan ?? "free"}</p>
-              {billing?.plan === "pro" && renewalDate && (
-                <p className="text-sm text-muted-foreground">Renews {renewalDate}</p>
-              )}
-              {billing?.plan === "pro" && billing.status !== "active" && (
-                <p className="text-sm text-destructive">Billing status: {billing.status}</p>
-              )}
+      <PlanUsageCard />
+
+      {error && <p className="text-sm text-destructive">{error}</p>}
+
+      <div className="grid gap-4 sm:grid-cols-2">
+        {/* Free */}
+        <Card>
+          <CardHeader>
+            <div className="flex items-center gap-2">
+              <CardTitle>Free</CardTitle>
+              {!isPro && <Badge variant="secondary">Current plan</Badge>}
             </div>
+            <p className="text-3xl font-bold">$0</p>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            <ul className="space-y-1 text-sm text-muted-foreground">
+              <li>1 space</li>
+              <li>15 published testimonials (2 video)</li>
+              <li>2-minute video length</li>
+            </ul>
+          </CardContent>
+        </Card>
 
-            {error && <p className="text-sm text-destructive">{error}</p>}
+        {/* Pro */}
+        <Card>
+          <CardHeader>
+            <div className="flex items-center gap-2">
+              <CardTitle>Pro</CardTitle>
+              {isPro && <Badge>Current plan</Badge>}
+            </div>
+            <p className="text-3xl font-bold">
+              $29<span className="text-sm font-normal text-muted-foreground">/mo</span>
+            </p>
+            <p className="text-sm text-muted-foreground">or $290/yr</p>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            <ul className="space-y-1 text-sm text-muted-foreground">
+              <li>5 spaces</li>
+              <li>Unlimited published testimonials</li>
+              <li>3-minute video length</li>
+              <li>100 AI generations / month</li>
+            </ul>
 
-            {billing?.plan === "pro" ? (
-              <Button onClick={handleManageBilling} disabled={loading !== null}>
-                {loading === "portal" ? "Opening…" : "Manage billing"}
-              </Button>
+            {billing === undefined ? (
+              <p className="text-sm text-muted-foreground">Loading…</p>
+            ) : isPro ? (
+              <div className="space-y-2">
+                {renewalDate && (
+                  <p className="text-sm text-muted-foreground">Renews {renewalDate}</p>
+                )}
+                {billing.status !== "active" && (
+                  <p className="text-sm text-destructive">Billing status: {billing.status}</p>
+                )}
+                <Button onClick={handleManageBilling} disabled={loading !== null}>
+                  {loading === "portal" ? "Opening…" : "Manage billing"}
+                </Button>
+              </div>
             ) : (
               <div className="flex flex-wrap gap-2">
                 <Button onClick={() => handleUpgrade("monthly")} disabled={loading !== null}>
@@ -108,14 +225,24 @@ function BillingCard() {
                 </Button>
               </div>
             )}
-          </>
-        )}
-      </CardContent>
-    </Card>
+          </CardContent>
+        </Card>
+      </div>
+
+      <p className="text-sm text-muted-foreground">
+        See the full comparison on our{" "}
+        <Link href="/#pricing" className="underline">
+          pricing page
+        </Link>
+        .
+      </p>
+    </div>
   );
 }
 
-export default function OrganizationSettingsPage() {
+// --- Notifications -----------------------------------------------------------
+
+function NotificationsTab() {
   const org = useQuery(api.organizations.getActive);
   const updateNotificationEmail = useMutation(api.organizations.updateNotificationEmail);
 
@@ -123,9 +250,6 @@ export default function OrganizationSettingsPage() {
   const [saved, setSaved] = useState(false);
 
   useEffect(() => {
-    // Syncs local editable state to the async-loaded org query result —
-    // org isn't available on the initial render, so there's nothing to
-    // seed a lazy useState initializer with.
     if (!org) return;
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setNotificationEmail(org.notificationEmail ?? "");
@@ -140,34 +264,69 @@ export default function OrganizationSettingsPage() {
   }
 
   return (
-    <div className="max-w-2xl space-y-6">
-      <BillingCard />
+    <Card>
+      <CardHeader>
+        <CardTitle>Notifications</CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        <div className="space-y-2">
+          <Label htmlFor="notification-email">Notification email</Label>
+          <p className="text-sm text-muted-foreground">
+            We&apos;ll send an email here whenever a new testimonial comes in.
+          </p>
+          <Input
+            id="notification-email"
+            type="email"
+            value={notificationEmail}
+            onChange={(e) => setNotificationEmail(e.target.value)}
+            placeholder="you@company.com"
+          />
+        </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Notifications</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="notification-email">Notification email</Label>
-            <p className="text-sm text-muted-foreground">
-              We&apos;ll send an email here whenever a new testimonial comes in.
-            </p>
-            <Input
-              id="notification-email"
-              type="email"
-              value={notificationEmail}
-              onChange={(e) => setNotificationEmail(e.target.value)}
-              placeholder="you@company.com"
-            />
-          </div>
-        </CardContent>
-      </Card>
+        <div className="flex items-center gap-3">
+          <Button onClick={handleSave}>Save changes</Button>
+          {saved && <span className="text-sm text-muted-foreground">Saved</span>}
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
 
-      <div className="flex items-center gap-3">
-        <Button onClick={handleSave}>Save changes</Button>
-        {saved && <span className="text-sm text-muted-foreground">Saved</span>}
-      </div>
+// --- Page --------------------------------------------------------------------
+
+function AccountSettings() {
+  const searchParams = useSearchParams();
+  const requestedTab = searchParams.get("tab");
+  const defaultTab: TabValue = isTabValue(requestedTab) ? requestedTab : "profile";
+
+  return (
+    <div className="max-w-2xl">
+      <Tabs defaultValue={defaultTab}>
+        <TabsList>
+          <TabsTrigger value="profile">Profile</TabsTrigger>
+          <TabsTrigger value="plan">Plan</TabsTrigger>
+          <TabsTrigger value="notifications">Notifications</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="profile" className="pt-4">
+          <ProfileTab />
+        </TabsContent>
+        <TabsContent value="plan" className="pt-4">
+          <PlanTab />
+        </TabsContent>
+        <TabsContent value="notifications" className="pt-4">
+          <NotificationsTab />
+        </TabsContent>
+      </Tabs>
     </div>
+  );
+}
+
+export default function AccountSettingsPage() {
+  // useSearchParams needs a Suspense boundary under the App Router.
+  return (
+    <Suspense fallback={<p className="text-muted-foreground">Loading…</p>}>
+      <AccountSettings />
+    </Suspense>
   );
 }

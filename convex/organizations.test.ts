@@ -1,7 +1,8 @@
 import { convexTest } from "convex-test";
 import { describe, expect, test } from "vitest";
 import schema from "./schema";
-import { internal } from "./_generated/api";
+import { api, internal } from "./_generated/api";
+import type { Id } from "./_generated/dataModel";
 
 const modules = import.meta.glob("./**/*.ts");
 
@@ -48,5 +49,49 @@ describe("organizations.requireOwnerContext", () => {
     const t = newTestConvex();
 
     await expect(t.query(internal.organizations.requireOwnerContext, {})).rejects.toThrow();
+  });
+});
+
+describe("organizations.updateName", () => {
+  async function getOrgName(
+    t: ReturnType<typeof newTestConvex>,
+    organizationId: Id<"organizations">
+  ) {
+    return await t.run(async (ctx) => (await ctx.db.get(organizationId))?.name);
+  }
+
+  test("renames the active organization for a member", async () => {
+    const t = newTestConvex();
+    const { organizationId, asUser } = await seedOrgWithMember(t, "owner");
+
+    await asUser.mutation(api.organizations.updateName, { name: "New Name" });
+
+    expect(await getOrgName(t, organizationId)).toBe("New Name");
+  });
+
+  test("trims surrounding whitespace", async () => {
+    const t = newTestConvex();
+    const { organizationId, asUser } = await seedOrgWithMember(t, "owner");
+
+    await asUser.mutation(api.organizations.updateName, { name: "  Padded  " });
+
+    expect(await getOrgName(t, organizationId)).toBe("Padded");
+  });
+
+  test("rejects a blank name", async () => {
+    const t = newTestConvex();
+    const { asUser } = await seedOrgWithMember(t, "owner");
+
+    await expect(
+      asUser.mutation(api.organizations.updateName, { name: "   " })
+    ).rejects.toThrow();
+  });
+
+  test("rejects an unauthenticated caller", async () => {
+    const t = newTestConvex();
+
+    await expect(
+      t.mutation(api.organizations.updateName, { name: "Nope" })
+    ).rejects.toThrow();
   });
 });

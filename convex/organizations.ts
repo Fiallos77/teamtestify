@@ -101,6 +101,19 @@ export const updateNotificationEmail = mutation({
   },
 });
 
+// Rename the active organization (Profile tab). Members of the org may edit it,
+// mirroring updateNotificationEmail's access model. A blank name is rejected so
+// the org can't lose its display label.
+export const updateName = mutation({
+  args: { name: v.string() },
+  handler: async (ctx, { name }) => {
+    const { org } = await requireOrgContext(ctx);
+    const trimmed = name.trim();
+    if (!trimmed) throw new Error("Organization name cannot be empty");
+    await ctx.db.patch(org._id, { name: trimmed });
+  },
+});
+
 // Used by convex/stripe.ts (a "use node" action file — actions can't touch
 // ctx.db directly). Billing actions (checkout, portal) are owner-only:
 // any member could otherwise self-serve upgrade/manage billing for an org
