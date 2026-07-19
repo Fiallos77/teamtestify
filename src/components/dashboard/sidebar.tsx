@@ -9,6 +9,7 @@ import type { Id } from "../../../convex/_generated/dataModel";
 import { OrgSwitcher } from "@/components/dashboard/org-switcher";
 import { UserMenu } from "@/components/dashboard/user-menu";
 import { SpaceQuickMenu } from "@/components/dashboard/space-quick-menu";
+import { isNavItemActive } from "@/components/dashboard/nav-active";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import {
@@ -22,6 +23,35 @@ import {
   Share2,
   X,
 } from "lucide-react";
+
+// A single sidebar nav link (icon + label), shared so the top-level and
+// space-section navs highlight identically.
+function NavItem({
+  href,
+  label,
+  icon: Icon,
+  active,
+}: {
+  href: string;
+  label: string;
+  icon: React.ComponentType<{ className?: string }>;
+  active: boolean;
+}) {
+  return (
+    <Link
+      href={href}
+      className={cn(
+        "flex items-center gap-2.5 rounded-lg px-2.5 py-2 text-sm",
+        active
+          ? "bg-sidebar-primary/18 font-medium text-sidebar-primary-foreground"
+          : "text-sidebar-foreground/62 hover:bg-sidebar-accent hover:text-sidebar-foreground"
+      )}
+    >
+      <Icon className="size-4" />
+      {label}
+    </Link>
+  );
+}
 
 // Space creation lives on its own page (/dashboard/spaces/new) using the same
 // tabbed editor as settings, so this is just an entry point to it.
@@ -45,6 +75,20 @@ function DashboardNav() {
 
   return (
     <>
+      <nav className="space-y-0.5 px-2 pt-3">
+        <NavItem
+          href="/dashboard"
+          label="Dashboard"
+          icon={LayoutDashboard}
+          active={isNavItemActive(pathname, "/dashboard", true)}
+        />
+        <NavItem
+          href="/dashboard/settings"
+          label="Settings"
+          icon={Settings}
+          active={isNavItemActive(pathname, "/dashboard/settings")}
+        />
+      </nav>
       <div className="p-3">
         <NewSpaceButton />
       </div>
@@ -159,12 +203,7 @@ function SidebarContent({ spaceId }: { spaceId: Id<"spaces"> | undefined }) {
 
       {spaceId ? <SpaceSectionNav spaceId={spaceId} /> : <DashboardNav />}
 
-      <div className="flex items-center justify-between border-t p-3">
-        <Link href="/dashboard/settings">
-          <Button variant="ghost" size="icon" aria-label="Organization settings">
-            <Settings className="size-4" />
-          </Button>
-        </Link>
+      <div className="flex items-center justify-end border-t p-3">
         <UserMenu />
       </div>
     </>
