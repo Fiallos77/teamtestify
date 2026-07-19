@@ -13,7 +13,7 @@ export function AiQuotaUpgradeAlert() {
   return (
     <Alert>
       <Sparkles />
-      <AlertTitle>Límite de IA alcanzado</AlertTitle>
+      <AlertTitle>AI limit reached</AlertTitle>
       <AlertDescription>
         <p>{AI_QUOTA_LIMIT_MESSAGE}</p>
         <Button render={<Link href={AI_UPGRADE_HREF} />} size="sm" className="mt-1">

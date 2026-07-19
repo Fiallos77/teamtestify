@@ -8,11 +8,11 @@ import { AI_QUOTA_LIMIT_MESSAGE, AI_UPGRADE_HREF } from "./ai-quota-upgrade";
 describe("AI quota upgrade prompt", () => {
   test("message names the monthly AI limit and the Pro upgrade path", () => {
     expect(AI_QUOTA_LIMIT_MESSAGE).toBe(
-      "Has alcanzado tu límite de IA este mes. Cambiate a Pro para seguir usando el Asistente de IA y generar imágenes ilimitadas."
+      "You've reached your AI limit for this month. Upgrade to Pro to keep using the AI Assistant and generate unlimited images."
     );
   });
 
-  test("upgrade link points at the in-app upgrade flow", () => {
-    expect(AI_UPGRADE_HREF).toBe("/dashboard/settings");
+  test("upgrade link points at the account Plan tab", () => {
+    expect(AI_UPGRADE_HREF).toBe("/dashboard/settings?tab=plan");
   });
 });
