@@ -5,46 +5,30 @@ import { useQuery } from "convex/react";
 import { api } from "../../../../convex/_generated/api";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { SpaceQuickMenu } from "@/components/dashboard/space-quick-menu";
-import { PlanUsageCard } from "@/components/dashboard/plan-usage-card";
-import { Layers, Clock, CheckCircle2, Video } from "lucide-react";
+import { formatUsage } from "@/components/dashboard/plan-usage";
+import { Layers, Video, Sparkles, MessagesSquare } from "lucide-react";
 
-const STAT_TONES = {
-  primary: "bg-primary/10 text-primary",
-  warning: "bg-warning/10 text-warning",
-  success: "bg-success/10 text-success",
-} as const;
-
-function StatCard({
+function MetricCard({
   icon: Icon,
   label,
-  value,
-  limit,
-  tone = "primary",
+  children,
 }: {
   icon: React.ComponentType<{ className?: string }>;
   label: string;
-  value: number | undefined;
-  limit?: number;
-  tone?: keyof typeof STAT_TONES;
+  children: React.ReactNode;
 }) {
   return (
     <Card>
-      <CardContent className="flex items-center gap-3 py-4">
-        <div
-          className={`flex size-9 shrink-0 items-center justify-center rounded-full ${STAT_TONES[tone]}`}
-        >
-          <Icon className="size-4" />
+      <CardContent className="space-y-2 py-4">
+        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+          <span className="flex size-7 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
+            <Icon className="size-4" />
+          </span>
+          {label}
         </div>
-        <div>
-          <p className="text-xl font-semibold leading-none">
-            {value ?? "—"}
-            {limit !== undefined && (
-              <span className="text-sm font-normal text-muted-foreground"> / {limit}</span>
-            )}
-          </p>
-          <p className="text-sm text-muted-foreground">{label}</p>
-        </div>
+        {children}
       </CardContent>
     </Card>
   );
@@ -52,28 +36,63 @@ function StatCard({
 
 export default function DashboardPage() {
   const spaces = useQuery(api.spaces.list);
+  const usage = useQuery(api.planUsage.getPlanUsage);
   const stats = useQuery(api.testimonials.getOrgStats);
 
   return (
-    <div className="mx-auto max-w-4xl">
-      <div className="mb-6">
-        <PlanUsageCard />
-      </div>
+    <div className="mx-auto max-w-5xl">
+      <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        {/* a) Spaces used / limit */}
+        <MetricCard icon={Layers} label="Spaces">
+          <p className="text-2xl font-semibold leading-none">
+            {usage ? formatUsage(usage.spaces.used, usage.spaces.limit) : "—"}
+          </p>
+        </MetricCard>
 
-      <div className="mb-6 grid grid-cols-2 gap-4 lg:grid-cols-4">
-        <StatCard icon={Layers} label="Spaces" value={spaces?.length} />
-        <StatCard icon={Clock} label="Pending review" value={stats?.pending} tone="warning" />
-        <StatCard icon={CheckCircle2} label="Approved" value={stats?.approved} tone="success" />
-        <StatCard icon={Video} label="Video testimonials" value={stats?.videoCount} />
+        {/* b) Published video testimonials used / limit */}
+        <MetricCard icon={Video} label="Video testimonials">
+          <p className="text-2xl font-semibold leading-none">
+            {usage
+              ? formatUsage(
+                  usage.publishedVideoTestimonials.used,
+                  usage.publishedVideoTestimonials.limit
+                )
+              : "—"}
+          </p>
+        </MetricCard>
+
+        {/* c) Current plan + upgrade CTA for Free */}
+        <MetricCard icon={Sparkles} label="Current plan">
+          <div className="flex items-center justify-between gap-2">
+            <p className="text-2xl font-semibold capitalize leading-none">{usage?.plan ?? "—"}</p>
+            {usage?.plan === "free" && (
+              <Button size="sm" render={<Link href="/dashboard/settings?tab=plan" />}>
+                Upgrade
+              </Button>
+            )}
+          </div>
+        </MetricCard>
+
+        {/* d) Testimonials: pending / approved */}
+        <MetricCard icon={MessagesSquare} label="Testimonials">
+          <div className="flex gap-6">
+            <div>
+              <p className="text-2xl font-semibold leading-none">{stats?.pending ?? "—"}</p>
+              <p className="text-xs text-muted-foreground">Pending</p>
+            </div>
+            <div>
+              <p className="text-2xl font-semibold leading-none">{stats?.approved ?? "—"}</p>
+              <p className="text-xs text-muted-foreground">Approved</p>
+            </div>
+          </div>
+        </MetricCard>
       </div>
 
       <div className="mb-6">
         <h1 className="text-2xl font-semibold">Spaces</h1>
       </div>
 
-      {spaces === undefined && (
-        <p className="text-muted-foreground">Loading…</p>
-      )}
+      {spaces === undefined && <p className="text-muted-foreground">Loading…</p>}
       {spaces?.length === 0 && (
         <p className="text-muted-foreground">
           No spaces yet. Create one to get your first collection link.
