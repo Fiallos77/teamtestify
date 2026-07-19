@@ -17,6 +17,11 @@ import { CollectionPagePreview } from "@/components/dashboard/collection-page-pr
 import { RequestAssistant } from "@/components/dashboard/request-assistant";
 import { PlanLimitUpgradeAlert } from "@/components/dashboard/plan-limit-upgrade-alert";
 import { isUpgradeError } from "@/components/dashboard/upgrade-cta";
+import {
+  validateSpaceEditor,
+  hasErrors,
+  type SpaceEditorFieldErrors,
+} from "@/components/dashboard/space-editor-validation";
 
 export const SPACE_EDITOR_TABS = ["identity", "form", "collect", "thankyou", "ai"] as const;
 export type SpaceEditorTab = (typeof SPACE_EDITOR_TABS)[number];
@@ -89,9 +94,17 @@ export function SpaceEditor({
   const [isActive, setIsActive] = useState(true);
   const [businessDescription, setBusinessDescription] = useState("");
 
+  const [activeTab, setActiveTab] = useState<SpaceEditorTab>(defaultTab);
+  const [fieldErrors, setFieldErrors] = useState<SpaceEditorFieldErrors>({});
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [saved, setSaved] = useState(false);
+
+  // Clear a required-field error as soon as the user edits that field, so the
+  // red styling and message go away while they type the fix.
+  function clearFieldError(field: keyof SpaceEditorFieldErrors) {
+    setFieldErrors((prev) => (prev[field] ? { ...prev, [field]: undefined } : prev));
+  }
 
   useEffect(() => {
     // Seed the form once the space doc loads (edit mode). This is the standard
@@ -136,17 +149,15 @@ export function SpaceEditor({
   const origin = typeof window !== "undefined" ? window.location.origin : "";
   const publicUrl = `${origin}/r/${publicSlug || "your-space"}`;
 
-  const canSubmit =
-    !submitting &&
-    name.trim().length > 0 &&
-    publicSlug.trim().length > 0 &&
-    (mode === "edit" || description.trim().length > 0);
-
   function handleNameChange(value: string) {
     setName(value);
+    clearFieldError("name");
     // Auto-fill the slug from the name only while creating and until the user
     // has touched the slug directly.
-    if (mode === "create" && !slugEdited) setPublicSlug(slugify(value));
+    if (mode === "create" && !slugEdited) {
+      setPublicSlug(slugify(value));
+      clearFieldError("publicSlug");
+    }
   }
 
   // AI-generated guide questions are appended to the owner-editable list
@@ -163,6 +174,15 @@ export function SpaceEditor({
   }
 
   async function handleSubmit() {
+    // Validate on click (the button is never disabled). All required fields
+    // live in the Identity tab, so surface the errors and jump there.
+    const errors = validateSpaceEditor({ name, description, publicSlug }, mode);
+    setFieldErrors(errors);
+    if (hasErrors(errors)) {
+      setActiveTab("identity");
+      return;
+    }
+
     setSubmitting(true);
     setError(null);
     try {
@@ -199,7 +219,7 @@ export function SpaceEditor({
   return (
     <div className="grid gap-6 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
       <div className="max-w-2xl space-y-6">
-        <Tabs defaultValue={defaultTab}>
+        <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as SpaceEditorTab)}>
           <TabsList>
             <TabsTrigger value="identity">Identity</TabsTrigger>
             <TabsTrigger value="form">Form</TabsTrigger>
@@ -222,7 +242,11 @@ export function SpaceEditor({
                     value={name}
                     onChange={(e) => handleNameChange(e.target.value)}
                     placeholder="Q3 Customer Feedback"
+                    aria-invalid={!!fieldErrors.name}
                   />
+                  {fieldErrors.name && (
+                    <p className="text-sm text-destructive">{fieldErrors.name}</p>
+                  )}
                 </div>
 
                 <div className="space-y-2">
@@ -232,10 +256,17 @@ export function SpaceEditor({
                   <Textarea
                     id="space-description"
                     value={description}
-                    onChange={(e) => setDescription(e.target.value)}
+                    onChange={(e) => {
+                      setDescription(e.target.value);
+                      clearFieldError("description");
+                    }}
                     placeholder="What this space is for — only visible to your team."
                     rows={2}
+                    aria-invalid={!!fieldErrors.description}
                   />
+                  {fieldErrors.description && (
+                    <p className="text-sm text-destructive">{fieldErrors.description}</p>
+                  )}
                 </div>
 
                 <div className="space-y-2">
@@ -248,10 +279,15 @@ export function SpaceEditor({
                       onChange={(e) => {
                         setPublicSlug(slugify(e.target.value));
                         setSlugEdited(true);
+                        clearFieldError("publicSlug");
                       }}
                       className="min-w-0 flex-1"
+                      aria-invalid={!!fieldErrors.publicSlug}
                     />
                   </div>
+                  {fieldErrors.publicSlug && (
+                    <p className="text-sm text-destructive">{fieldErrors.publicSlug}</p>
+                  )}
                 </div>
 
                 <div className="space-y-2">
@@ -440,7 +476,7 @@ export function SpaceEditor({
           ))}
 
         <div className="flex items-center gap-3">
-          <Button onClick={handleSubmit} disabled={!canSubmit}>
+          <Button onClick={handleSubmit} disabled={submitting}>
             {submitting ? "Saving…" : submitLabel}
           </Button>
           {saved && <span className="text-sm text-muted-foreground">Saved</span>}
