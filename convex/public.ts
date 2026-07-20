@@ -17,6 +17,17 @@ import { RateLimiter, HOUR, DAY } from "@convex-dev/rate-limiter";
 export const VISITOR_UPLOAD_LIMIT_PER_HOUR = 5;
 export const SPACE_UPLOAD_LIMIT_PER_DAY = 50;
 
+// Same idea, but for the submission mutations themselves (the actual
+// testimonial-creating writes) rather than just the upload-URL-minting
+// step — visitorId is client-supplied and not cryptographically bound to
+// anything, so a scripted caller can trivially send a fresh one per
+// request; the per-space cap is the real backstop against that, the
+// per-visitor cap just deters a single browser tab retry-looping. Text and
+// video submissions share one budget (both key off the same bucket names)
+// so switching type doesn't double a caller's effective rate.
+export const VISITOR_SUBMIT_LIMIT_PER_HOUR = 5;
+export const SPACE_SUBMIT_LIMIT_PER_DAY = 50;
+
 const rateLimiter = new RateLimiter(components.rateLimiter, {
   uploadUrlPerVisitor: {
     kind: "token bucket",
@@ -28,7 +39,32 @@ const rateLimiter = new RateLimiter(components.rateLimiter, {
     rate: SPACE_UPLOAD_LIMIT_PER_DAY,
     period: DAY,
   },
+  testimonialSubmitPerVisitor: {
+    kind: "token bucket",
+    rate: VISITOR_SUBMIT_LIMIT_PER_HOUR,
+    period: HOUR,
+  },
+  testimonialSubmitPerSpace: {
+    kind: "token bucket",
+    rate: SPACE_SUBMIT_LIMIT_PER_DAY,
+    period: DAY,
+  },
 });
+
+async function limitTestimonialSubmission(
+  ctx: MutationCtx,
+  spaceId: Id<"spaces">,
+  visitorId: string
+) {
+  await rateLimiter.limit(ctx, "testimonialSubmitPerVisitor", {
+    key: visitorId,
+    throws: true,
+  });
+  await rateLimiter.limit(ctx, "testimonialSubmitPerSpace", {
+    key: spaceId,
+    throws: true,
+  });
+}
 
 export const getSpaceBySlug = query({
   args: { publicSlug: v.string() },
@@ -89,6 +125,7 @@ const submitterFields = {
   ),
   // Honeypot: must stay empty. Real visitors never see/fill this field.
   website: v.optional(v.string()),
+  visitorId: v.string(),
 };
 
 export const submitTextTestimonial = mutation({
@@ -99,6 +136,7 @@ export const submitTextTestimonial = mutation({
     if (!space.formConfig.allowText) {
       throw new Error("Text testimonials are not enabled for this space");
     }
+    await limitTestimonialSubmission(ctx, args.spaceId, args.visitorId);
 
     const testimonialId = await ctx.db.insert("testimonials", {
       spaceId: space._id,
@@ -145,6 +183,7 @@ export const submitVideoTestimonial = mutation({
     if (!space.formConfig.allowVideo) {
       return { ok: false, error: "Video testimonials are not enabled for this space" };
     }
+    await limitTestimonialSubmission(ctx, args.spaceId, args.visitorId);
 
     // Duration can't be verified without decoding the file, but content
     // type and size can — check the actual stored blob (not the client's

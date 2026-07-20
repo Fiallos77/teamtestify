@@ -119,6 +119,7 @@ export default function CollectionPage({
         authorPhotoStorageId,
         rating: space.formConfig.collectRating ? rating : undefined,
         website: website || undefined,
+        visitorId,
       };
 
       if (effectiveMode === "text") {

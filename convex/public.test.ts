@@ -211,6 +211,7 @@ describe("public.submitVideoTestimonial", () => {
       storageId,
       mimeType: "video/webm",
       durationSeconds: 42,
+      visitorId: "visitor-1",
     });
 
     expect(result.ok).toBe(false);
@@ -238,6 +239,7 @@ describe("public.submitVideoTestimonial", () => {
         authorName: "Jane",
         storageId,
         mimeType: "video/webm",
+        visitorId: "visitor-1",
       });
 
       expect(result.ok).toBe(false);
@@ -256,12 +258,191 @@ describe("public.submitVideoTestimonial", () => {
       authorName: "Jane",
       storageId,
       website: "http://spam.example",
+      visitorId: "visitor-1",
     });
 
     expect(result).toEqual({ ok: false, error: "Submission rejected" });
     // Honeypot rejection happens before the storage check even runs, so
     // the (never-validated) blob is intentionally left alone.
     expect(await storageEntryExists(t, storageId)).toBe(true);
+  });
+
+  test("blocks a 6th video submission from the same visitor within an hour", async () => {
+    const t = newTestConvex();
+    const spaceId = await seedSpace(t);
+
+    for (let i = 0; i < 5; i++) {
+      const storageId = await storeBlob(t, new Blob(["x"], { type: "video/webm" }));
+      // Each of these is rejected on content-type validation (see the
+      // convex-test caveat above), but that happens AFTER the rate limit
+      // check, so the limiter still consumes a token per call.
+      await t.mutation(api.public.submitVideoTestimonial, {
+        spaceId,
+        authorName: "Jane",
+        storageId,
+        visitorId: "flood-visitor",
+      });
+    }
+
+    await expect(
+      t.mutation(api.public.submitVideoTestimonial, {
+        spaceId,
+        authorName: "Jane",
+        storageId: await storeBlob(t, new Blob(["x"], { type: "video/webm" })),
+        visitorId: "flood-visitor",
+      })
+    ).rejects.toThrow();
+  });
+});
+
+describe("public.submitTextTestimonial", () => {
+  test("creates a pending testimonial", async () => {
+    const t = newTestConvex();
+    const spaceId = await seedSpace(t);
+
+    await t.mutation(api.public.submitTextTestimonial, {
+      spaceId,
+      authorName: "Jane",
+      textContent: "Loved it!",
+      visitorId: "visitor-1",
+    });
+
+    const testimonials = await t.run(
+      async (ctx) =>
+        await ctx.db
+          .query("testimonials")
+          .withIndex("by_space", (q) => q.eq("spaceId", spaceId))
+          .collect()
+    );
+    expect(testimonials).toHaveLength(1);
+    expect(testimonials[0].status).toBe("pending");
+  });
+
+  test("rejects a honeypot-filled submission and creates no testimonial", async () => {
+    const t = newTestConvex();
+    const spaceId = await seedSpace(t);
+
+    await expect(
+      t.mutation(api.public.submitTextTestimonial, {
+        spaceId,
+        authorName: "Jane",
+        textContent: "Loved it!",
+        website: "http://spam.example",
+        visitorId: "visitor-1",
+      })
+    ).rejects.toThrow();
+
+    const testimonials = await t.run(
+      async (ctx) =>
+        await ctx.db
+          .query("testimonials")
+          .withIndex("by_space", (q) => q.eq("spaceId", spaceId))
+          .collect()
+    );
+    expect(testimonials).toHaveLength(0);
+  });
+
+  test("allows up to 5 submissions per hour for a single visitor, then blocks", async () => {
+    const t = newTestConvex();
+    const spaceId = await seedSpace(t);
+
+    for (let i = 0; i < 5; i++) {
+      await t.mutation(api.public.submitTextTestimonial, {
+        spaceId,
+        authorName: "Jane",
+        textContent: `Submission ${i}`,
+        visitorId: "flood-visitor",
+      });
+    }
+
+    await expect(
+      t.mutation(api.public.submitTextTestimonial, {
+        spaceId,
+        authorName: "Jane",
+        textContent: "One too many",
+        visitorId: "flood-visitor",
+      })
+    ).rejects.toThrow();
+  });
+
+  test("the per-visitor submission limit is scoped per visitor, not global", async () => {
+    const t = newTestConvex();
+    const spaceId = await seedSpace(t);
+
+    for (let i = 0; i < 5; i++) {
+      await t.mutation(api.public.submitTextTestimonial, {
+        spaceId,
+        authorName: "Jane",
+        textContent: `Submission ${i}`,
+        visitorId: "visitor-a",
+      });
+    }
+
+    await expect(
+      t.mutation(api.public.submitTextTestimonial, {
+        spaceId,
+        authorName: "Jane",
+        textContent: "Still fine",
+        visitorId: "visitor-b",
+      })
+    ).resolves.toBeNull();
+  });
+
+  test("text and video submissions from the same visitor share one rate-limit budget", async () => {
+    const t = newTestConvex();
+    const spaceId = await seedSpace(t);
+
+    for (let i = 0; i < 3; i++) {
+      await t.mutation(api.public.submitTextTestimonial, {
+        spaceId,
+        authorName: "Jane",
+        textContent: `Submission ${i}`,
+        visitorId: "mixed-visitor",
+      });
+    }
+    for (let i = 0; i < 2; i++) {
+      const storageId = await storeBlob(t, new Blob(["x"], { type: "video/webm" }));
+      await t.mutation(api.public.submitVideoTestimonial, {
+        spaceId,
+        authorName: "Jane",
+        storageId,
+        visitorId: "mixed-visitor",
+      });
+    }
+
+    await expect(
+      t.mutation(api.public.submitTextTestimonial, {
+        spaceId,
+        authorName: "Jane",
+        textContent: "One too many",
+        visitorId: "mixed-visitor",
+      })
+    ).rejects.toThrow();
+  });
+
+  test("different visitors on the same space share a 50/day space-wide submission cap", async () => {
+    const t = newTestConvex();
+    const spaceId = await seedSpace(t);
+
+    for (let i = 0; i < 50; i++) {
+      await expect(
+        t.mutation(api.public.submitTextTestimonial, {
+          spaceId,
+          authorName: "Jane",
+          textContent: `Submission ${i}`,
+          visitorId: `visitor-${i}`,
+        })
+      ).resolves.toBeNull();
+    }
+
+    await expect(
+      t.mutation(api.public.submitTextTestimonial, {
+        spaceId,
+        authorName: "Jane",
+        textContent: "One too many",
+        visitorId: "visitor-51",
+      })
+    ).rejects.toThrow();
   });
 });
 
