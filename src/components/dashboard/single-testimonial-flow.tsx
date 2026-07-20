@@ -172,7 +172,13 @@ export function SingleTestimonialFlow({
         <div className="space-y-2">
           <Label>Choose a testimonial</Label>
           <Select value={testimonialId} onValueChange={(v) => setTestimonialId(v ?? "")}>
-            <SelectTrigger>
+            {/* w-full (overriding the default w-fit): the trigger must have a
+                real width boundary for the shared select-value line-clamp to
+                actually truncate — w-fit just grows to fit whatever label is
+                selected, which is what let long testimonial text spill past
+                the card. Same ellipsis-on-overflow idea as TestimonialCard's
+                line-clamp in the Inbox, just single-line here. */}
+            <SelectTrigger className="w-full">
               <SelectValue placeholder="Choose a testimonial">
                 {(v: string) => testimonialLabel(approvedTestimonials, v)}
               </SelectValue>
