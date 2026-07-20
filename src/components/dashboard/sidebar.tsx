@@ -8,7 +8,6 @@ import { api } from "../../../convex/_generated/api";
 import type { Id } from "../../../convex/_generated/dataModel";
 import { OrgSwitcher } from "@/components/dashboard/org-switcher";
 import { UserMenu } from "@/components/dashboard/user-menu";
-import { SpaceQuickMenu } from "@/components/dashboard/space-quick-menu";
 import { isNavItemActive } from "@/components/dashboard/nav-active";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -72,7 +71,6 @@ function NewSpaceButton() {
 
 function DashboardNav() {
   const pathname = usePathname();
-  const spaces = useQuery(api.spaces.list);
 
   return (
     <>
@@ -93,36 +91,6 @@ function DashboardNav() {
       <div className="p-3">
         <NewSpaceButton />
       </div>
-      <nav className="flex-1 space-y-0.5 overflow-y-auto px-2">
-        {spaces === undefined && (
-          <p className="px-2 py-1 text-sm text-muted-foreground">Loading…</p>
-        )}
-        {spaces?.length === 0 && (
-          <p className="px-2 py-1 text-sm text-muted-foreground">No spaces yet.</p>
-        )}
-        {spaces?.map((space) => {
-          const href = `/dashboard/spaces/${space._id}`;
-          const active = pathname.startsWith(href);
-          return (
-            <div
-              key={space._id}
-              className={cn(
-                "group/space-row flex items-center gap-1 rounded-lg pr-1",
-                active
-                  ? "bg-sidebar-primary/18 font-medium text-sidebar-primary-foreground"
-                  : "text-sidebar-foreground/62 hover:bg-sidebar-accent hover:text-sidebar-foreground"
-              )}
-            >
-              <Link href={href} className="min-w-0 flex-1 truncate px-2 py-1.5 text-sm">
-                {space.name}
-              </Link>
-              <span className="opacity-0 group-hover/space-row:opacity-100">
-                <SpaceQuickMenu space={space} />
-              </span>
-            </div>
-          );
-        })}
-      </nav>
     </>
   );
 }
