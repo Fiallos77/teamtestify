@@ -12,6 +12,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   appearanceStateToFilter,
   appearanceStateToStyle,
+  defaultAppearanceState,
   type WidgetAppearanceState,
 } from "@/components/dashboard/widget-appearance";
 import { WidgetBasicFields, WidgetAdvancedFields } from "@/components/dashboard/widget-appearance-sections";
@@ -22,8 +23,13 @@ import {
   getWallSampleTestimonials,
   type WidgetLayoutPreset,
 } from "@/components/dashboard/widget-layout-presets";
-
-type Step = "layout" | "customize" | "ready";
+import {
+  resolveLayoutSelection,
+  resolveSaveMode,
+  stepBack,
+  type WallStep as Step,
+} from "@/components/dashboard/widget-wizard-navigation";
+import { cn } from "@/lib/utils";
 
 function StepLabel({ children }: { children: React.ReactNode }) {
   return (
@@ -39,15 +45,18 @@ function StepLabel({ children }: { children: React.ReactNode }) {
 // nesting interactive elements.
 function LayoutPresetCard({
   preset,
+  selected,
   onSelect,
 }: {
   preset: WidgetLayoutPreset;
+  selected: boolean;
   onSelect: () => void;
 }) {
   return (
     <div
       role="button"
       tabIndex={0}
+      aria-pressed={selected}
       onClick={onSelect}
       onKeyDown={(e) => {
         if (e.key === "Enter" || e.key === " ") {
@@ -55,7 +64,10 @@ function LayoutPresetCard({
           onSelect();
         }
       }}
-      className="cursor-pointer rounded-xl border p-3 text-left transition-colors hover:border-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50"
+      className={cn(
+        "cursor-pointer rounded-xl border p-3 text-left transition-colors hover:border-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50",
+        selected && "border-primary bg-accent ring-2 ring-primary/20"
+      )}
     >
       <div className="pointer-events-none mb-3 max-h-52 overflow-hidden rounded-lg">
         <WidgetPreview
@@ -95,9 +107,11 @@ const LAYOUT_LABELS: Record<WidgetAppearanceState["layout"], string> = {
 // The Wall of Love creation flow: Step 1 picks a layout (advances
 // immediately), Step 2 names it and customizes appearance across three tabs
 // (Basic/Advanced/Custom cards — no AI style tab), Step 3 shows the embed
-// code. The widget itself is only created once, when Step 2's "Save &
-// Continue" is pressed — so there's no in-between draft to accidentally
-// duplicate. Cancelling Step 3 deletes it and resets back to nothing.
+// code. Back at Step 2/3 moves one step earlier without touching any local
+// state, so nothing entered is lost. The widget row is created once, on the
+// first "Save & Continue"; any later Save & Continue (reached by going Back
+// then forward again) PATCHes that same row instead of inserting a new one
+// (resolveSaveMode). Cancelling Step 3 deletes it and resets back to nothing.
 export function WallOfLoveFlow({
   spaceId,
   onExit,
@@ -107,13 +121,16 @@ export function WallOfLoveFlow({
 }) {
   const [step, setStep] = useState<Step>("layout");
   const [name, setName] = useState("");
+  // "grid" (the shared default's layout) matches none of the wall presets,
+  // so no card reads as selected until the owner actually picks one.
   const [appearance, setAppearance] = useState<WidgetAppearanceState>(
-    WALL_LAYOUT_PRESETS[0].appearance
+    defaultAppearanceState("wall")
   );
   const [saving, setSaving] = useState(false);
   const [widgetId, setWidgetId] = useState<Id<"widgets"> | null>(null);
 
   const createWidget = useMutation(api.widgets.create);
+  const updateWidget = useMutation(api.widgets.update);
   const previewPayload = useQuery(
     api.widgets.getPreviewPayload,
     step === "customize"
@@ -122,7 +139,7 @@ export function WallOfLoveFlow({
   );
 
   function handlePickLayout(preset: WidgetLayoutPreset) {
-    setAppearance(preset.appearance);
+    setAppearance((prev) => resolveLayoutSelection(prev, preset));
     setStep("customize");
   }
 
@@ -130,17 +147,30 @@ export function WallOfLoveFlow({
     setAppearance((prev) => ({ ...prev, ...patch }));
   }
 
+  function handleBack() {
+    setStep((prev) => stepBack(prev));
+  }
+
   async function handleSaveAndContinue() {
     setSaving(true);
     try {
-      const id = await createWidget({
-        spaceId,
-        name,
-        type: "wall",
-        filter: appearanceStateToFilter(appearance),
-        style: appearanceStateToStyle("wall", appearance),
-      });
-      setWidgetId(id);
+      if (resolveSaveMode(widgetId) === "update") {
+        await updateWidget({
+          widgetId: widgetId!,
+          name,
+          filter: appearanceStateToFilter(appearance),
+          style: appearanceStateToStyle("wall", appearance),
+        });
+      } else {
+        const id = await createWidget({
+          spaceId,
+          name,
+          type: "wall",
+          filter: appearanceStateToFilter(appearance),
+          style: appearanceStateToStyle("wall", appearance),
+        });
+        setWidgetId(id);
+      }
       setStep("ready");
     } finally {
       setSaving(false);
@@ -150,7 +180,7 @@ export function WallOfLoveFlow({
   function reset() {
     setStep("layout");
     setName("");
-    setAppearance(WALL_LAYOUT_PRESETS[0].appearance);
+    setAppearance(defaultAppearanceState("wall"));
     setWidgetId(null);
   }
 
@@ -179,6 +209,7 @@ export function WallOfLoveFlow({
             <LayoutPresetCard
               key={preset.id}
               preset={preset}
+              selected={appearance.layout === preset.layout}
               onSelect={() => handlePickLayout(preset)}
             />
           ))}
@@ -227,9 +258,14 @@ export function WallOfLoveFlow({
               </TabsContent>
             </Tabs>
 
-            <Button onClick={handleSaveAndContinue} disabled={!canSave || saving}>
-              {saving ? "Saving…" : "Save & Continue"}
-            </Button>
+            <div className="flex items-center gap-3">
+              <Button variant="outline" onClick={handleBack} disabled={saving}>
+                Back
+              </Button>
+              <Button onClick={handleSaveAndContinue} disabled={!canSave || saving}>
+                {saving ? "Saving…" : "Save & Continue"}
+              </Button>
+            </div>
           </div>
 
           <div className="lg:sticky lg:top-6 lg:self-start">
@@ -252,6 +288,7 @@ export function WallOfLoveFlow({
       <WidgetReadyScreen
         title="Your Wall of Love is Ready!"
         widgetId={widgetId}
+        onBack={handleBack}
         onDone={handleDone}
         onCancel={handleCancel}
       />

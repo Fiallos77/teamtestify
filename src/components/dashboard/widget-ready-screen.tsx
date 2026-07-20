@@ -17,11 +17,13 @@ import { buildEmbedSnippet, buildHostedUrl } from "@/components/dashboard/widget
 export function WidgetReadyScreen({
   title,
   widgetId,
+  onBack,
   onDone,
   onCancel,
 }: {
   title: string;
   widgetId: Id<"widgets">;
+  onBack?: () => void;
   onDone: () => void;
   onCancel: () => void;
 }) {
@@ -76,6 +78,11 @@ export function WidgetReadyScreen({
         </div>
 
         <div className="flex items-center gap-3">
+          {onBack && (
+            <Button variant="outline" onClick={onBack} disabled={cancelling}>
+              Back
+            </Button>
+          )}
           <Button onClick={onDone}>Done</Button>
           <Button variant="outline" onClick={handleCancel} disabled={cancelling}>
             {cancelling ? "Cancelling…" : "Cancel"}
