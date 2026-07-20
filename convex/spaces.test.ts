@@ -136,3 +136,22 @@ describe("spaces.update public slug", () => {
     ).rejects.toThrow();
   });
 });
+
+describe("spaces.getLogoUrl", () => {
+  test("rejects an unauthenticated caller", async () => {
+    const t = newTestConvex();
+    const storageId = await t.run(async (ctx) => await ctx.storage.store(new Blob(["logo"])));
+
+    await expect(t.query(api.spaces.getLogoUrl, { logoStorageId: storageId })).rejects.toThrow();
+  });
+
+  test("returns a servable URL for an authenticated org member", async () => {
+    const t = newTestConvex();
+    const { asUser } = await seedOrgContext(t);
+    const storageId = await t.run(async (ctx) => await ctx.storage.store(new Blob(["logo"])));
+
+    const url = await asUser.query(api.spaces.getLogoUrl, { logoStorageId: storageId });
+
+    expect(typeof url).toBe("string");
+  });
+});

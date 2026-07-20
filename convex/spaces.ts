@@ -165,9 +165,17 @@ export const generateLogoUploadUrl = mutation({
   },
 });
 
+// Convex storage URLs embed the raw storageId directly (visible in any
+// existing file URL — video, author photo, logo), so storageId is not a
+// secret; without an auth check this resolved ANY storage id in the whole
+// deployment for anyone, logged in or not. Requiring a session at least
+// closes the anonymous/cross-org read. Full per-space ownership isn't
+// checked here because a logo can be uploaded before its space exists
+// (space creation flow) — see docs/security-audit.md for the follow-up.
 export const getLogoUrl = query({
   args: { logoStorageId: v.id("_storage") },
   handler: async (ctx, { logoStorageId }) => {
+    await requireOrgContext(ctx);
     return await ctx.storage.getUrl(logoStorageId);
   },
 });
