@@ -30,6 +30,29 @@ export async function toPayloadTestimonial(ctx: QueryCtx, t: Doc<"testimonials">
   };
 }
 
+// The wall-widget testimonial pipeline shared by buildWidgetPayload (the
+// published, public embed) and widgets.getPreviewPayload (the owner-facing
+// live preview while still editing filter/style) — same select → filter →
+// order → cap → resolve-to-payload sequence for both, so they can never
+// silently drift apart on what a given filter actually shows.
+export async function selectWidgetTestimonials(
+  ctx: QueryCtx,
+  spaceId: Id<"spaces">,
+  filter: Doc<"widgets">["filter"]
+) {
+  const approved = await ctx.db
+    .query("testimonials")
+    .withIndex("by_space_and_status", (q) => q.eq("spaceId", spaceId).eq("status", "approved"))
+    .collect();
+
+  const filtered = approved
+    .filter((t) => matchesFilter(t, filter))
+    .sort((a, b) => (a.displayOrder ?? a.submittedAt) - (b.displayOrder ?? b.submittedAt))
+    .slice(0, filter.maxItems ?? 50);
+
+  return await Promise.all(filtered.map((t) => toPayloadTestimonial(ctx, t)));
+}
+
 export async function buildWidgetPayload(ctx: QueryCtx, widgetId: Id<"widgets">) {
   const widget = await ctx.db.get(widgetId).catch(() => null);
   if (!widget || !widget.isPublished) return null;
@@ -50,21 +73,6 @@ export async function buildWidgetPayload(ctx: QueryCtx, widgetId: Id<"widgets">)
     };
   }
 
-  const approved = await ctx.db
-    .query("testimonials")
-    .withIndex("by_space_and_status", (q) =>
-      q.eq("spaceId", widget.spaceId).eq("status", "approved")
-    )
-    .collect();
-
-  const filtered = approved
-    .filter((t) => matchesFilter(t, widget.filter))
-    .sort((a, b) => (a.displayOrder ?? a.submittedAt) - (b.displayOrder ?? b.submittedAt))
-    .slice(0, widget.filter.maxItems ?? 50);
-
-  const testimonials = await Promise.all(
-    filtered.map((t) => toPayloadTestimonial(ctx, t))
-  );
-
+  const testimonials = await selectWidgetTestimonials(ctx, widget.spaceId, widget.filter);
   return { type: widget.type, name: widget.name, style: widget.style, testimonials };
 }

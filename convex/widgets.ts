@@ -7,7 +7,7 @@ import {
   requireWidgetInOrg,
   tryOrgContext,
 } from "./lib/authz";
-import { matchesFilter, toPayloadTestimonial } from "./lib/widgetPayload";
+import { selectWidgetTestimonials, toPayloadTestimonial } from "./lib/widgetPayload";
 
 const filterValidator = v.object({
   includeTags: v.optional(v.array(v.string())),
@@ -94,17 +94,7 @@ export const getPreviewPayload = query({
       return { type, testimonials: [await toPayloadTestimonial(ctx, testimonial)] };
     }
 
-    const approved = await ctx.db
-      .query("testimonials")
-      .withIndex("by_space_and_status", (q) =>
-        q.eq("spaceId", spaceId).eq("status", "approved")
-      )
-      .collect();
-    const filtered = approved
-      .filter((t) => matchesFilter(t, filter))
-      .sort((a, b) => (a.displayOrder ?? a.submittedAt) - (b.displayOrder ?? b.submittedAt))
-      .slice(0, filter.maxItems ?? 50);
-    const testimonials = await Promise.all(filtered.map((t) => toPayloadTestimonial(ctx, t)));
+    const testimonials = await selectWidgetTestimonials(ctx, spaceId, filter);
     return { type, testimonials };
   },
 });
