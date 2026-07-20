@@ -14,6 +14,7 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import {
   ArrowLeft,
+  Globe,
   Inbox,
   LayoutDashboard,
   LayoutGrid,
@@ -135,6 +136,7 @@ function SpaceSectionNav({ spaceId }: { spaceId: Id<"spaces"> }) {
     { href: base, label: "Overview", icon: LayoutDashboard, showDot: false },
     { href: `${base}/inbox`, label: "Inbox", icon: Inbox, showDot: !!pendingCount },
     { href: `${base}/widgets`, label: "Widgets", icon: LayoutGrid },
+    { href: `${base}/pages`, label: "Pages", icon: Globe },
     { href: `${base}/settings`, label: "Settings", icon: Settings },
     { href: `${base}/share`, label: "Share", icon: Share2 },
   ];
