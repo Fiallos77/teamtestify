@@ -9,6 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Select,
   SelectContent,
@@ -169,37 +170,39 @@ function WidgetEditor({
 
       <Card>
         <CardHeader>
-          <CardTitle>Embed snippet</CardTitle>
+          <CardTitle>Share</CardTitle>
         </CardHeader>
         <CardContent>
-          <pre className="overflow-x-auto rounded-md bg-muted p-4 text-xs">{snippet}</pre>
-          <Button
-            variant="outline"
-            className="mt-3"
-            onClick={() => navigator.clipboard.writeText(snippet)}
-          >
-            Copy snippet
-          </Button>
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader>
-          <CardTitle>Hosted page link</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <p className="mb-3 text-sm text-muted-foreground">
-            A direct link you can share anywhere — no need to embed it on your own site.
-          </p>
-          <div className="flex flex-wrap items-center gap-2">
-            <Input readOnly value={hostedUrl} className="min-w-0 flex-1 text-xs" />
-            <Button variant="outline" onClick={() => navigator.clipboard.writeText(hostedUrl)}>
-              Copy
-            </Button>
-            <a href={hostedUrl} target="_blank" rel="noreferrer">
-              <Button variant="outline">Open</Button>
-            </a>
-          </div>
+          <Tabs defaultValue="snippet">
+            <TabsList>
+              <TabsTrigger value="snippet">Embed snippet</TabsTrigger>
+              <TabsTrigger value="hosted">Hosted page link</TabsTrigger>
+            </TabsList>
+            <TabsContent value="snippet" className="pt-4">
+              <pre className="overflow-x-auto rounded-md bg-muted p-4 text-xs">{snippet}</pre>
+              <Button
+                variant="outline"
+                className="mt-3"
+                onClick={() => navigator.clipboard.writeText(snippet)}
+              >
+                Copy snippet
+              </Button>
+            </TabsContent>
+            <TabsContent value="hosted" className="pt-4">
+              <p className="mb-3 text-sm text-muted-foreground">
+                A direct link you can share anywhere — no need to embed it on your own site.
+              </p>
+              <div className="flex flex-wrap items-center gap-2">
+                <Input readOnly value={hostedUrl} className="min-w-0 flex-1 text-xs" />
+                <Button variant="outline" onClick={() => navigator.clipboard.writeText(hostedUrl)}>
+                  Copy
+                </Button>
+                <a href={hostedUrl} target="_blank" rel="noreferrer">
+                  <Button variant="outline">Open</Button>
+                </a>
+              </div>
+            </TabsContent>
+          </Tabs>
         </CardContent>
       </Card>
     </div>
