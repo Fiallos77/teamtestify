@@ -20,6 +20,25 @@ function getStripeClient(): Stripe {
   return new Stripe(requiredEnv("STRIPE_SECRET_KEY"));
 }
 
+// returnUrl is client-supplied and Stripe doesn't restrict its domain — it
+// redirects the browser there verbatim once checkout/the billing portal
+// completes. Without this check a caller could pass an arbitrary origin and
+// ride a legitimate Stripe flow straight into an open redirect (e.g. to a
+// phishing page). Pure/exported so it's directly unit-testable without
+// mocking the Stripe SDK.
+export function assertSameOrigin(returnUrl: string): void {
+  let parsed: URL;
+  try {
+    parsed = new URL(returnUrl);
+  } catch {
+    throw new Error("Invalid return URL");
+  }
+  const allowedOrigin = new URL(requiredEnv("APP_URL")).origin;
+  if (parsed.origin !== allowedOrigin) {
+    throw new Error("returnUrl must match the app's own origin");
+  }
+}
+
 // Test-mode only (per teamtestify-v2-spec.md Phase 2 slice). Only the
 // organization owner can start a checkout — any member could otherwise
 // upgrade billing for an org they don't own.
@@ -32,6 +51,7 @@ export const createCheckoutSession = action({
     returnUrl: v.string(),
   },
   handler: async (ctx, { interval, returnUrl }): Promise<{ url: string }> => {
+    assertSameOrigin(returnUrl);
     const { organizationId } = await ctx.runQuery(
       internal.organizations.requireOwnerContext,
       {}
@@ -62,6 +82,7 @@ export const createCheckoutSession = action({
 export const createPortalSession = action({
   args: { returnUrl: v.string() },
   handler: async (ctx, { returnUrl }): Promise<{ url: string }> => {
+    assertSameOrigin(returnUrl);
     const { organizationId } = await ctx.runQuery(
       internal.organizations.requireOwnerContext,
       {}
