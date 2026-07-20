@@ -1,7 +1,12 @@
-import { afterEach, beforeEach, describe, expect, test } from "vitest";
-import { signRenderContext, verifyRenderToken, type RenderContext } from "./imageToken";
+import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
+import {
+  IMAGE_RENDER_TOKEN_TTL_MS,
+  signRenderContext,
+  verifyRenderToken,
+  type RenderContext,
+} from "./imageToken";
 
-const ctx: RenderContext = {
+const ctx: Omit<RenderContext, "exp"> = {
   testimonialId: "t_123",
   watermark: true,
   primaryColor: "#4f46e5",
@@ -20,7 +25,9 @@ afterEach(() => {
 describe("imageToken", () => {
   test("round-trips a signed context", async () => {
     const token = await signRenderContext(ctx);
-    expect(await verifyRenderToken(token)).toEqual(ctx);
+    const verified = await verifyRenderToken(token);
+    expect(verified).toMatchObject(ctx);
+    expect(verified?.exp).toBeGreaterThan(Date.now());
   });
 
   test("rejects a tampered payload (e.g. flipping watermark to false)", async () => {
@@ -48,5 +55,27 @@ describe("imageToken", () => {
   test("throws when the secret is unset (signing)", async () => {
     delete process.env.IMAGE_RENDER_SECRET;
     await expect(signRenderContext(ctx)).rejects.toThrow(/IMAGE_RENDER_SECRET/);
+  });
+
+  test("returns null once the token has expired", async () => {
+    vi.useFakeTimers();
+    try {
+      const token = await signRenderContext(ctx);
+      vi.advanceTimersByTime(IMAGE_RENDER_TOKEN_TTL_MS + 1);
+      expect(await verifyRenderToken(token)).toBeNull();
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  test("still verifies just under the expiry window", async () => {
+    vi.useFakeTimers();
+    try {
+      const token = await signRenderContext(ctx);
+      vi.advanceTimersByTime(IMAGE_RENDER_TOKEN_TTL_MS - 1);
+      expect(await verifyRenderToken(token)).not.toBeNull();
+    } finally {
+      vi.useRealTimers();
+    }
   });
 });

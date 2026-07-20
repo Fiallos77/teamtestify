@@ -26,7 +26,16 @@ export interface RenderContext {
   watermark: boolean;
   primaryColor: string;
   content: RenderContent;
+  // Epoch ms after which this token is no longer accepted — set by
+  // signRenderContext, enforced by verifyRenderToken. Without this a leaked
+  // token (logs, network history) would authorize re-rendering that
+  // testimonial's image indefinitely.
+  exp: number;
 }
+
+// Generous enough to cover the proposal -> pick-a-layout -> render round trip
+// a real user takes, short enough that a leaked token has a small window.
+export const IMAGE_RENDER_TOKEN_TTL_MS = 5 * 60 * 1000;
 
 const enc = new TextEncoder();
 
@@ -56,8 +65,9 @@ async function hmacKey(): Promise<CryptoKey> {
   );
 }
 
-export async function signRenderContext(ctx: RenderContext): Promise<string> {
-  const payload = toB64Url(enc.encode(JSON.stringify(ctx)));
+export async function signRenderContext(ctx: Omit<RenderContext, "exp">): Promise<string> {
+  const withExpiry: RenderContext = { ...ctx, exp: Date.now() + IMAGE_RENDER_TOKEN_TTL_MS };
+  const payload = toB64Url(enc.encode(JSON.stringify(withExpiry)));
   const sig = await crypto.subtle.sign("HMAC", await hmacKey(), enc.encode(payload));
   return `${payload}.${toB64Url(new Uint8Array(sig))}`;
 }
@@ -79,7 +89,9 @@ export async function verifyRenderToken(token: string): Promise<RenderContext | 
   }
   if (!ok) return null;
   try {
-    return JSON.parse(new TextDecoder().decode(fromB64Url(payload))) as RenderContext;
+    const ctx = JSON.parse(new TextDecoder().decode(fromB64Url(payload))) as RenderContext;
+    if (typeof ctx.exp !== "number" || Date.now() > ctx.exp) return null;
+    return ctx;
   } catch {
     return null;
   }
