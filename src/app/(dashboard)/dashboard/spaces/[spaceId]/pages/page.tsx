@@ -130,7 +130,7 @@ export default function SpacePagesPage({
                   </p>
                   <Button
                     nativeButton={false}
-                    render={<Link href={`/dashboard/spaces/${spaceId}/widgets/new`} />}
+                    render={<Link href={`/dashboard/spaces/${spaceId}/widgets`} />}
                   >
                     Create a widget
                   </Button>
