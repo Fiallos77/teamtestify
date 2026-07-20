@@ -42,22 +42,22 @@ export default function WidgetsPage({
   if (stats === undefined) return <p className="text-muted-foreground">Loading…</p>;
   if (isWidgetsLocked(stats.approved)) return <WidgetsLocked spaceId={spaceId} />;
 
-  if (activeType === "wall") {
-    return <WallOfLoveFlow spaceId={id} onExit={() => setActiveType(null)} />;
-  }
-  if (activeType === "single") {
-    return <SingleTestimonialFlow spaceId={id} onExit={() => setActiveType(null)} />;
-  }
-
   return (
     <div>
       <div className="mb-8">
         <h2 className="mb-1 text-xl font-semibold">Create a widget</h2>
         <p className="mb-4 text-sm text-muted-foreground">Choose a type to get started.</p>
-        <WidgetTypeSelector onSelect={setActiveType} />
+        <WidgetTypeSelector selected={activeType} onSelect={setActiveType} />
       </div>
 
-      {widgets && widgets.length > 0 && (
+      {activeType === "wall" && (
+        <WallOfLoveFlow spaceId={id} onExit={() => setActiveType(null)} />
+      )}
+      {activeType === "single" && (
+        <SingleTestimonialFlow spaceId={id} onExit={() => setActiveType(null)} />
+      )}
+
+      {activeType === null && widgets && widgets.length > 0 && (
         <div>
           <h3 className="mb-4 text-lg font-semibold">Your widgets</h3>
           <div className="grid gap-4 sm:grid-cols-2">
