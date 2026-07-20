@@ -125,6 +125,7 @@ export default defineSchema({
     .index("by_space", ["spaceId"])
     .index("by_space_and_status", ["spaceId", "status"])
     .index("by_org", ["organizationId"])
+    .index("by_org_and_status", ["organizationId", "status"])
     .index("by_space_status_featured", ["spaceId", "status", "featured"]),
 
   widgets: defineTable({

@@ -1,5 +1,5 @@
 import type { MutationCtx, QueryCtx } from "./_generated/server";
-import type { Id } from "./_generated/dataModel";
+import type { Doc, Id } from "./_generated/dataModel";
 
 type Ctx = QueryCtx | MutationCtx;
 
@@ -126,31 +126,56 @@ export async function assertCanCreateSpace(ctx: Ctx, organizationId: Id<"organiz
   }
 }
 
+// Full approved set for a plan — used where every row is genuinely needed
+// (applyDowngradeToFree sorts and buckets all of them). Index-scoped to
+// "approved" so this is a scan of just the approved rows, not the org's
+// entire testimonial history.
 async function countApprovedTestimonials(ctx: Ctx, organizationId: Id<"organizations">) {
-  const testimonials = await ctx.db
+  return await ctx.db
     .query("testimonials")
-    .withIndex("by_org", (q) => q.eq("organizationId", organizationId))
+    .withIndex("by_org_and_status", (q) =>
+      q.eq("organizationId", organizationId).eq("status", "approved")
+    )
     .collect();
-  return testimonials.filter((t) => t.status === "approved");
 }
 
-export async function assertCanPublish(ctx: Ctx, organizationId: Id<"organizations">) {
+// Returns the approved set it fetched (bounded to limit + 1 — just enough to
+// tell whether the cap is exceeded) so setStatus can hand it straight to
+// assertCanPublishVideo instead of that function re-scanning the same data.
+// null means "unlimited plan, nothing fetched" — not "zero approved".
+export async function assertCanPublish(
+  ctx: Ctx,
+  organizationId: Id<"organizations">
+): Promise<Doc<"testimonials">[] | null> {
   const entitlements = await getEntitlements(ctx, organizationId);
-  if (entitlements.maxPublishedTestimonials === null) return;
-  const approved = await countApprovedTestimonials(ctx, organizationId);
+  if (entitlements.maxPublishedTestimonials === null) return null;
+  const approved = await ctx.db
+    .query("testimonials")
+    .withIndex("by_org_and_status", (q) =>
+      q.eq("organizationId", organizationId).eq("status", "approved")
+    )
+    .take(entitlements.maxPublishedTestimonials + 1);
   if (approved.length >= entitlements.maxPublishedTestimonials) {
     throw new Error(
       `Your plan allows up to ${entitlements.maxPublishedTestimonials} published testimonials. Upgrade to Pro for unlimited.`
     );
   }
+  return approved;
 }
 
-export async function assertCanPublishVideo(ctx: Ctx, organizationId: Id<"organizations">) {
+// Accepts the array assertCanPublish already fetched so the two checks share
+// one database read instead of each doing their own full pass — falls back
+// to its own (index-scoped) fetch when called on its own, e.g. from tests.
+export async function assertCanPublishVideo(
+  ctx: Ctx,
+  organizationId: Id<"organizations">,
+  preFetchedApproved?: Doc<"testimonials">[] | null
+) {
   const entitlements = await getEntitlements(ctx, organizationId);
   if (entitlements.maxPublishedVideoTestimonials === null) return;
-  const approved = await countApprovedTestimonials(ctx, organizationId);
-  const approvedVideos = approved.filter((t) => t.type === "video");
-  if (approvedVideos.length >= entitlements.maxPublishedVideoTestimonials) {
+  const approved = preFetchedApproved ?? (await countApprovedTestimonials(ctx, organizationId));
+  const approvedVideoCount = approved.filter((t) => t.type === "video").length;
+  if (approvedVideoCount >= entitlements.maxPublishedVideoTestimonials) {
     throw new Error(
       `Your plan allows up to ${entitlements.maxPublishedVideoTestimonials} published video testimonials. Upgrade to Pro for unlimited.`
     );

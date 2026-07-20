@@ -22,7 +22,7 @@ import {
   PRO_MAX_SPACES,
   PRO_MAX_VIDEO_SECONDS,
 } from "./entitlements";
-import type { Id } from "./_generated/dataModel";
+import type { Doc, Id } from "./_generated/dataModel";
 
 const modules = import.meta.glob("./**/*.ts");
 
@@ -230,6 +230,31 @@ describe("assertCanPublish", () => {
 
     await t.run(async (ctx) => await assertCanPublish(ctx, organizationId));
   });
+
+  test("returns the fetched approved set, for setStatus to reuse in the video check", async () => {
+    const t = newTestConvex();
+    const organizationId = await seedOrg(t);
+    const spaceId = await seedSpace(t, organizationId);
+    for (let i = 0; i < 5; i++) {
+      await seedApprovedTestimonial(t, organizationId, spaceId, "text");
+    }
+
+    const approved = await t.run(async (ctx) => await assertCanPublish(ctx, organizationId));
+
+    expect(approved).toHaveLength(5);
+  });
+
+  test("returns null on pro — no bound to check, so nothing is fetched", async () => {
+    const t = newTestConvex();
+    const organizationId = await seedOrg(t);
+    await makePro(t, organizationId);
+    const spaceId = await seedSpace(t, organizationId);
+    await seedApprovedTestimonial(t, organizationId, spaceId, "text");
+
+    const approved = await t.run(async (ctx) => await assertCanPublish(ctx, organizationId));
+
+    expect(approved).toBeNull();
+  });
 });
 
 describe("assertCanPublishVideo", () => {
@@ -264,6 +289,25 @@ describe("assertCanPublishVideo", () => {
     }
 
     await t.run(async (ctx) => await assertCanPublishVideo(ctx, organizationId));
+  });
+
+  test("trusts a pre-fetched approved set instead of re-querying the database", async () => {
+    const t = newTestConvex();
+    const organizationId = await seedOrg(t);
+    // The database has zero approved testimonials at all...
+    const preFetchedApproved = [
+      { type: "video" } as Doc<"testimonials">,
+      { type: "video" } as Doc<"testimonials">,
+    ];
+
+    // ...but the caller (setStatus, reusing assertCanPublish's result) passes
+    // a set that already has 2 videos, so this must throw based on THAT set,
+    // proving it didn't fall back to a fresh database scan.
+    await expect(
+      t.run(
+        async (ctx) => await assertCanPublishVideo(ctx, organizationId, preFetchedApproved)
+      )
+    ).rejects.toThrow();
   });
 });
 

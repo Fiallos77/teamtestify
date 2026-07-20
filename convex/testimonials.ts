@@ -120,9 +120,9 @@ export const setStatus = mutation({
     // testimonial (or rejecting one) must never be blocked by entitlements,
     // otherwise it'd double-count itself against its own limit.
     if (status === "approved" && testimonial.status !== "approved") {
-      await assertCanPublish(ctx, org._id);
+      const approved = await assertCanPublish(ctx, org._id);
       if (testimonial.type === "video") {
-        await assertCanPublishVideo(ctx, org._id);
+        await assertCanPublishVideo(ctx, org._id, approved);
       }
     }
 
