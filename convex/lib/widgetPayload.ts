@@ -2,7 +2,7 @@ import type { QueryCtx } from "../_generated/server";
 import type { Id, Doc } from "../_generated/dataModel";
 import { getActiveStorageAdapter } from "./storage";
 
-function matchesFilter(t: Doc<"testimonials">, filter: Doc<"widgets">["filter"]) {
+export function matchesFilter(t: Doc<"testimonials">, filter: Doc<"widgets">["filter"]) {
   if (filter.onlyFeatured && !t.featured) return false;
   if (filter.minRating && (t.rating ?? 0) < filter.minRating) return false;
   if (filter.includeTags && filter.includeTags.length > 0) {
@@ -12,7 +12,7 @@ function matchesFilter(t: Doc<"testimonials">, filter: Doc<"widgets">["filter"])
   return true;
 }
 
-async function toPayloadTestimonial(ctx: QueryCtx, t: Doc<"testimonials">) {
+export async function toPayloadTestimonial(ctx: QueryCtx, t: Doc<"testimonials">) {
   const storage = getActiveStorageAdapter();
   return {
     id: t._id,

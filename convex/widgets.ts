@@ -7,6 +7,7 @@ import {
   requireWidgetInOrg,
   tryOrgContext,
 } from "./lib/authz";
+import { matchesFilter, toPayloadTestimonial } from "./lib/widgetPayload";
 
 const filterValidator = v.object({
   includeTags: v.optional(v.array(v.string())),
@@ -59,6 +60,52 @@ export const listBySpace = query({
       .query("widgets")
       .withIndex("by_space", (q) => q.eq("spaceId", spaceId))
       .collect();
+  },
+});
+
+// Powers the live preview in the widget creation flow (and can be reused by
+// the editor). Mirrors buildWidgetPayload's testimonial-selection logic
+// (widgetPayload.ts) but from in-progress, not-yet-saved type/filter values —
+// no widget row needs to exist yet, and it isn't gated on isPublished like the
+// public embed payload is, since this is an authenticated preview for the
+// space's own owner.
+export const getPreviewPayload = query({
+  args: {
+    spaceId: v.id("spaces"),
+    type: v.union(v.literal("wall"), v.literal("single")),
+    singleTestimonialId: v.optional(v.id("testimonials")),
+    filter: filterValidator,
+  },
+  handler: async (ctx, { spaceId, type, singleTestimonialId, filter }) => {
+    const orgContext = await tryOrgContext(ctx);
+    if (!orgContext) return { type, testimonials: [] };
+    await requireSpaceInOrg(ctx, spaceId, orgContext.org._id);
+
+    if (type === "single") {
+      if (!singleTestimonialId) return { type, testimonials: [] };
+      const testimonial = await ctx.db.get(singleTestimonialId);
+      if (
+        !testimonial ||
+        testimonial.spaceId !== spaceId ||
+        testimonial.status !== "approved"
+      ) {
+        return { type, testimonials: [] };
+      }
+      return { type, testimonials: [await toPayloadTestimonial(ctx, testimonial)] };
+    }
+
+    const approved = await ctx.db
+      .query("testimonials")
+      .withIndex("by_space_and_status", (q) =>
+        q.eq("spaceId", spaceId).eq("status", "approved")
+      )
+      .collect();
+    const filtered = approved
+      .filter((t) => matchesFilter(t, filter))
+      .sort((a, b) => (a.displayOrder ?? a.submittedAt) - (b.displayOrder ?? b.submittedAt))
+      .slice(0, filter.maxItems ?? 50);
+    const testimonials = await Promise.all(filtered.map((t) => toPayloadTestimonial(ctx, t)));
+    return { type, testimonials };
   },
 });
 
