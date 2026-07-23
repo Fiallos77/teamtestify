@@ -1,11 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useAction, useQuery } from "convex/react";
 import { Image as ImageIcon, Download, Sparkles } from "lucide-react";
 import { api } from "../../../convex/_generated/api";
 import type { Id } from "../../../convex/_generated/dataModel";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import {
   Dialog,
   DialogContent,
@@ -21,28 +23,23 @@ import {
   type LayoutId,
 } from "@/lib/testimonial-image/types";
 import { AiQuotaUpgradeAlert } from "./ai-quota-upgrade-alert";
+import { buildRenderRequestBody, type ImageProposal as Proposal } from "./image-generator-render";
 
-type Proposal = {
-  layout: string;
-  headline: string;
-  headerLabel: string;
-  backgroundType: string;
-  bgPhotoUrl?: string;
-};
+// Debounce delay for re-rendering the preview after a headline edit — long
+// enough that a typing user doesn't trigger a render per keystroke, short
+// enough that the preview still feels responsive.
+const HEADLINE_RENDER_DEBOUNCE_MS = 500;
 
 // One client-side retry to match the "first attempt errors, second works"
 // transient behaviour; surfaces the server's message on a hard failure.
-async function renderPng(token: string, footer: string | undefined, p: Proposal, size: ImageSizeKey): Promise<Blob> {
-  const body = JSON.stringify({
-    token,
-    footer: footer ?? "",
-    layout: p.layout,
-    headline: p.headline,
-    headerLabel: p.headerLabel,
-    backgroundType: p.backgroundType,
-    bgPhotoUrl: p.bgPhotoUrl ?? "",
-    size,
-  });
+async function renderPng(
+  token: string,
+  footer: string | undefined,
+  proposal: Proposal,
+  headline: string,
+  size: ImageSizeKey
+): Promise<Blob> {
+  const body = JSON.stringify(buildRenderRequestBody({ token, footer, proposal, headline, size }));
   let lastErr = "";
   for (let attempt = 0; attempt < 2; attempt++) {
     try {
@@ -74,6 +71,14 @@ export function ImageGenerator({ testimonialId }: { testimonialId: Id<"testimoni
   const [selected, setSelected] = useState<number | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [downloading, setDownloading] = useState<ImageSizeKey | null>(null);
+  const [editedHeadline, setEditedHeadline] = useState("");
+  const headlineDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (headlineDebounceRef.current) clearTimeout(headlineDebounceRef.current);
+    };
+  }, []);
 
   const remaining = usage?.image.remaining ?? null;
   const outOfCredits = remaining !== null && remaining <= 0;
@@ -83,6 +88,7 @@ export function ImageGenerator({ testimonialId }: { testimonialId: Id<"testimoni
     setError(null);
     setSelected(null);
     setPreviewUrl(null);
+    setEditedHeadline("");
     try {
       const res = await generate({ testimonialId });
       setProposals(res.proposals);
@@ -96,17 +102,33 @@ export function ImageGenerator({ testimonialId }: { testimonialId: Id<"testimoni
     }
   }
 
-  async function pick(index: number) {
+  async function renderPreview(proposal: Proposal, headline: string) {
     if (!token) return;
-    setSelected(index);
     setPreviewUrl(null);
     setError(null);
     try {
-      const blob = await renderPng(token, footer, proposals[index], "square");
+      const blob = await renderPng(token, footer, proposal, headline, "square");
       setPreviewUrl(URL.createObjectURL(blob));
     } catch (e) {
       setError(e instanceof Error ? `Couldn't render the preview: ${e.message}` : "Couldn't render the preview.");
     }
+  }
+
+  async function pick(index: number) {
+    if (!token) return;
+    setSelected(index);
+    setEditedHeadline(proposals[index].headline);
+    await renderPreview(proposals[index], proposals[index].headline);
+  }
+
+  function handleHeadlineChange(value: string) {
+    setEditedHeadline(value);
+    if (selected === null) return;
+    if (headlineDebounceRef.current) clearTimeout(headlineDebounceRef.current);
+    const proposal = proposals[selected];
+    headlineDebounceRef.current = setTimeout(() => {
+      renderPreview(proposal, value);
+    }, HEADLINE_RENDER_DEBOUNCE_MS);
   }
 
   async function download(size: ImageSizeKey) {
@@ -114,7 +136,7 @@ export function ImageGenerator({ testimonialId }: { testimonialId: Id<"testimoni
     setDownloading(size);
     setError(null);
     try {
-      const blob = await renderPng(token, footer, proposals[selected], size);
+      const blob = await renderPng(token, footer, proposals[selected], editedHeadline, size);
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
@@ -186,6 +208,15 @@ export function ImageGenerator({ testimonialId }: { testimonialId: Id<"testimoni
 
           {selected !== null && (
             <div className="space-y-3">
+              <div className="space-y-1">
+                <Label htmlFor="image-headline">Headline</Label>
+                <Input
+                  id="image-headline"
+                  value={editedHeadline}
+                  onChange={(e) => handleHeadlineChange(e.target.value)}
+                  maxLength={240}
+                />
+              </div>
               {previewUrl ? (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img src={previewUrl} alt="Preview" className="mx-auto w-64 rounded-xl border" />
