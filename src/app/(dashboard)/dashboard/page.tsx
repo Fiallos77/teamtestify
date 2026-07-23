@@ -94,6 +94,9 @@ export default function DashboardPage() {
 
       <div className="mb-6">
         <h1 className="text-2xl font-semibold">Spaces</h1>
+        <p className="text-sm text-muted-foreground">
+          A collection of testimonials for one service, product, or location
+        </p>
       </div>
 
       {spaces === undefined && <p className="text-muted-foreground">Loading…</p>}

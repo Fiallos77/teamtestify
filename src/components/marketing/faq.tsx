@@ -1,6 +1,9 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
-const FAQS = [
+// The "15" below is hand-written copy, disconnected from convex/entitlements.ts
+// (the actual enforcement) — same tradeoff as plan-matrix.ts. faq.test.ts
+// cross-checks it against FREE_MAX_PUBLISHED_TESTIMONIALS to catch drift.
+export const FAQS = [
   {
     question: "Do I need a credit card to start?",
     answer:
@@ -9,7 +12,7 @@ const FAQS = [
   {
     question: "Can I cancel anytime?",
     answer:
-      "Yes. Pro is a monthly or yearly subscription you can cancel anytime from the billing portal — no lock-in, no phone call required.",
+      "Yes. Cancel anytime from the billing portal. When you downgrade to Free, your 15 most recent testimonials stay with you — nothing is lost, just limited to what the Free plan allows.",
   },
   {
     question: "Can I invite my team or give clients access?",

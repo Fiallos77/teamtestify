@@ -1,5 +1,7 @@
 import { Infinity as InfinityIcon, SlidersHorizontal } from "lucide-react";
 
+export const DIFFERENTIATOR_HEADING = "Works with two simple ideas";
+
 const POINTS = [
   {
     icon: InfinityIcon,
@@ -23,7 +25,7 @@ export function Differentiator() {
           style={{ background: "radial-gradient(circle, var(--primary), transparent 70%)" }}
         />
         <h2 className="relative text-center font-heading text-2xl font-bold tracking-tight sm:text-3xl">
-          Built around two simple rules
+          {DIFFERENTIATOR_HEADING}
         </h2>
         <div className="relative mt-8 grid gap-3 sm:grid-cols-2">
           {POINTS.map((point) => (

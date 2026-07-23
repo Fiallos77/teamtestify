@@ -1,7 +1,7 @@
 import { LayoutGrid, GalleryHorizontal, Video, ShieldCheck, Code2 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
-const FEATURES = [
+export const FEATURES = [
   {
     icon: LayoutGrid,
     title: "Wall of Love",
@@ -14,7 +14,7 @@ const FEATURES = [
   },
   {
     icon: Video,
-    title: "In-browser video recording",
+    title: "Record videos directly on your phone or computer",
     body: "Customers record straight from their camera — no app, no upload, no extra steps for them.",
   },
   {
@@ -24,7 +24,7 @@ const FEATURES = [
   },
   {
     icon: Code2,
-    title: "No-code embed",
+    title: "Paste and go",
     body: "One script tag drops a widget onto any site — no iframe wrangling, no CSS to write.",
   },
 ];
