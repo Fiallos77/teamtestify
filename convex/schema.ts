@@ -25,6 +25,11 @@ export default defineSchema({
   userSettings: defineTable({
     authUserId: v.string(),
     activeOrganizationId: v.optional(v.id("organizations")),
+    // Set once the user accepts the Privacy Policy / Terms of Service.
+    // Tied to the account (not a browser), so it holds across devices and
+    // covers every sign-up path, including Google OAuth which never touches
+    // the /sign-up form's own pre-account gate.
+    acceptedTermsAt: v.optional(v.number()),
   }).index("by_auth_user_id", ["authUserId"]),
 
   spaces: defineTable({

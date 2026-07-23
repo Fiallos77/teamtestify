@@ -1,9 +1,11 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useMutation } from "convex/react";
 import { authClient } from "@/lib/auth-client";
+import { api } from "../../../../../convex/_generated/api";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -15,24 +17,25 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { acceptTerms, hasAcceptedTerms } from "@/lib/terms-acceptance";
 
 export default function Page() {
   const router = useRouter();
+  const acceptTerms = useMutation(api.userSettings.acceptTerms);
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [termsAccepted, setTermsAccepted] = useState(true);
+  // No account exists yet at this point, so there's nothing server-side to
+  // check — this just gates the signup form itself for this page visit.
+  // The account-level record (convex/userSettings.ts) is written after
+  // signup succeeds below, and is what actually prevents this from being
+  // asked again on another device — see dashboard-shell.tsx for that gate,
+  // which also catches Google OAuth signups that never see this form at all.
+  const [termsAccepted, setTermsAccepted] = useState(false);
   const [termsChecked, setTermsChecked] = useState(false);
 
-  useEffect(() => {
-    setTermsAccepted(hasAcceptedTerms());
-  }, []);
-
   function handleAcceptTerms() {
-    acceptTerms();
     setTermsAccepted(true);
   }
 
@@ -49,6 +52,13 @@ export default function Page() {
       setError(signUpError.message ?? "Could not create account");
       setSubmitting(false);
       return;
+    }
+    try {
+      await acceptTerms({});
+    } catch {
+      // Best-effort: the dashboard-level gate (dashboard-shell.tsx) re-checks
+      // and re-prompts if this didn't land (e.g. auth token not yet
+      // propagated to the Convex client right after signup).
     }
     router.push("/dashboard");
   }

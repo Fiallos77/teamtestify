@@ -7,19 +7,35 @@ import { Sidebar } from "@/components/dashboard/sidebar";
 import { DashboardTopbar } from "@/components/dashboard/dashboard-topbar";
 import { UserMenu } from "@/components/dashboard/user-menu";
 import { OrganizationRequired } from "@/components/dashboard/organization-required";
+import { TermsAcceptanceRequired } from "@/components/dashboard/terms-acceptance-required";
 
 export function DashboardShell({ children }: { children: ReactNode }) {
   const { isAuthenticated } = useConvexAuth();
-  // Skip the query until the Convex client has actually registered the auth
-  // token — right after a hard refresh there's a brief window where
+  // Skip these queries until the Convex client has actually registered the
+  // auth token — right after a hard refresh there's a brief window where
   // isAuthenticated is false even though the user has a valid session, and
-  // querying too early would misread "not authenticated yet" as "no org",
-  // flashing the create-organization screen and letting a click through
-  // before the token is ready.
+  // querying too early would misread "not authenticated yet" as "hasn't
+  // accepted" / "no org", flashing the wrong gate and letting a click
+  // through before the token is ready.
+  const hasAcceptedTerms = useQuery(api.userSettings.hasAcceptedTerms, isAuthenticated ? {} : "skip");
   const activeOrg = useQuery(api.organizations.getActive, isAuthenticated ? {} : "skip");
 
-  if (activeOrg === undefined) {
+  if (hasAcceptedTerms === undefined || activeOrg === undefined) {
     return <div className="min-h-screen bg-background text-foreground" />;
+  }
+
+  // Account-level gate: covers every sign-up path (email form, Google OAuth,
+  // which never touches the /sign-up form at all) and every device — once
+  // accepted here, it never asks again anywhere.
+  if (!hasAcceptedTerms) {
+    return (
+      <div className="min-h-screen bg-background text-foreground">
+        <div className="flex justify-end p-3">
+          <UserMenu />
+        </div>
+        <TermsAcceptanceRequired />
+      </div>
+    );
   }
 
   if (!activeOrg) {
