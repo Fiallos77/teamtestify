@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { authClient } from "@/lib/auth-client";
@@ -8,6 +8,14 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { acceptTerms, hasAcceptedTerms } from "@/lib/terms-acceptance";
 
 export default function Page() {
   const router = useRouter();
@@ -16,6 +24,17 @@ export default function Page() {
   const [password, setPassword] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [termsAccepted, setTermsAccepted] = useState(true);
+  const [termsChecked, setTermsChecked] = useState(false);
+
+  useEffect(() => {
+    setTermsAccepted(hasAcceptedTerms());
+  }, []);
+
+  function handleAcceptTerms() {
+    acceptTerms();
+    setTermsAccepted(true);
+  }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -36,6 +55,50 @@ export default function Page() {
 
   return (
     <div className="flex min-h-screen items-center justify-center p-4">
+      {!termsAccepted && (
+        <Dialog open disablePointerDismissal>
+          <DialogContent showCloseButton={false}>
+            <DialogHeader>
+              <DialogTitle>Accept our Privacy Policy and Terms of Service</DialogTitle>
+            </DialogHeader>
+            <p className="text-sm text-muted-foreground">
+              By creating an account, you agree to our{" "}
+              <Link
+                href="/privacy-policy"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="underline"
+              >
+                Privacy Policy
+              </Link>{" "}
+              and{" "}
+              <Link
+                href="/terms-of-service"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="underline"
+              >
+                Terms of Service
+              </Link>
+              .
+            </p>
+            <label className="flex items-start gap-2 text-sm">
+              <input
+                type="checkbox"
+                className="mt-0.5"
+                checked={termsChecked}
+                onChange={(e) => setTermsChecked(e.target.checked)}
+              />
+              I accept Privacy Policy and Terms of Service
+            </label>
+            <DialogFooter>
+              <Button onClick={handleAcceptTerms} disabled={!termsChecked} className="w-full">
+                Accept
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      )}
       <Card className="w-full max-w-sm">
         <CardHeader>
           <CardTitle>Create your account</CardTitle>
