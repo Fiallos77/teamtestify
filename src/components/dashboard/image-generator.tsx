@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useAction, useQuery } from "convex/react";
-import { Image as ImageIcon, Download, Sparkles } from "lucide-react";
+import { Image as ImageIcon, Download, Sparkles, Loader2 } from "lucide-react";
 import { api } from "../../../convex/_generated/api";
 import type { Id } from "../../../convex/_generated/dataModel";
 import { Button } from "@/components/ui/button";
@@ -167,6 +167,7 @@ export function ImageGenerator({ testimonialId }: { testimonialId: Id<"testimoni
         <div className="space-y-4">
           <div className="flex flex-wrap items-center gap-3">
             <Button onClick={handleGenerate} disabled={loading || outOfCredits}>
+              {loading && <Loader2 className="size-4 animate-spin" />}
               {loading ? "Generating…" : proposals.length ? "Regenerate" : "Generate proposals"}
             </Button>
             {usage && (
@@ -221,7 +222,9 @@ export function ImageGenerator({ testimonialId }: { testimonialId: Id<"testimoni
                 // eslint-disable-next-line @next/next/no-img-element
                 <img src={previewUrl} alt="Preview" className="mx-auto w-64 rounded-xl border" />
               ) : (
-                <p className="text-sm text-muted-foreground">Rendering preview…</p>
+                <p className="flex items-center justify-center gap-2 text-sm text-muted-foreground">
+                  <Loader2 className="size-4 animate-spin" /> Rendering…
+                </p>
               )}
               {watermark && (
                 <p className="text-center text-xs text-muted-foreground">
@@ -238,8 +241,12 @@ export function ImageGenerator({ testimonialId }: { testimonialId: Id<"testimoni
                     onClick={() => download(size)}
                     title={IMAGE_SIZES[size].label}
                   >
-                    <Download className="size-4" />
-                    {downloading === size ? "…" : IMAGE_SIZES[size].network}
+                    {downloading === size ? (
+                      <Loader2 className="size-4 animate-spin" />
+                    ) : (
+                      <Download className="size-4" />
+                    )}
+                    {IMAGE_SIZES[size].network}
                   </Button>
                 ))}
               </div>
