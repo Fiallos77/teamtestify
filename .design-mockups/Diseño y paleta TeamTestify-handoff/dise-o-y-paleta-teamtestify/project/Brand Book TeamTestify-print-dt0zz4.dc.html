@@ -1,0 +1,843 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style data-omelette-print-defaults>
+@media print {
+  @page { margin: 0.5in; }
+  h1, h2, h3, h4, h5, h6 { break-after: avoid; }
+  figure, table, pre, blockquote, img, svg, tr, [class~="card" i] { break-inside: avoid; }
+  img, svg { max-width: 100%; }
+  p { orphans: 3; widows: 3; }
+}
+</style>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet data-dc-atomics>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,600;12..96,700;12..96,800&family=Instrument+Sans:ital,wght@0,400;0,500;0,600;1,400&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box}
+  body{margin:0;background:#EDE6DC;font-family:'Instrument Sans',system-ui,sans-serif;color:#1C1418;-webkit-font-smoothing:antialiased}
+  a{color:#D63A17;text-decoration:none}
+  a:hover{color:#FF5A36}
+  ::selection{background:#FFB020;color:#1C1418}
+</style>
+</helmet>
+<div style="max-width:960px;margin:0 auto;background:#FBF7F2;box-shadow:0 1px 0 rgba(0,0,0,.04)">
+
+<!-- ============ PORTADA ============ -->
+<section data-screen-label="Portada" style="position:relative;background:#1C1418;color:#FBF7F2;padding:76px 72px 64px;overflow:hidden">
+  <div style="position:absolute;top:-120px;right:-120px;width:420px;height:420px;border-radius:50%;background:radial-gradient(circle at 30% 30%,#FF5A36,#D63A17);opacity:.9"></div>
+  <div style="position:absolute;bottom:-160px;left:-80px;width:300px;height:300px;border-radius:50%;background:#FFB020;opacity:.16"></div>
+  <div style="position:relative">
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:60px">
+      <div style="width:34px;height:34px;border-radius:9px;background:#FF5A36;display:flex;align-items:center;justify-content:center;font-family:'Bricolage Grotesque';font-weight:800;color:#fff;font-size:20px">T</div>
+      <span style="font-family:'Bricolage Grotesque';font-weight:700;font-size:18px;letter-spacing:-.01em">TeamTestify</span>
+    </div>
+    <div style="font-family:'Space Mono';font-size:12px;letter-spacing:.22em;text-transform:uppercase;color:#FFB020;margin-bottom:22px">Brand &amp; Color System · v1.0 · 2026</div>
+    <h1 style="font-family:'Bricolage Grotesque';font-weight:800;font-size:72px;line-height:.98;letter-spacing:-.03em;margin:0 0 24px;max-width:14ch">Identidad visual con energía.</h1>
+    <p style="font-size:19px;line-height:1.55;max-width:52ch;color:rgba(251,247,242,.72);margin:0 0 40px">Un sistema de color y componentes para convertir a TeamTestify de una landing "triste" en una marca premium, cálida y con impacto — coherente de la landing al dashboard a la página de recolección.</p>
+    <div style="display:flex;flex-wrap:wrap;gap:10px">
+      <span style="font-family:'Space Mono';font-size:12px;padding:8px 14px;border-radius:100px;background:rgba(255,90,54,.16);color:#FF7A5C;border:1px solid rgba(255,90,54,.35)">Premium</span>
+      <span style="font-family:'Space Mono';font-size:12px;padding:8px 14px;border-radius:100px;background:rgba(255,176,32,.14);color:#FFC24D;border:1px solid rgba(255,176,32,.32)">Con energía</span>
+      <span style="font-family:'Space Mono';font-size:12px;padding:8px 14px;border-radius:100px;background:rgba(18,135,107,.16);color:#37B896;border:1px solid rgba(18,135,107,.4)">Confiable</span>
+      <span style="font-family:'Space Mono';font-size:12px;padding:8px 14px;border-radius:100px;background:rgba(251,247,242,.08);color:rgba(251,247,242,.7);border:1px solid rgba(251,247,242,.18)">Accesible</span>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 01 ESTRATEGIA ============ -->
+<section data-screen-label="Estrategia" style="padding:64px 72px 56px;border-bottom:1px solid #E7E0D6">
+  <div style="font-family:'Space Mono';font-size:12px;letter-spacing:.2em;color:#D63A17;margin-bottom:14px">01 — ESTRATEGIA</div>
+  <h2 style="font-family:'Bricolage Grotesque';font-weight:700;font-size:38px;line-height:1.05;letter-spacing:-.02em;margin:0 0 20px;max-width:20ch">Posicionarnos donde nadie está: cálidos y premium.</h2>
+  <p style="font-size:17px;line-height:1.6;max-width:60ch;color:#55504A;margin:0 0 36px">El mercado de recolección de testimonios se ve igual: azul corporativo o pasteles suaves. TeamTestify gana ocupando el espacio vacío — un naranja coral con calidez humana, base premium oscura y una energía que dice "esto funciona y se ve caro". Justifica los $29/mes desde el primer clic.</p>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+    <div style="border:1px solid #E7E0D6;border-radius:16px;padding:22px 24px;background:#fff">
+      <div style="font-family:'Space Mono';font-size:11px;color:#8B8178;margin-bottom:14px;letter-spacing:.1em">EL MERCADO HOY</div>
+      <div style="display:flex;flex-direction:column;gap:12px;font-size:14.5px;line-height:1.4">
+        <div style="display:flex;align-items:center;gap:12px"><span style="width:20px;height:20px;border-radius:6px;background:#2563EB;flex:none"></span><div><b>testimonial.to</b><span style="color:#8B8178"> — azul B2B, frío, "banca"</span></div></div>
+        <div style="display:flex;align-items:center;gap:12px"><span style="width:20px;height:20px;border-radius:6px;background:#C7B8F5;flex:none"></span><div><b>Senja</b><span style="color:#8B8178"> — pasteles, soft, sin autoridad</span></div></div>
+        <div style="display:flex;align-items:center;gap:12px"><span style="width:20px;height:20px;border-radius:6px;background:#635BFF;flex:none"></span><div><b>Stripe</b><span style="color:#8B8178"> — premium pero frío y técnico</span></div></div>
+      </div>
+    </div>
+    <div style="border:1px solid #FF5A36;border-radius:16px;padding:22px 24px;background:linear-gradient(135deg,#FFF3EE,#FFF8F0)">
+      <div style="font-family:'Space Mono';font-size:11px;color:#D63A17;margin-bottom:14px;letter-spacing:.1em">TEAMTESTIFY</div>
+      <div style="display:flex;flex-direction:column;gap:12px;font-size:14.5px;line-height:1.4">
+        <div style="display:flex;align-items:center;gap:12px"><span style="width:20px;height:20px;border-radius:6px;background:#FF5A36;flex:none"></span><div><b>Coral cálido</b><span style="color:#8B7A6E"> — energía + cercanía</span></div></div>
+        <div style="display:flex;align-items:center;gap:12px"><span style="width:20px;height:20px;border-radius:6px;background:#1C1418;flex:none"></span><div><b>Base premium oscura</b><span style="color:#8B7A6E"> — autoridad</span></div></div>
+        <div style="display:flex;align-items:center;gap:12px"><span style="width:20px;height:20px;border-radius:6px;background:#FFB020;flex:none"></span><div><b>Ámbar</b><span style="color:#8B7A6E"> — estrellas, celebración, ROI</span></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 02 MOODBOARD ============ -->
+<section data-screen-label="Moodboard" style="padding:64px 72px 56px;border-bottom:1px solid #E7E0D6;background:#F6F0E8">
+  <div style="font-family:'Space Mono';font-size:12px;letter-spacing:.2em;color:#D63A17;margin-bottom:14px">02 — MOODBOARD &amp; REFERENCIAS 2026</div>
+  <h2 style="font-family:'Bricolage Grotesque';font-weight:700;font-size:38px;line-height:1.05;letter-spacing:-.02em;margin:0 0 12px">Qué está ganando en SaaS premium.</h2>
+  <p style="font-size:17px;line-height:1.6;max-width:60ch;color:#55504A;margin:0 0 32px">La dirección 2026: neutros cálidos (adiós al gris frío), un acento saturado usado con disciplina, tipografía grotesque con carácter y superficies con profundidad suave. Nos inspiramos, no copiamos.</p>
+
+  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:14px">
+    <div style="border-radius:16px;overflow:hidden;border:1px solid #E7E0D6;background:#fff">
+      <div style="height:120px;background:linear-gradient(135deg,#FF5A36,#FFB020)"></div>
+      <div style="padding:14px 16px"><div style="font-family:'Bricolage Grotesque';font-weight:600;font-size:15px">Acento cálido saturado</div><div style="font-size:13px;color:#8B8178;margin-top:3px">Un solo color que "posee" la marca. Coral + ámbar.</div></div>
+    </div>
+    <div style="border-radius:16px;overflow:hidden;border:1px solid #E7E0D6;background:#fff">
+      <div style="height:120px;background:#1C1418;position:relative"><div style="position:absolute;inset:0;background:radial-gradient(circle at 70% 30%,rgba(255,90,54,.5),transparent 60%)"></div></div>
+      <div style="padding:14px 16px"><div style="font-family:'Bricolage Grotesque';font-weight:600;font-size:15px">Dark premium con vida</div><div style="font-size:13px;color:#8B8178;margin-top:3px">Negros cálidos + glows de color, no gris plano.</div></div>
+    </div>
+    <div style="border-radius:16px;overflow:hidden;border:1px solid #E7E0D6;background:#fff">
+      <div style="height:120px;background:#FBF7F2;display:flex;align-items:center;justify-content:center"><span style="font-family:'Bricolage Grotesque';font-weight:800;font-size:46px;letter-spacing:-.03em;color:#1C1418">Aa</span></div>
+      <div style="padding:14px 16px"><div style="font-family:'Bricolage Grotesque';font-weight:600;font-size:15px">Grotesque con carácter</div><div style="font-size:13px;color:#8B8178;margin-top:3px">Titulares expresivos, cuerpo neutro y limpio.</div></div>
+    </div>
+    <div style="border-radius:16px;overflow:hidden;border:1px solid #E7E0D6;background:#fff">
+      <div style="height:120px;background:#F3EEE7;display:flex;align-items:center;justify-content:center;gap:8px"><span style="width:44px;height:44px;border-radius:12px;background:#fff;box-shadow:0 6px 20px rgba(28,20,24,.1)"></span><span style="width:44px;height:44px;border-radius:12px;background:#fff;box-shadow:0 2px 6px rgba(28,20,24,.08)"></span></div>
+      <div style="padding:14px 16px"><div style="font-family:'Bricolage Grotesque';font-weight:600;font-size:15px">Sombras suaves, capas</div><div style="font-size:13px;color:#8B8178;margin-top:3px">Profundidad sutil = percepción premium.</div></div>
+    </div>
+    <div style="border-radius:16px;overflow:hidden;border:1px solid #E7E0D6;background:#fff">
+      <div style="height:120px;background:linear-gradient(135deg,#FBF7F2,#F0E6D8)"></div>
+      <div style="padding:14px 16px"><div style="font-family:'Bricolage Grotesque';font-weight:600;font-size:15px">Neutros cálidos (cream)</div><div style="font-size:13px;color:#8B8178;margin-top:3px">Reemplazan al blanco/gris frío. Más humano.</div></div>
+    </div>
+    <div style="border-radius:16px;overflow:hidden;border:1px solid #E7E0D6;background:#fff">
+      <div style="height:120px;background:#FFF3EE;display:flex;align-items:center;justify-content:center"><div style="display:flex;gap:3px;color:#FFB020;font-size:24px">★★★★★</div></div>
+      <div style="padding:14px 16px"><div style="font-family:'Bricolage Grotesque';font-weight:600;font-size:15px">Prueba social celebrada</div><div style="font-size:13px;color:#8B8178;margin-top:3px">Estrellas ámbar como motivo recurrente.</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 03 PALETA PRIMARIA ============ -->
+<section data-screen-label="Paleta primaria" style="padding:64px 72px 56px;border-bottom:1px solid #E7E0D6">
+  <div style="font-family:'Space Mono';font-size:12px;letter-spacing:.2em;color:#D63A17;margin-bottom:14px">03 — PALETA PRIMARIA</div>
+  <h2 style="font-family:'Bricolage Grotesque';font-weight:700;font-size:38px;line-height:1.05;letter-spacing:-.02em;margin:0 0 12px">Cuatro colores que trabajan.</h2>
+  <p style="font-size:17px;line-height:1.6;max-width:60ch;color:#55504A;margin:0 0 32px">Cada color tiene un trabajo asignado. La disciplina — no el número de colores — es lo que se ve premium.</p>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+    <!-- Coral -->
+    <div style="border-radius:18px;overflow:hidden;border:1px solid #E7E0D6">
+      <div style="height:150px;background:#FF5A36;display:flex;align-items:flex-end;padding:18px"><span style="font-family:'Bricolage Grotesque';font-weight:800;font-size:26px;color:#fff">Ember Coral</span></div>
+      <div style="padding:18px 20px;background:#fff">
+        <div style="display:flex;gap:18px;font-family:'Space Mono';font-size:12px;color:#55504A;margin-bottom:12px"><span>HEX #FF5A36</span><span>oklch(.68 .19 33)</span></div>
+        <p style="font-size:14px;line-height:1.5;color:#55504A;margin:0">Color hero de la marca. CTAs, acentos, momentos de energía. Cálido y humano — la anti-tesis del azul B2B. <b style="color:#1C1418">Su trabajo: acción e impacto.</b></p>
+      </div>
+    </div>
+    <!-- Ink -->
+    <div style="border-radius:18px;overflow:hidden;border:1px solid #E7E0D6">
+      <div style="height:150px;background:#1C1418;display:flex;align-items:flex-end;padding:18px"><span style="font-family:'Bricolage Grotesque';font-weight:800;font-size:26px;color:#FBF7F2">Plum Ink</span></div>
+      <div style="padding:18px 20px;background:#fff">
+        <div style="display:flex;gap:18px;font-family:'Space Mono';font-size:12px;color:#55504A;margin-bottom:12px"><span>HEX #1C1418</span><span>oklch(.19 .01 350)</span></div>
+        <p style="font-size:14px;line-height:1.5;color:#55504A;margin:0">Negro cálido (tinte ciruela), no gris frío. Texto principal, secciones dark premium, footer. <b style="color:#1C1418">Su trabajo: autoridad y profundidad.</b></p>
+      </div>
+    </div>
+    <!-- Amber -->
+    <div style="border-radius:18px;overflow:hidden;border:1px solid #E7E0D6">
+      <div style="height:150px;background:#FFB020;display:flex;align-items:flex-end;padding:18px"><span style="font-family:'Bricolage Grotesque';font-weight:800;font-size:26px;color:#1C1418">Glow Amber</span></div>
+      <div style="padding:18px 20px;background:#fff">
+        <div style="display:flex;gap:18px;font-family:'Space Mono';font-size:12px;color:#55504A;margin-bottom:12px"><span>HEX #FFB020</span><span>oklch(.81 .16 78)</span></div>
+        <p style="font-size:14px;line-height:1.5;color:#55504A;margin:0">Estrellas, ratings, destacados y celebración de resultados. Segundo acento cálido. <b style="color:#1C1418">Su trabajo: prueba social y ROI.</b></p>
+      </div>
+    </div>
+    <!-- Teal -->
+    <div style="border-radius:18px;overflow:hidden;border:1px solid #E7E0D6">
+      <div style="height:150px;background:#12876B;display:flex;align-items:flex-end;padding:18px"><span style="font-family:'Bricolage Grotesque';font-weight:800;font-size:26px;color:#fff">Trust Teal</span></div>
+      <div style="padding:18px 20px;background:#fff">
+        <div style="display:flex;gap:18px;font-family:'Space Mono';font-size:12px;color:#55504A;margin-bottom:12px"><span>HEX #12876B</span><span>oklch(.55 .09 168)</span></div>
+        <p style="font-size:14px;line-height:1.5;color:#55504A;margin:0">Éxito, estados positivos, señales de "automatización funcionando". Equilibra la calidez con confianza. <b style="color:#1C1418">Su trabajo: confianza y growth.</b></p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 04 SECUNDARIA + NEUTROS ============ -->
+<section data-screen-label="Secundaria y neutros" style="padding:64px 72px 56px;border-bottom:1px solid #E7E0D6;background:#F6F0E8">
+  <div style="font-family:'Space Mono';font-size:12px;letter-spacing:.2em;color:#D63A17;margin-bottom:14px">04 — SECUNDARIA &amp; NEUTROS CÁLIDOS</div>
+  <h2 style="font-family:'Bricolage Grotesque';font-weight:700;font-size:38px;line-height:1.05;letter-spacing:-.02em;margin:0 0 12px">Neutros con temperatura.</h2>
+  <p style="font-size:17px;line-height:1.6;max-width:62ch;color:#55504A;margin:0 0 32px">Todos los grises llevan un tinte cálido — nunca gris azulado frío. Es el detalle que separa "premium" de "template genérico". Incluye variantes de acento y estados semánticos.</p>
+
+  <div style="font-family:'Space Mono';font-size:11px;color:#8B8178;letter-spacing:.12em;margin-bottom:10px">NEUTROS CÁLIDOS (SAND)</div>
+  <div style="display:flex;border-radius:14px;overflow:hidden;border:1px solid #E7E0D6;margin-bottom:26px">
+    <div style="flex:1;height:88px;background:#FBF7F2"></div>
+    <div style="flex:1;height:88px;background:#F3EEE7"></div>
+    <div style="flex:1;height:88px;background:#E7E0D6"></div>
+    <div style="flex:1;height:88px;background:#D3C9BC"></div>
+    <div style="flex:1;height:88px;background:#8B8178"></div>
+    <div style="flex:1;height:88px;background:#55504A"></div>
+    <div style="flex:1;height:88px;background:#2A231F"></div>
+    <div style="flex:1;height:88px;background:#1C1418"></div>
+  </div>
+  <div style="display:flex;font-family:'Space Mono';font-size:10.5px;color:#8B8178;margin-bottom:34px;gap:0">
+    <span style="flex:1">50<br>#FBF7F2</span><span style="flex:1">100<br>#F3EEE7</span><span style="flex:1">200<br>#E7E0D6</span><span style="flex:1">300<br>#D3C9BC</span><span style="flex:1">500<br>#8B8178</span><span style="flex:1">700<br>#55504A</span><span style="flex:1">800<br>#2A231F</span><span style="flex:1">900<br>#1C1418</span>
+  </div>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px">
+    <div>
+      <div style="font-family:'Space Mono';font-size:11px;color:#8B8178;letter-spacing:.12em;margin-bottom:10px">VARIANTES DE ACENTO</div>
+      <div style="display:flex;flex-direction:column;gap:8px">
+        <div style="display:flex;align-items:center;gap:12px"><span style="width:40px;height:40px;border-radius:10px;background:#FFF3EE;border:1px solid #E7E0D6;flex:none"></span><span style="font-family:'Space Mono';font-size:12px">#FFF3EE <span style="color:#8B8178">Coral wash · fondos suaves</span></span></div>
+        <div style="display:flex;align-items:center;gap:12px"><span style="width:40px;height:40px;border-radius:10px;background:#FF7A5C;flex:none"></span><span style="font-family:'Space Mono';font-size:12px">#FF7A5C <span style="color:#8B8178">Coral hover</span></span></div>
+        <div style="display:flex;align-items:center;gap:12px"><span style="width:40px;height:40px;border-radius:10px;background:#D63A17;flex:none"></span><span style="font-family:'Space Mono';font-size:12px">#D63A17 <span style="color:#8B8178">Coral texto/link (AA)</span></span></div>
+      </div>
+    </div>
+    <div>
+      <div style="font-family:'Space Mono';font-size:11px;color:#8B8178;letter-spacing:.12em;margin-bottom:10px">ESTADOS SEMÁNTICOS</div>
+      <div style="display:flex;flex-direction:column;gap:8px">
+        <div style="display:flex;align-items:center;gap:12px"><span style="width:40px;height:40px;border-radius:10px;background:#12876B;flex:none"></span><span style="font-family:'Space Mono';font-size:12px">#12876B <span style="color:#8B8178">Success</span></span></div>
+        <div style="display:flex;align-items:center;gap:12px"><span style="width:40px;height:40px;border-radius:10px;background:#E8871A;flex:none"></span><span style="font-family:'Space Mono';font-size:12px">#E8871A <span style="color:#8B8178">Warning</span></span></div>
+        <div style="display:flex;align-items:center;gap:12px"><span style="width:40px;height:40px;border-radius:10px;background:#C6371B;flex:none"></span><span style="font-family:'Space Mono';font-size:12px">#C6371B <span style="color:#8B8178">Error (cálido, no rojo puro)</span></span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 05 TIPOGRAFÍA ============ -->
+<section data-screen-label="Tipografia" style="padding:64px 72px 56px;border-bottom:1px solid #E7E0D6">
+  <div style="font-family:'Space Mono';font-size:12px;letter-spacing:.2em;color:#D63A17;margin-bottom:14px">05 — TIPOGRAFÍA</div>
+  <h2 style="font-family:'Bricolage Grotesque';font-weight:700;font-size:38px;line-height:1.05;letter-spacing:-.02em;margin:0 0 32px">Carácter arriba, claridad abajo.</h2>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+    <div style="border:1px solid #E7E0D6;border-radius:16px;padding:26px 28px;background:#fff">
+      <div style="font-family:'Space Mono';font-size:11px;color:#8B8178;letter-spacing:.1em;margin-bottom:8px">DISPLAY / TITULARES</div>
+      <div style="font-family:'Bricolage Grotesque';font-weight:800;font-size:52px;line-height:.95;letter-spacing:-.03em;margin-bottom:8px">Bricolage</div>
+      <p style="font-size:14px;line-height:1.5;color:#55504A;margin:0">Grotesque con personalidad y calidez óptica. Weights 600–800 para hero y headers. Da la "energía" sin gritar.</p>
+    </div>
+    <div style="border:1px solid #E7E0D6;border-radius:16px;padding:26px 28px;background:#fff">
+      <div style="font-family:'Space Mono';font-size:11px;color:#8B8178;letter-spacing:.1em;margin-bottom:8px">CUERPO / UI</div>
+      <div style="font-family:'Instrument Sans';font-weight:500;font-size:52px;line-height:.95;letter-spacing:-.01em;margin-bottom:8px">Instrument</div>
+      <p style="font-size:14px;line-height:1.5;color:#55504A;margin:0">Sans neutra, legible y moderna para párrafos, labels e interfaz. Perfecta con shadcn/ui. Weights 400–600.</p>
+    </div>
+  </div>
+  <div style="margin-top:16px;border:1px solid #E7E0D6;border-radius:16px;padding:22px 28px;background:#FBF7F2;display:flex;flex-wrap:wrap;gap:28px;align-items:baseline">
+    <span style="font-family:'Space Mono';font-size:11px;color:#8B8178;letter-spacing:.1em">MONO (datos/labels): <b style="font-family:'Space Mono';color:#1C1418">Space Mono</b></span>
+    <span style="font-family:'Bricolage Grotesque';font-size:34px;font-weight:700">H1 52 · </span><span style="font-family:'Bricolage Grotesque';font-size:26px;font-weight:600">H2 38</span><span style="font-family:'Instrument Sans';font-size:17px">Body 17</span><span style="font-family:'Instrument Sans';font-size:13px;color:#8B8178">Caption 13</span>
+  </div>
+</section>
+
+<!-- ============ 06 COMPONENTES ============ -->
+<section data-screen-label="Componentes" style="padding:64px 72px 56px;border-bottom:1px solid #E7E0D6;background:#F6F0E8">
+  <div style="font-family:'Space Mono';font-size:12px;letter-spacing:.2em;color:#D63A17;margin-bottom:14px">06 — SISTEMA DE COMPONENTES</div>
+  <h2 style="font-family:'Bricolage Grotesque';font-weight:700;font-size:38px;line-height:1.05;letter-spacing:-.02em;margin:0 0 12px">Piezas listas para shadcn/ui.</h2>
+  <p style="font-size:17px;line-height:1.6;max-width:60ch;color:#55504A;margin:0 0 32px">Radios generosos (10–14px), sombras suaves y la paleta aplicada con jerarquía clara.</p>
+
+  <!-- Buttons -->
+  <div style="font-family:'Space Mono';font-size:11px;color:#8B8178;letter-spacing:.12em;margin-bottom:12px">BOTONES</div>
+  <div style="display:flex;flex-wrap:wrap;gap:12px;align-items:center;margin-bottom:32px">
+    <span style="background:#FF5A36;color:#fff;font-weight:600;font-size:15px;padding:12px 22px;border-radius:12px;box-shadow:0 6px 16px rgba(255,90,54,.32)">Recolectar testimonios</span>
+    <span style="background:#1C1418;color:#FBF7F2;font-weight:600;font-size:15px;padding:12px 22px;border-radius:12px">Secundario</span>
+    <span style="background:#fff;color:#1C1418;font-weight:600;font-size:15px;padding:12px 22px;border-radius:12px;border:1px solid #D3C9BC">Outline</span>
+    <span style="background:transparent;color:#D63A17;font-weight:600;font-size:15px;padding:12px 12px">Ghost →</span>
+    <span style="background:#12876B;color:#fff;font-weight:600;font-size:15px;padding:12px 22px;border-radius:12px">Confirmar</span>
+  </div>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:32px">
+    <!-- Inputs -->
+    <div>
+      <div style="font-family:'Space Mono';font-size:11px;color:#8B8178;letter-spacing:.12em;margin-bottom:12px">INPUTS</div>
+      <div style="display:flex;flex-direction:column;gap:10px">
+        <div style="background:#fff;border:1px solid #D3C9BC;border-radius:12px;padding:12px 14px;font-size:14px;color:#8B8178">tu@email.com</div>
+        <div style="background:#fff;border:2px solid #FF5A36;border-radius:12px;padding:11px 14px;font-size:14px;color:#1C1418;box-shadow:0 0 0 4px rgba(255,90,54,.14)">Escribiendo… <span style="border-left:2px solid #FF5A36;padding-left:1px"></span></div>
+        <div style="background:#FBEDEA;border:1px solid #C6371B;border-radius:12px;padding:12px 14px;font-size:14px;color:#C6371B">Email inválido</div>
+      </div>
+    </div>
+    <!-- Badges + rating -->
+    <div>
+      <div style="font-family:'Space Mono';font-size:11px;color:#8B8178;letter-spacing:.12em;margin-bottom:12px">BADGES &amp; RATING</div>
+      <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px">
+        <span style="background:rgba(18,135,107,.12);color:#0E6B54;font-size:12px;font-weight:600;padding:5px 12px;border-radius:100px">● Publicado</span>
+        <span style="background:rgba(232,135,26,.14);color:#B5680F;font-size:12px;font-weight:600;padding:5px 12px;border-radius:100px">Pendiente</span>
+        <span style="background:rgba(255,90,54,.12);color:#D63A17;font-size:12px;font-weight:600;padding:5px 12px;border-radius:100px">Pro</span>
+        <span style="background:#1C1418;color:#FFB020;font-size:12px;font-weight:600;padding:5px 12px;border-radius:100px">✦ IA</span>
+      </div>
+      <div style="background:#fff;border:1px solid #E7E0D6;border-radius:12px;padding:14px;display:flex;align-items:center;gap:10px">
+        <span style="color:#FFB020;font-size:20px;letter-spacing:2px">★★★★★</span>
+        <span style="font-family:'Space Mono';font-size:13px;color:#55504A">4.9 · 218 reseñas</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Alerts -->
+  <div style="font-family:'Space Mono';font-size:11px;color:#8B8178;letter-spacing:.12em;margin-bottom:12px">ALERTS</div>
+  <div style="display:flex;flex-direction:column;gap:10px">
+    <div style="background:#EAF5F1;border:1px solid rgba(18,135,107,.35);border-left:4px solid #12876B;border-radius:12px;padding:14px 16px;font-size:14px;color:#0E6B54"><b>¡Nuevo testimonio!</b> Se publicó automáticamente en tu muro.</div>
+    <div style="background:#FDF3E6;border:1px solid rgba(232,135,26,.35);border-left:4px solid #E8871A;border-radius:12px;padding:14px 16px;font-size:14px;color:#B5680F"><b>Recordatorio.</b> 3 clientes no han respondido a tu solicitud.</div>
+    <div style="background:#FFF3EE;border:1px solid rgba(255,90,54,.3);border-left:4px solid #FF5A36;border-radius:12px;padding:14px 16px;font-size:14px;color:#D63A17"><b>Tip Pro.</b> Genera una imagen de marketing con IA desde este testimonio.</div>
+  </div>
+</section>
+
+<!-- ============ 07 LANDING ============ -->
+<section data-screen-label="Aplicacion Landing" style="padding:64px 72px 56px;border-bottom:1px solid #E7E0D6">
+  <div style="font-family:'Space Mono';font-size:12px;letter-spacing:.2em;color:#D63A17;margin-bottom:14px">07 — APLICACIÓN · LANDING</div>
+  <h2 style="font-family:'Bricolage Grotesque';font-weight:700;font-size:38px;line-height:1.05;letter-spacing:-.02em;margin:0 0 24px">Hero con vida, CTA imposible de ignorar.</h2>
+
+  <!-- browser mock -->
+  <div style="border-radius:16px;overflow:hidden;border:1px solid #D3C9BC;box-shadow:0 20px 50px rgba(28,20,24,.14)">
+    <div style="background:#F3EEE7;padding:10px 14px;display:flex;align-items:center;gap:6px;border-bottom:1px solid #E7E0D6"><span style="width:11px;height:11px;border-radius:50%;background:#D3C9BC"></span><span style="width:11px;height:11px;border-radius:50%;background:#D3C9BC"></span><span style="width:11px;height:11px;border-radius:50%;background:#D3C9BC"></span><span style="margin-left:12px;font-family:'Space Mono';font-size:11px;color:#8B8178">teamtestify.com</span></div>
+    <!-- hero -->
+    <div style="background:#1C1418;color:#FBF7F2;padding:32px 34px 38px;position:relative;overflow:hidden">
+      <div style="position:absolute;top:-80px;right:-60px;width:260px;height:260px;border-radius:50%;background:radial-gradient(circle,#FF5A36,transparent 70%);opacity:.55"></div>
+      <div style="position:relative">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:36px">
+          <div style="display:flex;align-items:center;gap:9px"><span style="width:26px;height:26px;border-radius:7px;background:#FF5A36;display:flex;align-items:center;justify-content:center;font-family:'Bricolage Grotesque';font-weight:800;color:#fff;font-size:15px">T</span><b style="font-family:'Bricolage Grotesque';font-size:15px">TeamTestify</b></div>
+          <div style="display:flex;gap:22px;align-items:center;font-size:13px;color:rgba(251,247,242,.65)"><span>Producto</span><span>Precios</span><span style="background:#FF5A36;color:#fff;padding:8px 16px;border-radius:9px;font-weight:600">Empezar gratis</span></div>
+        </div>
+        <span style="display:inline-block;font-family:'Space Mono';font-size:11px;color:#FFB020;background:rgba(255,176,32,.12);border:1px solid rgba(255,176,32,.3);padding:5px 12px;border-radius:100px;margin-bottom:18px">✦ Automatización + IA</span>
+        <h3 style="font-family:'Bricolage Grotesque';font-weight:800;font-size:42px;line-height:1;letter-spacing:-.03em;margin:0 0 14px;max-width:16ch">Testimonios que se recolectan solos.</h3>
+        <p style="font-size:15px;line-height:1.5;color:rgba(251,247,242,.7);max-width:44ch;margin:0 0 22px">Pide, recolecta y convierte reseñas en imágenes de marketing con IA — sin perseguir a nadie.</p>
+        <div style="display:flex;gap:10px;align-items:center;margin-bottom:26px">
+          <span style="background:#FF5A36;color:#fff;font-weight:600;font-size:15px;padding:13px 24px;border-radius:12px;box-shadow:0 8px 20px rgba(255,90,54,.4)">Empezar gratis</span>
+          <span style="border:1px solid rgba(251,247,242,.25);color:#FBF7F2;font-weight:600;font-size:15px;padding:13px 22px;border-radius:12px">Ver demo</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;font-size:13px;color:rgba(251,247,242,.6)"><span style="color:#FFB020;letter-spacing:1px">★★★★★</span> 4.9 · usado por +3.000 creadores</div>
+      </div>
+    </div>
+    <!-- social proof strip -->
+    <div style="background:#FBF7F2;padding:26px 34px;display:grid;grid-template-columns:repeat(3,1fr);gap:14px">
+      <div style="background:#fff;border:1px solid #E7E0D6;border-radius:14px;padding:16px"><div style="color:#FFB020;font-size:14px;margin-bottom:8px">★★★★★</div><p style="font-size:13px;line-height:1.45;color:#55504A;margin:0 0 12px">"Automaticé todo. Ahorro 5 horas al mes."</p><div style="display:flex;align-items:center;gap:8px"><span style="width:26px;height:26px;border-radius:50%;background:linear-gradient(135deg,#FF5A36,#FFB020)"></span><span style="font-size:12px;font-weight:600">Ana · Coach</span></div></div>
+      <div style="background:#fff;border:1px solid #E7E0D6;border-radius:14px;padding:16px"><div style="color:#FFB020;font-size:14px;margin-bottom:8px">★★★★★</div><p style="font-size:13px;line-height:1.45;color:#55504A;margin:0 0 12px">"Las imágenes con IA se ven de agencia."</p><div style="display:flex;align-items:center;gap:8px"><span style="width:26px;height:26px;border-radius:50%;background:linear-gradient(135deg,#12876B,#FFB020)"></span><span style="font-size:12px;font-weight:600">Luis · Freelance</span></div></div>
+      <div style="background:#1C1418;border-radius:14px;padding:16px;color:#FBF7F2;display:flex;flex-direction:column;justify-content:center"><div style="font-family:'Bricolage Grotesque';font-weight:800;font-size:30px;color:#FFB020">3×</div><p style="font-size:13px;line-height:1.4;color:rgba(251,247,242,.7);margin:6px 0 0">más testimonios en el primer mes</p></div>
+    </div>
+  </div>
+  <p style="font-size:13.5px;color:#8B8178;margin:14px 2px 0"><b style="color:#55504A">Sistema aplicado:</b> hero dark premium con glow coral, CTA Ember con sombra de color, prueba social en cream con estrellas ámbar, y una card de dato en Plum Ink para ritmo visual.</p>
+</section>
+
+<!-- ============ 08 DASHBOARD ============ -->
+<section data-screen-label="Aplicacion Dashboard" style="padding:64px 72px 56px;border-bottom:1px solid #E7E0D6;background:#F6F0E8">
+  <div style="font-family:'Space Mono';font-size:12px;letter-spacing:.2em;color:#D63A17;margin-bottom:14px">08 — APLICACIÓN · DASHBOARD</div>
+  <h2 style="font-family:'Bricolage Grotesque';font-weight:700;font-size:38px;line-height:1.05;letter-spacing:-.02em;margin:0 0 24px">Color con propósito, datos legibles.</h2>
+
+  <div style="border-radius:16px;overflow:hidden;border:1px solid #D3C9BC;box-shadow:0 20px 50px rgba(28,20,24,.14);display:flex;background:#FBF7F2">
+    <!-- sidebar -->
+    <div style="width:190px;background:#1C1418;color:#FBF7F2;padding:20px 16px;flex:none">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:28px"><span style="width:24px;height:24px;border-radius:6px;background:#FF5A36;display:flex;align-items:center;justify-content:center;font-family:'Bricolage Grotesque';font-weight:800;color:#fff;font-size:14px">T</span><b style="font-family:'Bricolage Grotesque';font-size:14px">TeamTestify</b></div>
+      <div style="display:flex;flex-direction:column;gap:4px;font-size:13px">
+        <div style="background:rgba(255,90,54,.18);color:#FF8A6B;padding:9px 12px;border-radius:9px;font-weight:600">◆ Panel</div>
+        <div style="padding:9px 12px;color:rgba(251,247,242,.6)">Testimonios</div>
+        <div style="padding:9px 12px;color:rgba(251,247,242,.6)">Solicitudes</div>
+        <div style="padding:9px 12px;color:rgba(251,247,242,.6)">Muros</div>
+        <div style="padding:9px 12px;color:rgba(251,247,242,.6)">IA Studio</div>
+      </div>
+    </div>
+    <!-- main -->
+    <div style="flex:1;padding:22px 24px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px"><div><div style="font-family:'Bricolage Grotesque';font-weight:700;font-size:20px">Panel</div><div style="font-size:12px;color:#8B8178">Resumen · últimos 30 días</div></div><span style="background:#FF5A36;color:#fff;font-weight:600;font-size:13px;padding:9px 16px;border-radius:10px">+ Nueva solicitud</span></div>
+      <!-- stat cards -->
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:16px">
+        <div style="background:#fff;border:1px solid #E7E0D6;border-radius:14px;padding:16px"><div style="font-size:12px;color:#8B8178;margin-bottom:6px">Testimonios</div><div style="font-family:'Bricolage Grotesque';font-weight:800;font-size:28px">142</div><div style="font-size:12px;color:#12876B;font-weight:600;margin-top:2px">↑ 24%</div></div>
+        <div style="background:#fff;border:1px solid #E7E0D6;border-radius:14px;padding:16px"><div style="font-size:12px;color:#8B8178;margin-bottom:6px">Rating medio</div><div style="font-family:'Bricolage Grotesque';font-weight:800;font-size:28px;color:#1C1418">4.9<span style="color:#FFB020;font-size:18px"> ★</span></div><div style="font-size:12px;color:#12876B;font-weight:600;margin-top:2px">↑ 0.2</div></div>
+        <div style="background:#1C1418;color:#FBF7F2;border-radius:14px;padding:16px"><div style="font-size:12px;color:rgba(251,247,242,.6);margin-bottom:6px">Imágenes IA</div><div style="font-family:'Bricolage Grotesque';font-weight:800;font-size:28px;color:#FFB020">38</div><div style="font-size:12px;color:rgba(251,247,242,.6);margin-top:2px">este mes</div></div>
+      </div>
+      <!-- bar chart -->
+      <div style="background:#fff;border:1px solid #E7E0D6;border-radius:14px;padding:18px">
+        <div style="font-size:13px;font-weight:600;margin-bottom:16px">Testimonios recolectados</div>
+        <div style="display:flex;align-items:flex-end;gap:10px;height:110px">
+          <div style="flex:1;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;gap:6px"><div style="width:100%;height:38%;background:#F0C9BE;border-radius:6px 6px 0 0"></div><span style="font-size:10px;color:#8B8178">L</span></div>
+          <div style="flex:1;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;gap:6px"><div style="width:100%;height:55%;background:#FF9478;border-radius:6px 6px 0 0"></div><span style="font-size:10px;color:#8B8178">M</span></div>
+          <div style="flex:1;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;gap:6px"><div style="width:100%;height:44%;background:#F0C9BE;border-radius:6px 6px 0 0"></div><span style="font-size:10px;color:#8B8178">M</span></div>
+          <div style="flex:1;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;gap:6px"><div style="width:100%;height:78%;background:#FF5A36;border-radius:6px 6px 0 0"></div><span style="font-size:10px;color:#8B8178">J</span></div>
+          <div style="flex:1;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;gap:6px"><div style="width:100%;height:100%;background:#FF5A36;border-radius:6px 6px 0 0"></div><span style="font-size:10px;color:#8B8178">V</span></div>
+          <div style="flex:1;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;gap:6px"><div style="width:100%;height:62%;background:#FF9478;border-radius:6px 6px 0 0"></div><span style="font-size:10px;color:#8B8178">S</span></div>
+          <div style="flex:1;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;gap:6px"><div style="width:100%;height:48%;background:#F0C9BE;border-radius:6px 6px 0 0"></div><span style="font-size:10px;color:#8B8178">D</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <p style="font-size:13.5px;color:#55504A;margin:14px 2px 0"><b>Sistema aplicado:</b> sidebar Plum Ink para foco, coral solo en acción e ítem activo, barras en escala de coral (intensidad = magnitud), verde teal para deltas positivos y ámbar para rating/IA.</p>
+</section>
+
+<!-- ============ 09 RECOLECCIÓN ============ -->
+<section data-screen-label="Aplicacion Recoleccion" style="padding:64px 72px 56px;border-bottom:1px solid #E7E0D6">
+  <div style="font-family:'Space Mono';font-size:12px;letter-spacing:.2em;color:#D63A17;margin-bottom:14px">09 — APLICACIÓN · PÁGINA DE RECOLECCIÓN</div>
+  <h2 style="font-family:'Bricolage Grotesque';font-weight:700;font-size:38px;line-height:1.05;letter-spacing:-.02em;margin:0 0 6px">Invitante, cálida, sin fricción.</h2>
+  <p style="font-size:17px;line-height:1.6;max-width:58ch;color:#55504A;margin:0 0 24px">La ve el cliente del usuario. Debe sentirse personal y profesional para maximizar la conversión — fondo cream cálido, foco total en un solo paso.</p>
+
+  <div style="border-radius:16px;overflow:hidden;border:1px solid #D3C9BC;box-shadow:0 20px 50px rgba(28,20,24,.14);background:linear-gradient(160deg,#FFF6EF,#FBF7F2)">
+    <div style="padding:44px 48px;display:flex;justify-content:center">
+      <div style="width:100%;max-width:460px;background:#fff;border:1px solid #E7E0D6;border-radius:18px;box-shadow:0 12px 34px rgba(28,20,24,.08);padding:30px 32px;text-align:center">
+        <span style="width:52px;height:52px;border-radius:14px;background:linear-gradient(135deg,#FF5A36,#FFB020);display:inline-flex;align-items:center;justify-content:center;font-family:'Bricolage Grotesque';font-weight:800;color:#fff;font-size:24px;margin-bottom:16px">A</span>
+        <h3 style="font-family:'Bricolage Grotesque';font-weight:700;font-size:24px;letter-spacing:-.02em;margin:0 0 6px">Ana quiere tu opinión</h3>
+        <p style="font-size:14px;line-height:1.5;color:#8B8178;margin:0 0 20px">Cuéntanos tu experiencia. Toma 30 segundos y ayuda muchísimo. 🙌</p>
+        <div style="display:flex;justify-content:center;gap:6px;color:#FFB020;font-size:30px;margin-bottom:18px">★★★★★</div>
+        <div style="background:#FBF7F2;border:1px solid #E7E0D6;border-radius:12px;padding:14px;text-align:left;font-size:14px;color:#55504A;min-height:78px;margin-bottom:16px">"El proceso fue rapidísimo y los resultados<span style="border-left:2px solid #FF5A36;margin-left:1px"></span></div>
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;padding:10px;border:1px dashed #D3C9BC;border-radius:12px"><span style="width:34px;height:34px;border-radius:50%;background:#F3EEE7;flex:none"></span><span style="font-size:13px;color:#8B8178">Añade tu foto (opcional)</span></div>
+        <div style="background:#FF5A36;color:#fff;font-weight:600;font-size:16px;padding:14px;border-radius:12px;box-shadow:0 8px 20px rgba(255,90,54,.32)">Enviar testimonio</div>
+        <div style="display:flex;align-items:center;justify-content:center;gap:6px;font-size:11.5px;color:#8B8178;margin-top:14px"><span style="color:#12876B">🔒</span> Seguro · con tecnología de TeamTestify</div>
+      </div>
+    </div>
+  </div>
+  <p style="font-size:13.5px;color:#8B8178;margin:14px 2px 0"><b style="color:#55504A">Sistema aplicado:</b> fondo cream con wash coral, avatar en gradiente marca, un único CTA Ember dominante y sello de confianza en teal. Cero distracciones.</p>
+</section>
+
+<!-- ============ 10 ACCESIBILIDAD + DO/DON'T ============ -->
+<section data-screen-label="Accesibilidad" style="padding:64px 72px 56px;background:#F6F0E8;border-bottom:1px solid #E7E0D6">
+  <div style="font-family:'Space Mono';font-size:12px;letter-spacing:.2em;color:#D63A17;margin-bottom:14px">10 — ACCESIBILIDAD &amp; USO</div>
+  <h2 style="font-family:'Bricolage Grotesque';font-weight:700;font-size:38px;line-height:1.05;letter-spacing:-.02em;margin:0 0 28px">Contraste probado, reglas claras.</h2>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:28px">
+    <div style="background:#1C1418;color:#FBF7F2;border-radius:12px;padding:16px 18px;display:flex;justify-content:space-between;align-items:center"><span style="font-size:14px">Texto sobre Ink</span><span style="font-family:'Space Mono';font-size:12px;color:#12E0A6">15.8:1 · AAA</span></div>
+    <div style="background:#FBF7F2;color:#1C1418;border-radius:12px;padding:16px 18px;border:1px solid #E7E0D6;display:flex;justify-content:space-between;align-items:center"><span style="font-size:14px">Ink sobre cream</span><span style="font-family:'Space Mono';font-size:12px;color:#0E6B54">14.2:1 · AAA</span></div>
+    <div style="background:#FF5A36;color:#fff;border-radius:12px;padding:16px 18px;display:flex;justify-content:space-between;align-items:center"><span style="font-size:14px">Blanco sobre Coral</span><span style="font-family:'Space Mono';font-size:12px">3.3:1 · AA large</span></div>
+    <div style="background:#fff;color:#D63A17;border-radius:12px;padding:16px 18px;border:1px solid #E7E0D6;display:flex;justify-content:space-between;align-items:center"><span style="font-size:14px">Coral texto sobre blanco</span><span style="font-family:'Space Mono';font-size:12px;color:#0E6B54">4.7:1 · AA</span></div>
+  </div>
+  <p style="font-size:14px;line-height:1.55;color:#55504A;margin:0 0 34px;max-width:66ch">Regla: <b>#FF5A36</b> solo para superficies grandes y texto ≥18px bold (botones). Para texto normal o enlaces sobre claro, usar <b>#D63A17</b>. Nunca coral sobre ámbar ni ámbar como texto sobre blanco.</p>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+    <div style="background:#fff;border:1px solid rgba(18,135,107,.3);border-radius:16px;padding:22px 24px">
+      <div style="font-family:'Space Mono';font-size:12px;color:#0E6B54;letter-spacing:.1em;margin-bottom:14px">✓ HACER</div>
+      <ul style="margin:0;padding-left:18px;font-size:14px;line-height:1.7;color:#55504A">
+        <li>Un solo coral por vista como acento dominante</li>
+        <li>Neutros cálidos siempre (nunca gris azulado)</li>
+        <li>Ámbar reservado a estrellas, ROI y celebración</li>
+        <li>Espacios generosos + sombras suaves</li>
+      </ul>
+    </div>
+    <div style="background:#fff;border:1px solid rgba(198,55,27,.3);border-radius:16px;padding:22px 24px">
+      <div style="font-family:'Space Mono';font-size:12px;color:#C6371B;letter-spacing:.1em;margin-bottom:14px">✕ EVITAR</div>
+      <ul style="margin:0;padding-left:18px;font-size:14px;line-height:1.7;color:#55504A">
+        <li>Coral en bloques enormes (cansa, pierde impacto)</li>
+        <li>Más de 2 acentos compitiendo en una pantalla</li>
+        <li>Gradientes neón o rojo agresivo puro</li>
+        <li>Texto pequeño en coral sobre fondo claro</li>
+      </ul>
+    </div>
+  </div>
+
+  <div style="margin-top:40px;padding-top:26px;border-top:1px solid #E7E0D6;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px">
+    <span style="font-family:'Bricolage Grotesque';font-weight:700;font-size:16px">TeamTestify — Brand &amp; Color System v1.0</span>
+    <span style="font-family:'Space Mono';font-size:12px;color:#8B8178">Coral · Ink · Amber · Teal — 2026</span>
+  </div>
+</section>
+
+</div>
+</x-dc>
+<script>
+(async () => {
+  if (!document.title || !document.title.trim()) document.title = "Brand Book TeamTestify";
+  // Prepend so page-supplied @page / break rules (deck-stage's margin:0,
+  // author CSS) keep source-order precedence over the baseline.
+  const baseCss = document.createElement('style');
+  baseCss.textContent = "@media print {\n  figure, table { break-inside: avoid; }\n  *, *::before, *::after {\n    print-color-adjust: exact; -webkit-print-color-adjust: exact;\n    backdrop-filter: none !important; -webkit-backdrop-filter: none !important;\n    animation-delay: -99s !important; animation-duration: .001s !important;\n    animation-iteration-count: 1 !important; animation-fill-mode: both !important;\n    animation-play-state: running !important; transition-duration: 0s !important;\n  }\n}";
+  document.head.prepend(baseCss);
+  if (document.readyState === 'loading') {
+    await new Promise((r) => document.addEventListener('DOMContentLoaded', r, { once: true }));
+  }
+  let ds = document.querySelector('deck-stage');
+  // whenDefined never resolves when nothing registers the element, so only
+  // await it when a <deck-stage> tag exists (and race a timeout regardless).
+  if (ds && !customElements.get('deck-stage')) {
+    try {
+      await Promise.race([
+        customElements.whenDefined('deck-stage'),
+        new Promise((r) => setTimeout(r, 3000)),
+      ]);
+    } catch (e) {}
+    ds = document.querySelector('deck-stage');
+  }
+  // dc-runtime assigns window.DCLogic at init and mounts into #dc-root on
+  // DOMContentLoaded; settle on that subtree so React has rendered before
+  // print(). Non-DC pages fall through to weighing body.
+  const isDc = !ds && 'DCLogic' in window;
+  const settleRoot = ds || (isDc ? document.getElementById('dc-root') : null) || document.body;
+  if (settleRoot) {
+    // Weigh only content children — skip script/style/template so inline
+    // Babel/CSS doesn't register as stable "content" before the framework
+    // has mounted anything.
+    const MEDIA = 'img,svg,canvas,video,picture,iframe,embed,object';
+    const weigh = () => {
+      let text = 0, media = 0;
+      for (const c of settleRoot.children) {
+        const t = c.tagName;
+        if (t === 'SCRIPT' || t === 'STYLE' || t === 'TEMPLATE') continue;
+        text += (c.textContent || '').trim().length;
+        media += c.querySelectorAll(MEDIA).length + (c.matches(MEDIA) ? 1 : 0);
+      }
+      return text + media * 100;
+    };
+    // "Non-zero and stable" alone is not sufficient to mean rendered: generic
+    // body can carry a static shell while async main content is pending, and
+    // #dc-root can carry the root DC's static text while child refs are still
+    // .sc-placeholder boxes. Gate generic on readyState 'complete', and never
+    // accept stability while a dc-runtime placeholder is present.
+    const isGeneric = settleRoot === document.body;
+    const deadline = Date.now() + 15000;
+    let last = -1, stable = 0;
+    while (Date.now() < deadline) {
+      const n = weigh();
+      const ready =
+        (!isGeneric || document.readyState === 'complete') &&
+        !settleRoot.querySelector('.sc-placeholder');
+      if (n > 0 && n === last && ready) { if (++stable >= 2) break; } else { stable = 0; }
+      last = n;
+      await new Promise((r) => setTimeout(r, 250));
+    }
+  }
+  // Project support.js may predate runtime default-seeding; push via bridge.
+  if (isDc && window.__dcSetProps && window.__dcRootName) {
+    try {
+      const dpEl = document.querySelector('script[data-dc-script]');
+      const meta = JSON.parse((dpEl && dpEl.getAttribute('data-props')) || '{}');
+      const bag = {};
+      for (const k in meta)
+        if (k[0] !== '$' && meta[k] && meta[k].default !== undefined)
+          bag[k] = meta[k].default;
+      if (Object.keys(bag).length) {
+        window.__dcSetProps(window.__dcRootName(), bag);
+        await new Promise((r) => setTimeout(r, 50));
+      }
+    } catch (e) {}
+  }
+  // Reveal content gated on scroll or visibility before printing. Lazy <img>,
+  // IntersectionObserver fade-ins, and collapsed <details> don't render while
+  // off-screen, so a long page would print with them blank or closed. Open
+  // every <details>, force native-lazy images eager, and scroll the document
+  // through its full height to trip lazy-load + IO; then wait (bounded) for the
+  // newly-triggered images. Inert for deck-stage (slides aren't scroll-gated).
+  try {
+    for (const d of document.querySelectorAll('details')) d.open = true;
+    for (const img of document.querySelectorAll('img[loading="lazy"]'))
+      img.loading = 'eager';
+    const scroller = document.scrollingElement || document.documentElement;
+    const full = Math.max(scroller.scrollHeight, document.body.scrollHeight);
+    const step = window.innerHeight || 800;
+    for (let y = 0; y <= full; y += step) {
+      window.scrollTo(0, y);
+      await new Promise((r) => requestAnimationFrame(r));
+    }
+    window.scrollTo(0, 0);
+    await Promise.race([
+      Promise.all(
+        [...document.images].map((img) =>
+          img.complete
+            ? null
+            : new Promise((res) => {
+                img.addEventListener('load', res, { once: true });
+                img.addEventListener('error', res, { once: true });
+              })
+        )
+      ),
+      new Promise((r) => setTimeout(r, 4000)),
+    ]);
+  } catch (e) {}
+  try { await document.fonts.ready; } catch (e) {}
+  // Jump every animation to its end state so print() never captures a slide
+  // mid-entrance. Ordering matters: the 0s-transition style must be live
+  // BEFORE data-deck-active is set so attribute-keyed transitions don't
+  // start a (now-0s) run from the pre-active base.
+  const st = document.createElement('style');
+  st.textContent = '*,*::before,*::after{animation-delay:-99s !important;animation-duration:.001s !important;animation-iteration-count:1 !important;animation-fill-mode:both !important;animation-play-state:running !important;transition-duration:0s !important}';
+  document.head.appendChild(st);
+  for (const d of document.querySelectorAll('deck-stage')) {
+    for (const c of d.children) {
+      const t = c.tagName;
+      if (t === 'SCRIPT' || t === 'STYLE' || t === 'TEMPLATE') continue;
+      c.setAttribute('data-deck-active', '');
+    }
+  }
+  // Re-append deck-stage's @page last so no author @page can add a margin and
+  // spill each full-bleed slide onto two sheets. Backstop for old copies.
+  if (ds) {
+    let pg = document.getElementById('deck-stage-print-page');
+    if (!pg) {
+      pg = document.createElement('style');
+      pg.textContent = '@page{size:' + (+ds.getAttribute('width') || 1920) +
+        'px ' + (+ds.getAttribute('height') || 1080) + 'px;margin:0}';
+    }
+    document.body.appendChild(pg);
+  }
+  try {
+    const sweep = () => {
+      for (const a of document.getAnimations()) {
+        try { a.finish(); } catch (e) {
+          try { a.currentTime = (a.effect && a.effect.getComputedTiming().duration) || 0; a.pause(); } catch (e2) {}
+        }
+      }
+    };
+    sweep();
+    await new Promise((r) => requestAnimationFrame(r));
+    sweep();
+    await new Promise((r) => requestAnimationFrame(r));
+  } catch (e) {}
+  // A document that owns its print CSS (the doc-page starter injects the
+  // meta at runtime; hand-rolled print designs author it) gets no automatic
+  // page geometry and keeps its forced breaks: strip the injected default
+  // @page — write time cannot see a runtime-injected meta — skip the frame
+  // override below, and skip the fakepage-flattening further down. What
+  // still applies: the print baseline and break-hygiene defaults (no @page
+  // in either; low specificity, so the document's own print CSS wins) and
+  // the break-inside relaxation on >page elements (avoid on those cannot
+  // be honored whoever authored it).
+  var ownsPrint = !!document.querySelector('meta[name="omelette-owns-print" i]');
+  if (ownsPrint) {
+    var dst = document.querySelector('style[data-omelette-print-defaults]');
+    if (dst && dst.textContent) {
+      dst.textContent = dst.textContent.replace(/@page\b[^{}]*\{[^}]*\}/, '');
+    }
+  }
+  // Size the PDF page to the rendered design unless the file opted into
+  // standard paper via @page{size:letter|A4|…} or declared print ownership
+  // via the meta above. Decks own their own @page.
+  // Wrappers (body, …) lose padding+margin so the frame sits at (0,0); the
+  // frame itself loses only margin — its padding is INSIDE the measured
+  // rect and must stay, or content shifts and leaves a gap at bottom/right.
+  var __m = null;
+  try { __m = (() => {
+  var STAMP = true;
+  var docEl = document.documentElement;
+  var doc = { width: docEl.scrollWidth, height: docEl.scrollHeight };
+  // Name-presence check, case-insensitive — the same contract as the
+  // instant-PDF path's runtime check in deck-stage-export.ts. The name is
+  // a string literal here because that file interpolates this script into
+  // its print script, so importing a shared constant from it would be a
+  // cycle; measure.test.ts pins the literal so the two cannot drift apart
+  // silently.
+  var ownsPrint = !!document.querySelector('meta[name="omelette-owns-print" i]');
+
+  var ds = document.querySelector('deck-stage');
+  if (ds) {
+    var dw = Number(ds.getAttribute('width')) || 1920;
+    var dh = Number(ds.getAttribute('height')) || 1080;
+    var n = typeof ds.length === 'number' ? ds.length : ds.children.length;
+    var idx = typeof ds.index === 'number' ? ds.index : 0;
+    var frames = [];
+    for (var i = 0; i < n; i++) frames.push({ left: 0, top: 0, width: dw, height: dh });
+    return { kind: 'deck', source: 'declared', doc: doc, frames: frames,
+      authored: frames.map(function(){return{width:true,height:true}}),
+      deck: { width: dw, height: dh, slideCount: n, index: idx },
+      signals: { paperPage: false, pxPage: false, ownsPrint: ownsPrint } };
+  }
+
+  // Declared kind: a doc-page tag names the kind outright, so no signal
+  // heuristics run (like the deck branch above, signals report false —
+  // they describe inferred classifications only). The tag alone is not
+  // trusted: the element must have upgraded (shadowRoot present), so a
+  // leftover tag whose script was deleted falls through to the heuristics
+  // that handle plain markup.
+  var stageSx = window.scrollX || 0, stageSy = window.scrollY || 0;
+  var dp = document.querySelector('doc-page');
+  if (dp && dp.shadowRoot) {
+    // Crop to the sheet, not the host — the desk around it is screen-only
+    // chrome that must not land in PNG exports.
+    var sheet = dp.shadowRoot.querySelector('.sheet');
+    var sr = (sheet || dp).getBoundingClientRect();
+    return { kind: 'paper-doc', source: 'declared', doc: doc,
+      frames: [{ left: sr.left + stageSx, top: sr.top + stageSy,
+        width: sr.width, height: sr.height }],
+      authored: [{ width: false, height: false }],
+      signals: { paperPage: false, pxPage: false, ownsPrint: ownsPrint } };
+  }
+  var paperPage = false, pxPage = false;
+  var eachRule = function (fn) {
+    for (var s = 0; s < document.styleSheets.length; s++) {
+      var rs; try { rs = document.styleSheets[s].cssRules; } catch (e) { continue; }
+      for (var r = 0; r < rs.length; r++) {
+        fn(rs[r]);
+        if (rs[r].cssRules) for (var n = 0; n < rs[r].cssRules.length; n++) fn(rs[r].cssRules[n]);
+      }
+    }
+  };
+  eachRule(function (r) {
+    if (r.type !== 6) return;
+    var m = /\bsize\s*:\s*([^;}]+)/i.exec(r.cssText || '');
+    if (!m) return;
+    if (/\b(letter|a[3-5]|legal|ledger)\b/i.test(m[1])) paperPage = true;
+    if (/\d+(?:\.\d+)?px\b/i.test(m[1])) pxPage = true;
+  });
+  var signals = { paperPage: paperPage, pxPage: pxPage, ownsPrint: ownsPrint };
+
+  var pxVal = function (v) {
+    var m = /^(\d+(?:\.\d+)?)px$/.exec(v || ''); return m ? +m[1] : 0;
+  };
+  var authoredPx = function (el, prop) {
+    if (pxVal(el.style[prop])) return true;
+    var attr = el.getAttribute(prop);
+    if (attr && /^\d+$/.test(attr)) return true;
+    var hit = false;
+    eachRule(function (r) {
+      if (hit || r.type !== 1 || !r.style) return;
+      try { if (el.matches(r.selectorText) && pxVal(r.style[prop])) hit = true; } catch (e) {}
+    });
+    return hit;
+  };
+
+  var el = document.body, rootPxW = false;
+  for (;;) {
+    var kids = [];
+    for (var c = 0; c < el.children.length; c++) {
+      var t = el.children[c].tagName;
+      if (t !== 'SCRIPT' && t !== 'STYLE' && t !== 'TEMPLATE') kids.push(el.children[c]);
+    }
+    if (kids.length !== 1 || !(kids[0] instanceof HTMLElement)) break;
+    if (STAMP) el.setAttribute('data-om-frame-wrap', '');
+    el = kids[0];
+    rootPxW = authoredPx(el, 'width');
+    if (rootPxW) break;
+  }
+  if (!rootPxW) rootPxW = authoredPx(el, 'width');
+
+  // @page{size:letter} alone is a flowing doc; with a px-width root it's a
+  // fixed sheet pretending to be paper — fall through and size to render.
+  if (paperPage && !rootPxW) {
+    return { kind: 'paper-doc', source: 'inferred', doc: doc, signals: signals,
+      frames: [{ left: 0, top: 0, width: doc.width, height: doc.height }],
+      authored: [{ width: false, height: false }] };
+  }
+
+  var sx = window.scrollX || 0, sy = window.scrollY || 0;
+  var rectOf = function (e) {
+    var r = e.getBoundingClientRect();
+    var oy; try { oy = getComputedStyle(e).overflowY; } catch (err) {}
+    var h = oy === 'visible' ? Math.max(r.height, e.scrollHeight || 0) : r.height;
+    return { left: r.left + sx, top: r.top + sy, width: r.width, height: h };
+  };
+
+  // Multi-frame: off unless the page opts in via data-om-multi-frame on the
+  // stop element — the explicit opt-in is what guards against card grids
+  // and pricing tables that match the geometry but aren't separate
+  // canvases. Two ways to name the frames, explicit first:
+  // 1. Descendants marked data-om-frame-export (the social-frames starter
+  //    marks each asset frame; shells/panels around them are presentation,
+  //    so nesting is expected). Document order.
+  // 2. Fallback, no marked descendants: direct children with an authored px
+  //    width AND height (the original geometry heuristic).
+  // Frames may be different sizes (a gallery mixes 1080×1920 stories with
+  // 728×90 banners); data-om-frame-label rides along for export filenames.
+  if (el.hasAttribute('data-om-multi-frame')) {
+    var visOk = function (e) {
+      var cs; try { cs = getComputedStyle(e); } catch (err) { return false; }
+      return cs.display !== 'none' && cs.visibility !== 'hidden' && cs.position !== 'fixed';
+    };
+    // A frame's crop is its VISUAL box — never the scrollHeight-inflated
+    // rect that rectOf computes for page roots. Shadow-DOM hover controls
+    // (image-slot's Replace bar parks 29px below its host) and similar
+    // escaping UI contribute scrollable overflow to the frame, and the
+    // inflated height both squashes the nominal-size resize and drags
+    // content below the frame into the crop. Zoom-independent; bit every
+    // slot-bearing frame.
+    var frameRectOf = function (e) {
+      var r = e.getBoundingClientRect();
+      return { left: r.left + sx, top: r.top + sy, width: r.width, height: r.height };
+    };
+    var pushCand = function (list, e) {
+      if (!visOk(e)) return;
+      var rc = frameRectOf(e);
+      if (rc.width < 2 || rc.height < 2) return;
+      var lbl = e.getAttribute('data-om-frame-label');
+      if (lbl) rc.label = lbl;
+      list.push(rc);
+    };
+    var cands = [];
+    var marked = el.querySelectorAll('[data-om-frame-export]');
+    if (marked.length) {
+      for (var mk = 0; mk < marked.length; mk++) pushCand(cands, marked[mk]);
+    } else {
+      for (var k = 0; k < el.children.length; k++) {
+        var ch = el.children[k];
+        if (!authoredPx(ch, 'width') || !authoredPx(ch, 'height')) continue;
+        pushCand(cands, ch);
+      }
+    }
+    if (cands.length >= 2) {
+      return { kind: 'multi-frame', source: 'inferred', doc: doc, signals: signals,
+        frames: cands, authored: cands.map(function(){return{width:true,height:true}}) };
+    }
+  }
+
+  if (STAMP) el.setAttribute('data-om-frame', '');
+  return { kind: 'single-canvas', source: 'inferred', doc: doc, signals: signals,
+    frames: [rectOf(el)],
+    authored: [{ width: rootPxW, height: authoredPx(el, 'height') }] };
+})(); } catch (e) {}
+  var frame = null;
+  if (!ownsPrint && __m && __m.kind === 'single-canvas') {
+    var f = __m.frames && __m.frames[0];
+    if (f && f.width >= 200 && f.height >= 200) {
+      frame = f;
+      var fst = document.createElement('style');
+      fst.textContent = '@media print{@page{size:' + Math.ceil(f.width) + 'px ' +
+        Math.ceil(f.height) + 'px;margin:0}' +
+        'html,body,[data-om-frame-wrap]{padding:0!important;margin:0!important;background:none!important}' +
+        '[data-om-frame]{margin:0!important}}';
+      document.body.appendChild(fst);
+    }
+  }
+  // Relax break-inside on oversized elements. An element taller than a
+  // printable page can't honor break-inside: avoid — browsers either overflow
+  // it or push it whole to the next page, leaving a blank gap, then break it
+  // anyway at an arbitrary point. After the final layout (content revealed,
+  // animations jumped), find elements taller than a page that still compute
+  // break-inside: avoid and reset them to auto, so the browser breaks them at
+  // their children's boundaries instead (children keep their own avoid). PAGE_PX
+  // is a conservative portrait estimate at 96 CSS px/in — Letter/A4 usable
+  // height minus our 0.5in margins — so only clearly-oversized elements are
+  // touched and under-page elements still stay whole. Skipped for decks (slides
+  // are sized to the page) and for fixed-size canvases (frame set, or an author
+  // px-based @page) — runs as before for flowing docs on letter/A4.
+  try {
+    if (!ds && !frame && !(__m && __m.signals && __m.signals.pxPage)) {
+      const PAGE_PX = 1024;
+      // Our print defaults add a real @page margin only when the source has
+      // no @page of its own; computed style can't tell us (it reports screen
+      // media), so read the injected rule directly.
+      const defaults = document.querySelector('style[data-omelette-print-defaults]');
+      const pageInset = /@page\s*\{[^}]*margin/.test(defaults ? defaults.textContent || '' : '');
+      const SEL = 'section,article,figure,table,pre,blockquote,[class~="card" i],[class~="page" i],[class~="sheet" i]';
+      for (const el of document.body.querySelectorAll(SEL)) {
+        if (el instanceof HTMLElement && el.offsetHeight > PAGE_PX) {
+          el.setAttribute('data-om-oversized', '');
+          // Fake-paged docs simulate sheets with over-tall break-after:page
+          // boxes; honoring the break spills half-blank pages and ends a
+          // colored box mid-sheet. Flow them, and (only when we own the page
+          // inset) drop the redundant padding/background via the rule below.
+          const cs = getComputedStyle(el);
+          // An owns-print doc's forced breaks are intentional sheet
+          // boundaries, never fake-paged simulation — don't strip them.
+          // The break-inside relaxation above still applies: avoid on a
+          // >page element is impossible to honor whoever authored it.
+          if (
+            !ownsPrint &&
+            (cs.breakAfter === 'page' || cs.pageBreakAfter === 'always')
+          ) {
+            el.setAttribute('data-om-fakepage', '');
+          }
+        }
+      }
+      const ost = document.createElement('style');
+      ost.textContent = '@media print{' +
+        '[data-om-oversized]{break-inside:auto !important;page-break-inside:auto !important}' +
+        '[data-om-fakepage]{break-after:auto !important;page-break-after:auto !important}' +
+        (pageInset ? '[data-om-fakepage]{padding:0 !important;background:none !important}' : '') +
+        '}';
+      document.head.appendChild(ost);
+    }
+  } catch (e) {}
+  // macOS Preview renders Skia-PDF Luminosity soft-masks as opaque grey boxes;
+  // swap the CSS that triggers them for Preview-safe forms.
+  try {
+    for (const el of document.body.querySelectorAll('*')) {
+      const cs = getComputedStyle(el);
+
+      if (cs.boxShadow !== 'none' && cs.filter === 'none') {
+        const outs = [], kept = [];
+        for (const s of cs.boxShadow.split(/,(?![^(]*[)])/)) {
+          const t = s.trim();
+          const m = t.match(/^(rgba?[(][^)]+[)]) (-?[0-9.]+px) (-?[0-9.]+px) ([0-9.]+px) -?[0-9.]+px$/);
+          if (m && parseFloat(m[4]) > 0) outs.push('drop-shadow(' + m[2] + ' ' + m[3] + ' ' + m[4] + ' ' + m[1] + ')');
+          else kept.push(t);
+        }
+        if (outs.length) {
+          el.style.setProperty('filter', outs.join(' '), 'important');
+          el.style.setProperty('box-shadow', kept.join(', ') || 'none', 'important');
+        }
+      }
+
+      const mask = cs.maskImage && cs.maskImage !== 'none' ? cs.maskImage : cs.webkitMaskImage;
+      if (mask && mask !== 'none' && cs.filter === 'none') el.style.setProperty('filter', 'opacity(1)', 'important');
+    }
+  } catch (e) {}
+  setTimeout(() => { try { window.print(); } catch (e) {} }, 200);
+})();
+</script>
+</body>
+</html>

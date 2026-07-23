@@ -1,0 +1,873 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet data-dc-atomics>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,600;12..96,700;12..96,800&family=Instrument+Sans:ital,wght@0,400;0,500;0,600;1,400&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box}
+  body{margin:0;background:#EDE6DC;font-family:'Instrument Sans',system-ui,sans-serif;color:#1C1418;-webkit-font-smoothing:antialiased}
+  a{color:#D63A17;text-decoration:none}
+  a:hover{color:#FF5A36}
+  ::selection{background:#FFB020;color:#1C1418}
+  input,textarea,button{font-family:inherit}
+  input:focus,textarea:focus{outline:none}
+  ::-webkit-scrollbar{width:10px;height:10px}
+  ::-webkit-scrollbar-thumb{background:#D3C9BC;border-radius:6px;border:2px solid #EDE6DC}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  @keyframes toastin{from{opacity:0;transform:translate(-50%,16px)}to{opacity:1;transform:translate(-50%,0)}}
+  @keyframes fadein{from{opacity:0}to{opacity:1}}
+  @keyframes pop{from{opacity:0;transform:scale(.96)}to{opacity:1;transform:scale(1)}}
+</style>
+</helmet>
+
+<!-- ===== PROTOTYPE NAV ===== -->
+<div style="position:sticky;top:0;z-index:60;background:rgba(28,20,24,.92);backdrop-filter:blur(8px);display:flex;align-items:center;gap:6px;padding:8px 14px;border-bottom:1px solid rgba(255,255,255,.08)">
+  <span style="font-family:'Space Mono';font-size:11px;color:#FFB020;letter-spacing:.14em;margin-right:8px">PROTOTIPO ↦</span>
+  <span onClick="{{ goLanding }}" style="{{ navLandingStyle }}">Landing</span>
+  <span onClick="{{ goCollect }}" style="{{ navCollectStyle }}">Recolección</span>
+  <span onClick="{{ goInbox }}" style="{{ navInboxStyle }}">Inbox</span>
+  <span onClick="{{ goSettings }}" style="{{ navSettingsStyle }}">Settings</span>
+</div>
+
+<!-- ============================================================ LANDING -->
+<sc-if value="{{ isLanding }}" hint-placeholder-val="{{ true }}">
+<div data-screen-label="Landing" style="background:#FBF7F2">
+  <!-- navbar -->
+  <div style="position:sticky;top:41px;z-index:40;background:rgba(251,247,242,.86);backdrop-filter:blur(10px);border-bottom:1px solid #E7E0D6">
+    <div style="max-width:1120px;margin:0 auto;padding:14px 32px;display:flex;align-items:center;justify-content:space-between">
+      <div style="display:flex;align-items:center;gap:9px"><span style="width:28px;height:28px;border-radius:8px;background:#FF5A36;display:flex;align-items:center;justify-content:center;font-family:'Bricolage Grotesque';font-weight:800;color:#fff;font-size:16px">T</span><b style="font-family:'Bricolage Grotesque';font-size:17px;letter-spacing:-.01em">TeamTestify</b></div>
+      <div style="display:flex;align-items:center;gap:26px;font-size:14px;color:#55504A"><span>Producto</span><span>Precios</span><span>Recursos</span></div>
+      <div style="display:flex;align-items:center;gap:10px"><span onClick="{{ goInbox }}" style="font-size:14px;font-weight:600;color:#1C1418;padding:9px 14px;cursor:pointer">Log in</span><span onClick="{{ goInbox }}" style="font-size:14px;font-weight:600;color:#fff;background:#FF5A36;padding:10px 18px;border-radius:11px;cursor:pointer;box-shadow:0 6px 16px rgba(255,90,54,.3)">Start for free</span></div>
+    </div>
+  </div>
+
+  <!-- hero -->
+  <div style="background:#1C1418;color:#FBF7F2;position:relative;overflow:hidden">
+    <div style="position:absolute;top:-140px;right:-100px;width:520px;height:520px;border-radius:50%;background:radial-gradient(circle,#FF5A36,transparent 68%);opacity:.5"></div>
+    <div style="position:absolute;bottom:-180px;left:-120px;width:420px;height:420px;border-radius:50%;background:radial-gradient(circle,#FFB020,transparent 70%);opacity:.14"></div>
+    <div style="position:relative;max-width:1120px;margin:0 auto;padding:88px 32px 96px;text-align:center">
+      <span style="display:inline-block;font-family:'Space Mono';font-size:12px;color:#FFB020;background:rgba(255,176,32,.1);border:1px solid rgba(255,176,32,.28);padding:7px 16px;border-radius:100px;margin-bottom:26px">✦ Recolección automática + IA</span>
+      <h1 style="font-family:'Bricolage Grotesque';font-weight:800;font-size:68px;line-height:.98;letter-spacing:-.03em;margin:0 auto 22px;max-width:15ch">Testimonios que se recolectan solos.</h1>
+      <p style="font-size:20px;line-height:1.55;color:rgba(251,247,242,.72);max-width:52ch;margin:0 auto 34px">Pide, recolecta y convierte reseñas en imágenes de marketing con IA — sin perseguir a nadie. Hecho para coaches, freelancers y negocios que crecen.</p>
+      <div style="display:flex;gap:12px;justify-content:center;align-items:center;margin-bottom:30px">
+        <span onClick="{{ goInbox }}" style="background:#FF5A36;color:#fff;font-weight:600;font-size:16px;padding:15px 28px;border-radius:13px;cursor:pointer;box-shadow:0 10px 26px rgba(255,90,54,.42)">Start for free →</span>
+        <span onClick="{{ goCollect }}" style="border:1px solid rgba(251,247,242,.24);color:#FBF7F2;font-weight:600;font-size:16px;padding:15px 24px;border-radius:13px;cursor:pointer">Ver página de ejemplo</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;justify-content:center;font-size:14px;color:rgba(251,247,242,.6)"><span style="color:#FFB020;letter-spacing:1px;font-size:16px">★★★★★</span> 4.9 · usado por +3.000 creadores</div>
+    </div>
+  </div>
+
+  <!-- problem/benefit cards -->
+  <div style="max-width:1120px;margin:0 auto;padding:76px 32px 20px">
+    <div style="text-align:center;margin-bottom:44px"><div style="font-family:'Space Mono';font-size:12px;letter-spacing:.2em;color:#D63A17;margin-bottom:12px">EL PROBLEMA → LA SOLUCIÓN</div><h2 style="font-family:'Bricolage Grotesque';font-weight:700;font-size:40px;letter-spacing:-.02em;margin:0">Dejá de perseguir reseñas.</h2></div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:18px">
+      <div style="background:#fff;border:1px solid #E7E0D6;border-radius:18px;padding:26px 26px"><div style="width:44px;height:44px;border-radius:12px;background:#FFF3EE;display:flex;align-items:center;justify-content:center;font-size:22px;margin-bottom:16px">😮‍💨</div><h3 style="font-family:'Bricolage Grotesque';font-weight:700;font-size:19px;margin:0 0 8px">Pedir da vergüenza</h3><p style="font-size:14.5px;line-height:1.55;color:#55504A;margin:0">Enviamos la solicitud por vos con textos generados por IA. Vos solo compartís un link.</p></div>
+      <div style="background:#fff;border:1px solid #E7E0D6;border-radius:18px;padding:26px 26px"><div style="width:44px;height:44px;border-radius:12px;background:#FFF3EE;display:flex;align-items:center;justify-content:center;font-size:22px;margin-bottom:16px">🧩</div><h3 style="font-family:'Bricolage Grotesque';font-weight:700;font-size:19px;margin:0 0 8px">Todo disperso</h3><p style="font-size:14.5px;line-height:1.55;color:#55504A;margin:0">Texto y video llegan a un solo Inbox. Aprobás con un clic y listo para publicar.</p></div>
+      <div style="background:#1C1418;color:#FBF7F2;border-radius:18px;padding:26px 26px"><div style="width:44px;height:44px;border-radius:12px;background:rgba(255,176,32,.16);display:flex;align-items:center;justify-content:center;font-size:22px;margin-bottom:16px">✨</div><h3 style="font-family:'Bricolage Grotesque';font-weight:700;font-size:19px;margin:0 0 8px;color:#FFB020">De reseña a marketing</h3><p style="font-size:14.5px;line-height:1.55;color:rgba(251,247,242,.72);margin:0">Convertí cualquier testimonio en imágenes listas para redes en 3 tamaños.</p></div>
+    </div>
+  </div>
+
+  <!-- how it works -->
+  <div style="max-width:1120px;margin:0 auto;padding:64px 32px">
+    <div style="text-align:center;margin-bottom:44px"><div style="font-family:'Space Mono';font-size:12px;letter-spacing:.2em;color:#D63A17;margin-bottom:12px">CÓMO FUNCIONA</div><h2 style="font-family:'Bricolage Grotesque';font-weight:700;font-size:40px;letter-spacing:-.02em;margin:0">Tres pasos, cero fricción.</h2></div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:18px">
+      <div style="text-align:center"><div style="width:56px;height:56px;border-radius:50%;background:#FF5A36;color:#fff;font-family:'Bricolage Grotesque';font-weight:800;font-size:24px;display:flex;align-items:center;justify-content:center;margin:0 auto 18px">1</div><h3 style="font-family:'Bricolage Grotesque';font-weight:700;font-size:19px;margin:0 0 8px">Configurá tu espacio</h3><p style="font-size:14.5px;line-height:1.55;color:#55504A;margin:0">Personalizá el formulario y dejá que la IA escriba tu solicitud.</p></div>
+      <div style="text-align:center"><div style="width:56px;height:56px;border-radius:50%;background:#FF5A36;color:#fff;font-family:'Bricolage Grotesque';font-weight:800;font-size:24px;display:flex;align-items:center;justify-content:center;margin:0 auto 18px">2</div><h3 style="font-family:'Bricolage Grotesque';font-weight:700;font-size:19px;margin:0 0 8px">Compartí el link</h3><p style="font-size:14.5px;line-height:1.55;color:#55504A;margin:0">Tus clientes dejan testimonio en texto o video en 30 segundos.</p></div>
+      <div style="text-align:center"><div style="width:56px;height:56px;border-radius:50%;background:#FF5A36;color:#fff;font-family:'Bricolage Grotesque';font-weight:800;font-size:24px;display:flex;align-items:center;justify-content:center;margin:0 auto 18px">3</div><h3 style="font-family:'Bricolage Grotesque';font-weight:700;font-size:19px;margin:0 0 8px">Aprobá y publicá</h3><p style="font-size:14.5px;line-height:1.55;color:#55504A;margin:0">Generá imágenes con IA y compartilas donde más importa.</p></div>
+    </div>
+  </div>
+
+  <!-- features grid -->
+  <div style="background:#F6F0E8;border-top:1px solid #E7E0D6;border-bottom:1px solid #E7E0D6">
+    <div style="max-width:1120px;margin:0 auto;padding:64px 32px">
+      <div style="text-align:center;margin-bottom:40px"><div style="font-family:'Space Mono';font-size:12px;letter-spacing:.2em;color:#D63A17;margin-bottom:12px">CAPACIDADES</div><h2 style="font-family:'Bricolage Grotesque';font-weight:700;font-size:40px;letter-spacing:-.02em;margin:0">Todo lo que necesitás.</h2></div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px">
+        <div style="background:#fff;border:1px solid #E7E0D6;border-radius:14px;padding:20px"><div style="font-size:20px;margin-bottom:10px">📝</div><b style="font-size:15px">Texto y video</b><p style="font-size:13.5px;color:#55504A;margin:6px 0 0;line-height:1.5">Recolectá ambos formatos sin apps extra.</p></div>
+        <div style="background:#fff;border:1px solid #E7E0D6;border-radius:14px;padding:20px"><div style="font-size:20px;margin-bottom:10px">🤖</div><b style="font-size:15px">Asistente IA</b><p style="font-size:13.5px;color:#55504A;margin:6px 0 0;line-height:1.5">Genera emails, mensajes y preguntas guía.</p></div>
+        <div style="background:#fff;border:1px solid #E7E0D6;border-radius:14px;padding:20px"><div style="font-size:20px;margin-bottom:10px">🎨</div><b style="font-size:15px">Imágenes de marketing</b><p style="font-size:13.5px;color:#55504A;margin:6px 0 0;line-height:1.5">3 tamaños listos para redes sociales.</p></div>
+        <div style="background:#fff;border:1px solid #E7E0D6;border-radius:14px;padding:20px"><div style="font-size:20px;margin-bottom:10px">🧱</div><b style="font-size:15px">Widgets embebibles</b><p style="font-size:13.5px;color:#55504A;margin:6px 0 0;line-height:1.5">Muros de testimonios para tu web.</p></div>
+        <div style="background:#fff;border:1px solid #E7E0D6;border-radius:14px;padding:20px"><div style="font-size:20px;margin-bottom:10px">🎯</div><b style="font-size:15px">Branding propio</b><p style="font-size:13.5px;color:#55504A;margin:6px 0 0;line-height:1.5">Tu logo y colores en la recolección.</p></div>
+        <div style="background:#fff;border:1px solid #E7E0D6;border-radius:14px;padding:20px"><div style="font-size:20px;margin-bottom:10px">⭐</div><b style="font-size:15px">Ratings y destacados</b><p style="font-size:13.5px;color:#55504A;margin:6px 0 0;line-height:1.5">Resaltá tus mejores reseñas.</p></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- differentiator -->
+  <div style="max-width:1120px;margin:0 auto;padding:72px 32px">
+    <div style="background:#1C1418;color:#FBF7F2;border-radius:24px;padding:48px 52px;display:grid;grid-template-columns:1.1fr 1fr;gap:40px;align-items:center;position:relative;overflow:hidden">
+      <div style="position:absolute;top:-60px;right:-40px;width:280px;height:280px;border-radius:50%;background:radial-gradient(circle,#FF5A36,transparent 70%);opacity:.4"></div>
+      <div style="position:relative"><div style="font-family:'Space Mono';font-size:12px;letter-spacing:.2em;color:#FFB020;margin-bottom:16px">POR QUÉ TEAMTESTIFY</div><h2 style="font-family:'Bricolage Grotesque';font-weight:800;font-size:38px;line-height:1.05;letter-spacing:-.02em;margin:0 0 16px">Más barato que testimonial.to. Más potente que Senja.</h2><p style="font-size:16px;line-height:1.6;color:rgba(251,247,242,.72);margin:0">Somos los únicos que cierran el ciclo completo: de la solicitud automática al asset de marketing generado con IA — a un precio para negocios reales.</p></div>
+      <div style="position:relative;display:flex;flex-direction:column;gap:12px">
+        <div style="display:flex;align-items:center;gap:12px;background:rgba(251,247,242,.06);border:1px solid rgba(251,247,242,.1);border-radius:12px;padding:14px 16px"><span style="color:#37B896;font-size:18px">✓</span><span style="font-size:14.5px">Automatización de recolección</span></div>
+        <div style="display:flex;align-items:center;gap:12px;background:rgba(251,247,242,.06);border:1px solid rgba(251,247,242,.1);border-radius:12px;padding:14px 16px"><span style="color:#37B896;font-size:18px">✓</span><span style="font-size:14.5px">Imágenes de marketing con IA</span></div>
+        <div style="display:flex;align-items:center;gap:12px;background:rgba(251,247,242,.06);border:1px solid rgba(251,247,242,.1);border-radius:12px;padding:14px 16px"><span style="color:#37B896;font-size:18px">✓</span><span style="font-size:14.5px">Texto + video en un Inbox</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- social proof -->
+  <div style="background:#F6F0E8;border-top:1px solid #E7E0D6">
+    <div style="max-width:1120px;margin:0 auto;padding:64px 32px">
+      <div style="text-align:center;margin-bottom:40px"><div style="font-family:'Space Mono';font-size:12px;letter-spacing:.2em;color:#D63A17;margin-bottom:12px">LO QUE DICEN</div><h2 style="font-family:'Bricolage Grotesque';font-weight:700;font-size:40px;letter-spacing:-.02em;margin:0">Creadores que ya lo usan.</h2></div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px">
+        <div style="background:#fff;border:1px solid #E7E0D6;border-radius:16px;padding:22px"><div style="color:#FFB020;margin-bottom:12px;font-size:15px">★★★★★</div><p style="font-size:14.5px;line-height:1.55;color:#33302C;margin:0 0 16px">"Pasé de rogar por reseñas a tener 40 en un mes. El asistente de IA es magia."</p><div style="display:flex;align-items:center;gap:10px"><span style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#FF5A36,#FFB020)"></span><div><div style="font-size:13px;font-weight:600">Ana Morales</div><div style="font-size:12px;color:#8B8178">Coach de negocios</div></div></div></div>
+        <div style="background:#fff;border:1px solid #E7E0D6;border-radius:16px;padding:22px"><div style="color:#FFB020;margin-bottom:12px;font-size:15px">★★★★★</div><p style="font-size:14.5px;line-height:1.55;color:#33302C;margin:0 0 16px">"Las imágenes generadas se ven de agencia. Las publico directo en Instagram."</p><div style="display:flex;align-items:center;gap:10px"><span style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#12876B,#FFB020)"></span><div><div style="font-size:13px;font-weight:600">Luis Cabrera</div><div style="font-size:12px;color:#8B8178">Freelance diseñador</div></div></div></div>
+        <div style="background:#fff;border:1px solid #E7E0D6;border-radius:16px;padding:22px"><div style="color:#FFB020;margin-bottom:12px;font-size:15px">★★★★★</div><p style="font-size:14.5px;line-height:1.55;color:#33302C;margin:0 0 16px">"Setup en 10 minutos y súper claro. Mis clientes dejan video sin problema."</p><div style="display:flex;align-items:center;gap:10px"><span style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#1C1418,#FF5A36)"></span><div><div style="font-size:13px;font-weight:600">Sofía Navarro</div><div style="font-size:12px;color:#8B8178">Coach fitness</div></div></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- pricing -->
+  <div style="max-width:1120px;margin:0 auto;padding:72px 32px">
+    <div style="text-align:center;margin-bottom:44px"><div style="font-family:'Space Mono';font-size:12px;letter-spacing:.2em;color:#D63A17;margin-bottom:12px">PRECIOS</div><h2 style="font-family:'Bricolage Grotesque';font-weight:700;font-size:40px;letter-spacing:-.02em;margin:0">Simple y honesto.</h2></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;max-width:760px;margin:0 auto">
+      <div style="background:#fff;border:1px solid #E7E0D6;border-radius:20px;padding:32px 30px"><div style="font-family:'Bricolage Grotesque';font-weight:700;font-size:20px;margin-bottom:4px">Free</div><div style="display:flex;align-items:baseline;gap:4px;margin-bottom:20px"><span style="font-family:'Bricolage Grotesque';font-weight:800;font-size:44px">$0</span><span style="color:#8B8178;font-size:15px">/mes</span></div><div style="display:flex;flex-direction:column;gap:10px;font-size:14.5px;color:#55504A;margin-bottom:24px"><span>✓ Hasta 10 testimonios</span><span>✓ 1 espacio de recolección</span><span>✓ Texto y rating</span><span style="color:#B0A79C">— Sin imágenes IA</span><span style="color:#B0A79C">— Con marca TeamTestify</span></div><div onClick="{{ goInbox }}" style="text-align:center;border:1px solid #D3C9BC;color:#1C1418;font-weight:600;font-size:15px;padding:12px;border-radius:12px;cursor:pointer">Empezar gratis</div></div>
+      <div style="background:#1C1418;color:#FBF7F2;border-radius:20px;padding:32px 30px;position:relative;overflow:hidden"><div style="position:absolute;top:-40px;right:-30px;width:180px;height:180px;border-radius:50%;background:radial-gradient(circle,#FF5A36,transparent 70%);opacity:.5"></div><div style="position:relative"><div style="display:flex;align-items:center;gap:8px;margin-bottom:4px"><span style="font-family:'Bricolage Grotesque';font-weight:700;font-size:20px">Pro</span><span style="background:#FFB020;color:#1C1418;font-size:11px;font-weight:700;padding:3px 9px;border-radius:100px">POPULAR</span></div><div style="display:flex;align-items:baseline;gap:4px;margin-bottom:20px"><span style="font-family:'Bricolage Grotesque';font-weight:800;font-size:44px;color:#FF7A5C">$29</span><span style="color:rgba(251,247,242,.6);font-size:15px">/mes</span></div><div style="display:flex;flex-direction:column;gap:10px;font-size:14.5px;color:rgba(251,247,242,.82);margin-bottom:24px"><span>✓ Testimonios ilimitados</span><span>✓ Espacios ilimitados</span><span>✓ Texto, video y rating</span><span style="color:#FFB020">✓ Imágenes de marketing IA</span><span style="color:#FFB020">✓ Asistente IA completo</span><span>✓ Sin marca + branding propio</span></div><div onClick="{{ goInbox }}" style="text-align:center;background:#FF5A36;color:#fff;font-weight:600;font-size:15px;padding:12px;border-radius:12px;cursor:pointer;box-shadow:0 8px 20px rgba(255,90,54,.4)">Empezar Pro</div></div></div>
+    </div>
+  </div>
+
+  <!-- FAQ -->
+  <div style="background:#F6F0E8;border-top:1px solid #E7E0D6">
+    <div style="max-width:760px;margin:0 auto;padding:64px 32px">
+      <div style="text-align:center;margin-bottom:36px"><div style="font-family:'Space Mono';font-size:12px;letter-spacing:.2em;color:#D63A17;margin-bottom:12px">PREGUNTAS FRECUENTES</div><h2 style="font-family:'Bricolage Grotesque';font-weight:700;font-size:40px;letter-spacing:-.02em;margin:0">¿Dudas?</h2></div>
+      <div style="display:flex;flex-direction:column;gap:10px">
+        <sc-for list="{{ faqs }}" as="f" hint-placeholder-count="4">
+          <div onClick="{{ f.toggle }}" style="{{ f.style }}">
+            <div style="display:flex;justify-content:space-between;align-items:center;gap:16px"><b style="font-size:15.5px">{{ f.q }}</b><span style="font-size:20px;color:#FF5A36;font-weight:400">{{ f.icon }}</span></div>
+            <sc-if value="{{ f.open }}" hint-placeholder-val="{{ false }}"><p style="font-size:14.5px;line-height:1.55;color:#55504A;margin:12px 0 0">{{ f.a }}</p></sc-if>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+  </div>
+
+  <!-- final CTA -->
+  <div style="max-width:1120px;margin:0 auto;padding:80px 32px">
+    <div style="background:linear-gradient(135deg,#FF5A36,#E8471F);border-radius:26px;padding:60px 40px;text-align:center;position:relative;overflow:hidden"><div style="position:absolute;top:-80px;left:-40px;width:280px;height:280px;border-radius:50%;background:rgba(255,176,32,.3)"></div><div style="position:relative"><h2 style="font-family:'Bricolage Grotesque';font-weight:800;font-size:46px;letter-spacing:-.02em;color:#fff;margin:0 0 14px;max-width:18ch;margin-left:auto;margin-right:auto">Empezá a recolectar testimonios hoy.</h2><p style="font-size:17px;color:rgba(255,255,255,.9);margin:0 0 28px">Gratis para siempre en el plan Free. Sin tarjeta.</p><span onClick="{{ goInbox }}" style="display:inline-block;background:#1C1418;color:#fff;font-weight:600;font-size:16px;padding:16px 32px;border-radius:14px;cursor:pointer">Start for free →</span></div></div>
+  </div>
+
+  <!-- footer -->
+  <div style="background:#1C1418;color:rgba(251,247,242,.6)">
+    <div style="max-width:1120px;margin:0 auto;padding:52px 32px;display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:24px">
+      <div><div style="display:flex;align-items:center;gap:9px;margin-bottom:14px"><span style="width:26px;height:26px;border-radius:7px;background:#FF5A36;display:flex;align-items:center;justify-content:center;font-family:'Bricolage Grotesque';font-weight:800;color:#fff;font-size:15px">T</span><b style="font-family:'Bricolage Grotesque';font-size:16px;color:#FBF7F2">TeamTestify</b></div><p style="font-size:13.5px;line-height:1.5;max-width:32ch;margin:0">Recolección de testimonios con IA para negocios que crecen.</p></div>
+      <div style="display:flex;flex-direction:column;gap:9px;font-size:13.5px"><b style="color:#FBF7F2;font-size:13px;margin-bottom:4px">Producto</b><span>Features</span><span>Precios</span><span>Widgets</span></div>
+      <div style="display:flex;flex-direction:column;gap:9px;font-size:13.5px"><b style="color:#FBF7F2;font-size:13px;margin-bottom:4px">Empresa</b><span>Sobre nosotros</span><span>Blog</span><span>Contacto</span></div>
+      <div style="display:flex;flex-direction:column;gap:9px;font-size:13.5px"><b style="color:#FBF7F2;font-size:13px;margin-bottom:4px">Redes</b><span>Instagram</span><span>X / Twitter</span><span>LinkedIn</span></div>
+    </div>
+    <div style="max-width:1120px;margin:0 auto;padding:18px 32px;border-top:1px solid rgba(251,247,242,.08);font-size:12.5px;font-family:'Space Mono'">© 2026 TeamTestify · Hecho con energía.</div>
+  </div>
+</div>
+</sc-if>
+
+<!-- ============================================================ COLLECT (público) -->
+<sc-if value="{{ isCollect }}" hint-placeholder-val="{{ false }}">
+<div data-screen-label="Recoleccion" style="min-height:100vh;background:linear-gradient(165deg,#FFF6EF,#FBF7F2 55%);padding:48px 20px">
+  <div style="max-width:560px;margin:0 auto">
+    <!-- header -->
+    <div style="text-align:center;margin-bottom:26px">
+      <span style="width:56px;height:56px;border-radius:16px;background:linear-gradient(135deg,#FF5A36,#FFB020);display:inline-flex;align-items:center;justify-content:center;font-family:'Bricolage Grotesque';font-weight:800;color:#fff;font-size:26px;margin-bottom:16px">{{ spaceInitial }}</span>
+      <h1 style="font-family:'Bricolage Grotesque';font-weight:700;font-size:30px;letter-spacing:-.02em;margin:0 0 8px">{{ formTitle }}</h1>
+      <p style="font-size:15px;line-height:1.55;color:#8B8178;margin:0;max-width:44ch;margin-left:auto;margin-right:auto">{{ formDesc }}</p>
+    </div>
+
+    <!-- text/video toggle -->
+    <sc-if value="{{ showModeToggle }}" hint-placeholder-val="{{ true }}">
+    <div style="display:flex;gap:6px;background:#F3EEE7;border:1px solid #E7E0D6;border-radius:14px;padding:5px;margin-bottom:22px">
+      <div onClick="{{ setModeText }}" style="{{ collectTextTabStyle }}">✍️ Escribir</div>
+      <div onClick="{{ setModeVideo }}" style="{{ collectVideoTabStyle }}">🎥 Grabar video</div>
+    </div>
+    </sc-if>
+
+    <!-- card -->
+    <div style="background:#fff;border:1px solid #E7E0D6;border-radius:20px;box-shadow:0 14px 38px rgba(28,20,24,.08);padding:28px 30px">
+      <!-- tips -->
+      <sc-if value="{{ hasQuestions }}" hint-placeholder-val="{{ true }}">
+      <div style="background:#FFF3EE;border:1px solid rgba(255,90,54,.18);border-radius:14px;padding:16px 18px;margin-bottom:22px">
+        <div style="font-size:13px;font-weight:600;color:#D63A17;margin-bottom:10px">Mientras compartís, considerá mencionar:</div>
+        <div style="display:flex;flex-direction:column;gap:7px">
+          <sc-for list="{{ questions }}" as="q" hint-placeholder-count="3">
+            <div style="display:flex;gap:9px;align-items:flex-start;font-size:14px;line-height:1.45;color:#55504A"><span style="color:#FF5A36;font-weight:700">•</span><span>{{ q.text }}</span></div>
+          </sc-for>
+        </div>
+      </div>
+      </sc-if>
+
+      <!-- TEXT mode -->
+      <sc-if value="{{ isTextMode }}" hint-placeholder-val="{{ true }}">
+      <div>
+        <sc-if value="{{ collect.rating }}" hint-placeholder-val="{{ true }}">
+          <div style="text-align:center;margin-bottom:18px"><div style="font-size:13px;color:#8B8178;margin-bottom:6px">Tu valoración</div><div style="color:#FFB020;font-size:34px;letter-spacing:4px;cursor:pointer">★★★★★</div></div>
+        </sc-if>
+        <textarea placeholder="Contanos tu experiencia…" style="width:100%;min-height:120px;resize:vertical;background:#FBF7F2;border:1px solid #D3C9BC;border-radius:12px;padding:14px;font-size:15px;line-height:1.5;color:#1C1418;margin-bottom:14px"></textarea>
+        <sc-if value="{{ collect.name }}" hint-placeholder-val="{{ true }}">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px"><input placeholder="Tu nombre" style="background:#FBF7F2;border:1px solid #D3C9BC;border-radius:12px;padding:12px 14px;font-size:14px"><input placeholder="Empresa (opcional)" style="background:#FBF7F2;border:1px solid #D3C9BC;border-radius:12px;padding:12px 14px;font-size:14px"></div>
+        </sc-if>
+        <sc-if value="{{ collect.email }}" hint-placeholder-val="{{ true }}">
+          <input placeholder="Tu email" style="width:100%;background:#FBF7F2;border:1px solid #D3C9BC;border-radius:12px;padding:12px 14px;font-size:14px;margin-bottom:18px">
+        </sc-if>
+        <div onClick="{{ submitTestimonial }}" style="text-align:center;background:#FF5A36;color:#fff;font-weight:600;font-size:16px;padding:15px;border-radius:13px;cursor:pointer;box-shadow:0 8px 20px rgba(255,90,54,.32)">Enviar testimonio</div>
+      </div>
+      </sc-if>
+
+      <!-- VIDEO mode -->
+      <sc-if value="{{ isVideoMode }}" hint-placeholder-val="{{ false }}">
+      <div>
+        <div style="background:#1C1418;border-radius:14px;aspect-ratio:16/10;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;margin-bottom:16px;position:relative;overflow:hidden">
+          <div style="width:64px;height:64px;border-radius:50%;background:#FF5A36;display:flex;align-items:center;justify-content:center;box-shadow:0 0 0 8px rgba(255,90,54,.2)"><span style="width:22px;height:22px;border-radius:50%;background:#fff"></span></div>
+          <span style="font-family:'Space Mono';font-size:12px;color:rgba(251,247,242,.6)">Tocá para grabar · máx 60s</span>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:center;gap:8px;font-size:13px;color:#8B8178;margin-bottom:18px">o <span style="color:#D63A17;font-weight:600;cursor:pointer">subí un archivo</span></div>
+        <div onClick="{{ submitTestimonial }}" style="text-align:center;background:#FF5A36;color:#fff;font-weight:600;font-size:16px;padding:15px;border-radius:13px;cursor:pointer;box-shadow:0 8px 20px rgba(255,90,54,.32)">Enviar video</div>
+      </div>
+      </sc-if>
+    </div>
+
+    <!-- footer badge -->
+    <div style="text-align:center;margin-top:22px;display:flex;align-items:center;justify-content:center;gap:6px;font-size:12px;color:#8B8178"><span style="color:#12876B">🔒</span> Powered by <b style="color:#55504A">TeamTestify</b></div>
+  </div>
+</div>
+</sc-if>
+
+<!-- ============================================================ APP SHELL -->
+<sc-if value="{{ isApp }}" hint-placeholder-val="{{ false }}">
+<div data-screen-label="App" style="display:flex;min-height:calc(100vh - 41px);background:#FBF7F2">
+  <!-- sidebar -->
+  <div style="width:212px;background:#1C1418;color:#FBF7F2;padding:22px 16px;flex:none;display:flex;flex-direction:column">
+    <div style="display:flex;align-items:center;gap:9px;margin-bottom:30px;padding:0 6px"><span style="width:28px;height:28px;border-radius:8px;background:#FF5A36;display:flex;align-items:center;justify-content:center;font-family:'Bricolage Grotesque';font-weight:800;color:#fff;font-size:16px">T</span><b style="font-family:'Bricolage Grotesque';font-size:16px">TeamTestify</b></div>
+    <div style="display:flex;flex-direction:column;gap:3px;font-size:14px">
+      <sc-for list="{{ navItems }}" as="n" hint-placeholder-count="5">
+        <div onClick="{{ n.go }}" style="{{ n.style }}"><span style="width:18px;text-align:center">{{ n.icon }}</span> {{ n.label }}</div>
+      </sc-for>
+    </div>
+    <div style="margin-top:auto;background:rgba(255,90,54,.12);border:1px solid rgba(255,90,54,.28);border-radius:14px;padding:16px">
+      <div style="font-size:13px;font-weight:600;color:#FF8A6B;margin-bottom:4px">Plan Free · 8/10</div>
+      <div style="height:6px;background:rgba(251,247,242,.12);border-radius:100px;overflow:hidden;margin-bottom:12px"><div style="width:80%;height:100%;background:#FF5A36"></div></div>
+      <div onClick="{{ openUpgrade }}" style="text-align:center;background:#FF5A36;color:#fff;font-weight:600;font-size:13px;padding:9px;border-radius:10px;cursor:pointer">Cambiar a Pro</div>
+    </div>
+  </div>
+
+  <!-- main -->
+  <div style="flex:1;min-width:0;display:flex;flex-direction:column">
+    <!-- topbar -->
+    <div style="background:rgba(251,247,242,.9);backdrop-filter:blur(8px);border-bottom:1px solid #E7E0D6;padding:16px 30px;display:flex;justify-content:space-between;align-items:center">
+      <div><div style="font-family:'Bricolage Grotesque';font-weight:700;font-size:22px">{{ appTitle }}</div><div style="font-size:13px;color:#8B8178">{{ appSubtitle }}</div></div>
+      <div style="display:flex;align-items:center;gap:12px"><span onClick="{{ goCollect }}" style="font-size:13.5px;font-weight:600;color:#1C1418;border:1px solid #D3C9BC;padding:9px 15px;border-radius:11px;cursor:pointer">🔗 Ver página pública</span><span style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#FF5A36,#FFB020)"></span></div>
+    </div>
+
+    <div style="flex:1;overflow:auto;padding:26px 30px">
+
+      <!-- ============= INBOX ============= -->
+      <sc-if value="{{ isInbox }}" hint-placeholder-val="{{ true }}">
+      <div>
+        <!-- upgrade alert -->
+        <sc-if value="{{ nearLimit }}" hint-placeholder-val="{{ true }}">
+          <div style="background:linear-gradient(135deg,#FFF3EE,#FFF8F0);border:1px solid rgba(255,90,54,.3);border-radius:14px;padding:14px 18px;display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:20px">
+            <div style="display:flex;align-items:center;gap:12px"><span style="font-size:22px">⚡</span><div><div style="font-size:14.5px;font-weight:600;color:#1C1418">Estás cerca de tu límite (8/10 testimonios)</div><div style="font-size:13px;color:#8B7A6E">Cambiate a Pro para testimonios ilimitados e imágenes con IA.</div></div></div>
+            <span onClick="{{ openUpgrade }}" style="flex:none;background:#FF5A36;color:#fff;font-weight:600;font-size:13.5px;padding:10px 18px;border-radius:11px;cursor:pointer">Ver Pro</span>
+          </div>
+        </sc-if>
+
+        <!-- tabs + sort -->
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;flex-wrap:wrap;gap:12px">
+          <div style="display:flex;gap:4px;background:#F3EEE7;border:1px solid #E7E0D6;border-radius:12px;padding:4px">
+            <div onClick="{{ setTabPending }}" style="{{ tabPendingStyle }}">Pending <span style="{{ badgePendingStyle }}">{{ countPending }}</span></div>
+            <div onClick="{{ setTabApproved }}" style="{{ tabApprovedStyle }}">Approved <span style="{{ badgeApprovedStyle }}">{{ countApproved }}</span></div>
+            <div onClick="{{ setTabRejected }}" style="{{ tabRejectedStyle }}">Rejected <span style="{{ badgeRejectedStyle }}">{{ countRejected }}</span></div>
+          </div>
+          <div onClick="{{ toggleSort }}" style="display:flex;align-items:center;gap:8px;background:#fff;border:1px solid #D3C9BC;border-radius:11px;padding:9px 14px;font-size:13.5px;font-weight:500;cursor:pointer">↕ {{ sortLabel }}</div>
+        </div>
+
+        <!-- list -->
+        <sc-if value="{{ hasItems }}" hint-placeholder-val="{{ true }}">
+        <div style="display:flex;flex-direction:column;gap:12px">
+          <sc-for list="{{ pageItems }}" as="t" hint-placeholder-count="4">
+            <div style="background:#fff;border:1px solid #E7E0D6;border-radius:16px;padding:20px 22px">
+              <!-- header -->
+              <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:16px;margin-bottom:12px">
+                <div style="display:flex;align-items:center;gap:12px">
+                  <span style="{{ t.avatarStyle }}">{{ t.initial }}</span>
+                  <div><div style="font-size:15px;font-weight:600;display:flex;align-items:center;gap:8px">{{ t.name }} <sc-if value="{{ t.featured }}" hint-placeholder-val="{{ false }}"><span style="background:rgba(255,176,32,.16);color:#B5680F;font-size:11px;font-weight:600;padding:2px 8px;border-radius:100px">★ Destacado</span></sc-if></div><div style="font-size:13px;color:#8B8178">{{ t.role }}</div></div>
+                </div>
+                <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px"><span style="color:#FFB020;font-size:14px;letter-spacing:1px">{{ t.starsFull }}<span style="color:#E2D9CC">{{ t.starsEmpty }}</span></span><span style="{{ t.badgeStyle }}">{{ t.badgeLabel }}</span></div>
+              </div>
+              <!-- body -->
+              <sc-if value="{{ t.isVideo }}" hint-placeholder-val="{{ false }}">
+                <div style="background:#1C1418;border-radius:12px;aspect-ratio:16/7;display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:14px"><span style="width:44px;height:44px;border-radius:50%;background:rgba(255,90,54,.9);display:flex;align-items:center;justify-content:center;color:#fff;font-size:16px">▶</span><span style="font-family:'Space Mono';font-size:12px;color:rgba(251,247,242,.6)">Video · 0:38</span></div>
+              </sc-if>
+              <sc-if value="{{ t.isText }}" hint-placeholder-val="{{ true }}">
+                <p style="font-size:14.5px;line-height:1.6;color:#33302C;margin:0 0 16px">"{{ t.text }}"</p>
+              </sc-if>
+              <!-- footer actions -->
+              <div style="display:flex;gap:8px;flex-wrap:wrap;padding-top:4px">
+                <sc-if value="{{ t.isPending }}" hint-placeholder-val="{{ true }}">
+                  <span onClick="{{ t.approve }}" style="background:#12876B;color:#fff;font-weight:600;font-size:13.5px;padding:9px 18px;border-radius:10px;cursor:pointer">✓ Aprobar</span>
+                  <span onClick="{{ t.reject }}" style="background:#fff;color:#C6371B;font-weight:600;font-size:13.5px;padding:9px 18px;border-radius:10px;border:1px solid #E7CFC9;cursor:pointer">✕ Rechazar</span>
+                </sc-if>
+                <sc-if value="{{ t.isApproved }}" hint-placeholder-val="{{ false }}">
+                  <span onClick="{{ t.toggleFeature }}" style="{{ t.featureBtnStyle }}">{{ t.featureBtnLabel }}</span>
+                  <span onClick="{{ t.genImage }}" style="background:#FF5A36;color:#fff;font-weight:600;font-size:13.5px;padding:9px 18px;border-radius:10px;cursor:pointer;box-shadow:0 4px 12px rgba(255,90,54,.28)">✨ Generar imagen</span>
+                </sc-if>
+                <sc-if value="{{ t.isRejected }}" hint-placeholder-val="{{ false }}">
+                  <span onClick="{{ t.remove }}" style="background:#fff;color:#C6371B;font-weight:600;font-size:13.5px;padding:9px 18px;border-radius:10px;border:1px solid #E7CFC9;cursor:pointer">🗑 Eliminar</span>
+                </sc-if>
+              </div>
+            </div>
+          </sc-for>
+        </div>
+        <!-- pagination -->
+        <sc-if value="{{ showPagination }}" hint-placeholder-val="{{ false }}">
+          <div style="display:flex;align-items:center;justify-content:center;gap:14px;margin-top:22px">
+            <span onClick="{{ prevPage }}" style="{{ prevStyle }}">← Anterior</span>
+            <span style="font-family:'Space Mono';font-size:13px;color:#8B8178">{{ pageLabel }}</span>
+            <span onClick="{{ nextPage }}" style="{{ nextStyle }}">Siguiente →</span>
+          </div>
+        </sc-if>
+        </sc-if>
+        <!-- empty -->
+        <sc-if value="{{ isEmpty }}" hint-placeholder-val="{{ false }}">
+          <div style="text-align:center;padding:60px 20px;color:#8B8178"><div style="font-size:38px;margin-bottom:12px">📭</div><div style="font-size:16px;font-weight:600;color:#55504A;margin-bottom:4px">Nada por acá todavía</div><div style="font-size:14px">Los testimonios en este estado aparecerán aquí.</div></div>
+        </sc-if>
+      </div>
+      </sc-if>
+
+      <!-- ============= SETTINGS ============= -->
+      <sc-if value="{{ isSettings }}" hint-placeholder-val="{{ false }}">
+      <div style="display:grid;grid-template-columns:1fr 400px;gap:24px;align-items:start">
+        <!-- left -->
+        <div>
+          <!-- tabs -->
+          <div style="display:flex;gap:4px;background:#F3EEE7;border:1px solid #E7E0D6;border-radius:12px;padding:4px;margin-bottom:20px;width:fit-content">
+            <div onClick="{{ setSetBasic }}" style="{{ setBasicTabStyle }}">Básico</div>
+            <div onClick="{{ setSetAi }}" style="{{ setAiTabStyle }}">✦ Asistente IA</div>
+          </div>
+
+          <!-- BASIC TAB -->
+          <sc-if value="{{ isSetBasic }}" hint-placeholder-val="{{ true }}">
+          <div style="display:flex;flex-direction:column;gap:18px">
+            <!-- identificación -->
+            <div style="background:#fff;border:1px solid #E7E0D6;border-radius:16px;padding:22px 24px">
+              <div style="font-family:'Bricolage Grotesque';font-weight:700;font-size:16px;margin-bottom:16px">Identificación</div>
+              <label style="font-size:13px;font-weight:600;color:#55504A;display:block;margin-bottom:6px">Nombre del espacio</label>
+              <input value="{{ spaceName }}" onChange="{{ onSpaceName }}" style="width:100%;background:#FBF7F2;border:1px solid #D3C9BC;border-radius:11px;padding:11px 13px;font-size:14px;margin-bottom:16px">
+              <label style="font-size:13px;font-weight:600;color:#55504A;display:block;margin-bottom:6px">Link público</label>
+              <div style="display:flex;gap:8px;margin-bottom:16px"><input value="{{ publicLink }}" readonly style="flex:1;background:#F3EEE7;border:1px solid #D3C9BC;border-radius:11px;padding:11px 13px;font-size:13.5px;color:#8B8178;font-family:'Space Mono'"><span onClick="{{ copyLink }}" style="background:#1C1418;color:#fff;font-weight:600;font-size:13.5px;padding:11px 16px;border-radius:11px;cursor:pointer">Copiar</span></div>
+              <div style="display:flex;align-items:center;justify-content:space-between;background:#FBF7F2;border:1px solid #E7E0D6;border-radius:11px;padding:12px 14px"><div><div style="font-size:14px;font-weight:600">Aceptando respuestas</div><div style="font-size:12.5px;color:#8B8178">Los clientes pueden enviar testimonios</div></div><div onClick="{{ toggleAccepting }}" style="{{ acceptTrackStyle }}"><span style="{{ acceptKnobStyle }}"></span></div></div>
+            </div>
+            <!-- textos -->
+            <div style="background:#fff;border:1px solid #E7E0D6;border-radius:16px;padding:22px 24px">
+              <div style="font-family:'Bricolage Grotesque';font-weight:700;font-size:16px;margin-bottom:16px">Textos del formulario</div>
+              <label style="font-size:13px;font-weight:600;color:#55504A;display:block;margin-bottom:6px">Título del formulario</label>
+              <input value="{{ formTitle }}" onChange="{{ onFormTitle }}" style="width:100%;background:#FBF7F2;border:1px solid #D3C9BC;border-radius:11px;padding:11px 13px;font-size:14px;margin-bottom:16px">
+              <label style="font-size:13px;font-weight:600;color:#55504A;display:block;margin-bottom:6px">Descripción</label>
+              <textarea onChange="{{ onFormDesc }}" style="width:100%;min-height:64px;resize:vertical;background:#FBF7F2;border:1px solid #D3C9BC;border-radius:11px;padding:11px 13px;font-size:14px;margin-bottom:16px">{{ formDesc }}</textarea>
+              <label style="font-size:13px;font-weight:600;color:#55504A;display:block;margin-bottom:6px">Mensaje de agradecimiento</label>
+              <textarea onChange="{{ onThanks }}" style="width:100%;min-height:52px;resize:vertical;background:#FBF7F2;border:1px solid #D3C9BC;border-radius:11px;padding:11px 13px;font-size:14px">{{ thanksMsg }}</textarea>
+            </div>
+            <!-- recopilar datos -->
+            <div style="background:#fff;border:1px solid #E7E0D6;border-radius:16px;padding:22px 24px">
+              <div style="font-family:'Bricolage Grotesque';font-weight:700;font-size:16px;margin-bottom:6px">Recopilar datos</div>
+              <div style="font-size:13px;color:#8B8178;margin-bottom:16px">Elegí qué pedir en el formulario.</div>
+              <div style="display:flex;flex-direction:column;gap:10px">
+                <sc-for list="{{ dataToggles }}" as="d" hint-placeholder-count="5">
+                  <div style="display:flex;align-items:center;justify-content:space-between;background:#FBF7F2;border:1px solid #E7E0D6;border-radius:11px;padding:11px 14px"><span style="font-size:14px;font-weight:500">{{ d.label }}</span><div onClick="{{ d.toggle }}" style="{{ d.trackStyle }}"><span style="{{ d.knobStyle }}"></span></div></div>
+                </sc-for>
+              </div>
+            </div>
+          </div>
+          </sc-if>
+
+          <!-- AI TAB -->
+          <sc-if value="{{ isSetAi }}" hint-placeholder-val="{{ false }}">
+          <div style="display:flex;flex-direction:column;gap:18px">
+            <!-- tu negocio -->
+            <div style="background:#fff;border:1px solid #E7E0D6;border-radius:16px;padding:22px 24px">
+              <div style="font-family:'Bricolage Grotesque';font-weight:700;font-size:16px;margin-bottom:6px">Tu negocio</div>
+              <div style="font-size:13px;color:#8B8178;margin-bottom:14px">La IA usa esto para escribir tus mensajes.</div>
+              <input value="{{ bizDesc }}" onChange="{{ onBizDesc }}" placeholder="Ej: Soy coach de negocios para emprendedoras" style="width:100%;background:#FBF7F2;border:1px solid #D3C9BC;border-radius:11px;padding:11px 13px;font-size:14px;margin-bottom:14px">
+              <div onClick="{{ runAi }}" style="{{ aiBtnStyle }}">
+                <sc-if value="{{ aiLoading }}" hint-placeholder-val="{{ false }}"><span style="width:15px;height:15px;border:2px solid rgba(255,255,255,.4);border-top-color:#fff;border-radius:50%;display:inline-block;animation:spin .7s linear infinite"></span> Generando…</sc-if>
+                <sc-if value="{{ aiIdle }}" hint-placeholder-val="{{ true }}">✦ Asistente IA</sc-if>
+              </div>
+              <div style="font-size:12px;color:#8B8178;margin-top:8px">💡 Genera email, WhatsApp, recordatorio y preguntas guía.</div>
+            </div>
+
+            <!-- generado -->
+            <sc-if value="{{ aiGenerated }}" hint-placeholder-val="{{ false }}">
+            <div style="background:#fff;border:1px solid #E7E0D6;border-radius:16px;padding:22px 24px;animation:fadein .3s ease">
+              <div style="display:flex;align-items:center;gap:8px;margin-bottom:16px"><div style="font-family:'Bricolage Grotesque';font-weight:700;font-size:16px">Generado</div><span style="background:#1C1418;color:#FFB020;font-size:11px;font-weight:600;padding:3px 9px;border-radius:100px">✦ IA</span></div>
+              <div style="display:flex;gap:4px;background:#F3EEE7;border:1px solid #E7E0D6;border-radius:10px;padding:3px;margin-bottom:16px;flex-wrap:wrap">
+                <sc-for list="{{ aiTabs }}" as="a" hint-placeholder-count="4">
+                  <div onClick="{{ a.select }}" style="{{ a.style }}">{{ a.label }}</div>
+                </sc-for>
+              </div>
+              <div style="background:#FBF7F2;border:1px solid #E7E0D6;border-radius:12px;padding:16px;font-size:14px;line-height:1.6;color:#33302C;white-space:pre-line;margin-bottom:12px">{{ aiContent }}</div>
+              <div onClick="{{ copyAi }}" style="text-align:center;background:#1C1418;color:#fff;font-weight:600;font-size:13.5px;padding:11px;border-radius:11px;cursor:pointer">Copiar {{ aiCurrentLabel }}</div>
+            </div>
+            </sc-if>
+
+            <!-- preguntas -->
+            <div style="background:#fff;border:1px solid #E7E0D6;border-radius:16px;padding:22px 24px">
+              <div style="font-family:'Bricolage Grotesque';font-weight:700;font-size:16px;margin-bottom:6px">Personalizá tus preguntas</div>
+              <div style="font-size:13px;color:#8B8178;margin-bottom:16px">Aparecen como guía en la página de recolección.</div>
+              <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:14px">
+                <sc-for list="{{ questions }}" as="q" hint-placeholder-count="3">
+                  <div style="display:flex;gap:8px;align-items:center"><input value="{{ q.text }}" onChange="{{ q.onEdit }}" style="flex:1;background:#FBF7F2;border:1px solid #D3C9BC;border-radius:11px;padding:10px 13px;font-size:14px"><span onClick="{{ q.onRemove }}" style="width:38px;height:38px;flex:none;display:flex;align-items:center;justify-content:center;background:#fff;border:1px solid #E7CFC9;color:#C6371B;border-radius:10px;cursor:pointer;font-size:15px">✕</span></div>
+                </sc-for>
+              </div>
+              <div onClick="{{ addQuestion }}" style="text-align:center;border:1px dashed #D3C9BC;color:#55504A;font-weight:600;font-size:13.5px;padding:11px;border-radius:11px;cursor:pointer">+ Agregar pregunta</div>
+            </div>
+          </div>
+          </sc-if>
+
+          <!-- save bar -->
+          <div style="display:flex;align-items:center;gap:14px;margin-top:20px">
+            <span onClick="{{ saveSettings }}" style="background:#FF5A36;color:#fff;font-weight:600;font-size:15px;padding:13px 26px;border-radius:12px;cursor:pointer;box-shadow:0 6px 16px rgba(255,90,54,.3)">Guardar cambios</span>
+            <span style="font-size:13.5px;color:#8B8178">Se aplican al instante en la vista previa →</span>
+          </div>
+        </div>
+
+        <!-- right: live preview -->
+        <div style="position:sticky;top:20px">
+          <div style="font-family:'Space Mono';font-size:11px;color:#8B8178;letter-spacing:.12em;margin-bottom:10px">VISTA PREVIA EN VIVO</div>
+          <div style="border-radius:18px;overflow:hidden;border:1px solid #D3C9BC;box-shadow:0 14px 34px rgba(28,20,24,.1)">
+            <div style="background:#F3EEE7;padding:8px 12px;display:flex;gap:5px;border-bottom:1px solid #E7E0D6"><span style="width:9px;height:9px;border-radius:50%;background:#D3C9BC"></span><span style="width:9px;height:9px;border-radius:50%;background:#D3C9BC"></span><span style="width:9px;height:9px;border-radius:50%;background:#D3C9BC"></span></div>
+            <div style="background:linear-gradient(165deg,#FFF6EF,#FBF7F2);padding:26px 22px;max-height:560px;overflow:auto">
+              <div style="text-align:center;margin-bottom:18px">
+                <span style="width:44px;height:44px;border-radius:12px;background:linear-gradient(135deg,#FF5A36,#FFB020);display:inline-flex;align-items:center;justify-content:center;font-family:'Bricolage Grotesque';font-weight:800;color:#fff;font-size:20px;margin-bottom:10px">{{ spaceInitial }}</span>
+                <div style="font-family:'Bricolage Grotesque';font-weight:700;font-size:19px;letter-spacing:-.01em">{{ formTitle }}</div>
+                <div style="font-size:12.5px;color:#8B8178;line-height:1.45;margin-top:4px">{{ formDesc }}</div>
+              </div>
+              <div style="background:#fff;border:1px solid #E7E0D6;border-radius:14px;padding:16px">
+                <sc-if value="{{ hasQuestions }}" hint-placeholder-val="{{ true }}">
+                <div style="background:#FFF3EE;border:1px solid rgba(255,90,54,.18);border-radius:10px;padding:11px 13px;margin-bottom:14px"><div style="font-size:11.5px;font-weight:600;color:#D63A17;margin-bottom:7px">Considerá mencionar:</div><div style="display:flex;flex-direction:column;gap:5px"><sc-for list="{{ questions }}" as="q" hint-placeholder-count="3"><div style="display:flex;gap:6px;font-size:12px;color:#55504A;line-height:1.4"><span style="color:#FF5A36">•</span><span>{{ q.text }}</span></div></sc-for></div></div>
+                </sc-if>
+                <sc-if value="{{ collect.rating }}" hint-placeholder-val="{{ true }}"><div style="text-align:center;color:#FFB020;font-size:22px;letter-spacing:3px;margin-bottom:12px">★★★★★</div></sc-if>
+                <div style="background:#FBF7F2;border:1px solid #D3C9BC;border-radius:9px;padding:10px 12px;font-size:12.5px;color:#B0A79C;margin-bottom:10px">Tu testimonio…</div>
+                <sc-if value="{{ collect.name }}" hint-placeholder-val="{{ true }}"><div style="display:flex;gap:6px;margin-bottom:10px"><div style="flex:1;background:#FBF7F2;border:1px solid #D3C9BC;border-radius:9px;padding:9px 11px;font-size:12px;color:#B0A79C">Nombre</div><div style="flex:1;background:#FBF7F2;border:1px solid #D3C9BC;border-radius:9px;padding:9px 11px;font-size:12px;color:#B0A79C">Empresa</div></div></sc-if>
+                <sc-if value="{{ collect.email }}" hint-placeholder-val="{{ true }}"><div style="background:#FBF7F2;border:1px solid #D3C9BC;border-radius:9px;padding:9px 11px;font-size:12px;color:#B0A79C;margin-bottom:12px">Email</div></sc-if>
+                <div style="text-align:center;background:#FF5A36;color:#fff;font-weight:600;font-size:13px;padding:10px;border-radius:10px">Enviar testimonio</div>
+              </div>
+              <div style="text-align:center;margin-top:14px;font-size:10.5px;color:#8B8178">🔒 Powered by TeamTestify</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      </sc-if>
+
+      <!-- ============= OTHER (widgets/branding/share) ============= -->
+      <sc-if value="{{ isOther }}" hint-placeholder-val="{{ false }}">
+        <div style="text-align:center;padding:80px 20px;color:#8B8178"><div style="font-size:42px;margin-bottom:14px">{{ otherIcon }}</div><div style="font-family:'Bricolage Grotesque';font-weight:700;font-size:22px;color:#55504A;margin-bottom:6px">{{ otherTitle }}</div><div style="font-size:14.5px;max-width:40ch;margin:0 auto">{{ otherDesc }}</div></div>
+      </sc-if>
+
+    </div>
+  </div>
+</div>
+</sc-if>
+
+<!-- ===== TOAST ===== -->
+<sc-if value="{{ toast }}" hint-placeholder-val="{{ false }}">
+  <div style="position:fixed;bottom:28px;left:50%;transform:translateX(-50%);z-index:80;background:#1C1418;color:#FBF7F2;padding:13px 22px;border-radius:12px;font-size:14px;font-weight:500;box-shadow:0 12px 30px rgba(28,20,24,.35);display:flex;align-items:center;gap:10px;animation:toastin .3s ease"><span style="color:#37B896;font-size:16px">✓</span> {{ toast }}</div>
+</sc-if>
+
+<!-- ===== UPGRADE MODAL ===== -->
+<sc-if value="{{ showUpgrade }}" hint-placeholder-val="{{ false }}">
+  <div onClick="{{ closeUpgrade }}" style="position:fixed;inset:0;z-index:90;background:rgba(28,20,24,.6);backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;padding:20px;animation:fadein .2s ease">
+    <div style="background:#1C1418;color:#FBF7F2;border-radius:24px;max-width:440px;width:100%;padding:36px 34px;position:relative;overflow:hidden;animation:pop .25s ease">
+      <div style="position:absolute;top:-60px;right:-40px;width:220px;height:220px;border-radius:50%;background:radial-gradient(circle,#FF5A36,transparent 70%);opacity:.5"></div>
+      <div style="position:relative;text-align:center">
+        <div style="font-size:38px;margin-bottom:12px">⚡</div>
+        <h3 style="font-family:'Bricolage Grotesque';font-weight:800;font-size:28px;letter-spacing:-.02em;margin:0 0 10px">Alcanzaste tu límite Free</h3>
+        <p style="font-size:15px;line-height:1.55;color:rgba(251,247,242,.72);margin:0 0 24px">Cambiate a Pro por <b style="color:#FF7A5C">$29/mes</b> y desbloqueá testimonios ilimitados, imágenes de marketing con IA y branding propio.</p>
+        <div style="display:flex;flex-direction:column;gap:10px;text-align:left;margin-bottom:26px">
+          <div style="display:flex;align-items:center;gap:10px;font-size:14.5px"><span style="color:#37B896">✓</span> Testimonios e imágenes IA ilimitados</div>
+          <div style="display:flex;align-items:center;gap:10px;font-size:14.5px"><span style="color:#37B896">✓</span> Video + branding sin marca</div>
+          <div style="display:flex;align-items:center;gap:10px;font-size:14.5px"><span style="color:#37B896">✓</span> Asistente IA completo</div>
+        </div>
+        <div onClick="{{ confirmUpgrade }}" style="background:#FF5A36;color:#fff;font-weight:600;font-size:16px;padding:15px;border-radius:13px;cursor:pointer;box-shadow:0 8px 20px rgba(255,90,54,.4);margin-bottom:10px">Cambiar a Pro →</div>
+        <div onClick="{{ closeUpgrade }}" style="font-size:13.5px;color:rgba(251,247,242,.5);cursor:pointer">Ahora no</div>
+      </div>
+    </div>
+  </div>
+</sc-if>
+
+<!-- ===== IMAGE GEN MODAL ===== -->
+<sc-if value="{{ showImgModal }}" hint-placeholder-val="{{ false }}">
+  <div onClick="{{ closeImgModal }}" style="position:fixed;inset:0;z-index:90;background:rgba(28,20,24,.6);backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;padding:20px;animation:fadein .2s ease">
+    <div onClick="{{ stopProp }}" style="background:#FBF7F2;border-radius:22px;max-width:560px;width:100%;padding:28px 30px;animation:pop .25s ease">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px"><div style="display:flex;align-items:center;gap:8px"><h3 style="font-family:'Bricolage Grotesque';font-weight:700;font-size:22px;margin:0">Imagen de marketing</h3><span style="background:#1C1418;color:#FFB020;font-size:11px;font-weight:600;padding:3px 9px;border-radius:100px">✦ IA</span></div><span onClick="{{ closeImgModal }}" style="cursor:pointer;font-size:20px;color:#8B8178">✕</span></div>
+      <div style="font-size:13.5px;color:#8B8178;margin-bottom:18px">Generada desde el testimonio de {{ imgAuthor }}.</div>
+      <!-- size tabs -->
+      <div style="display:flex;gap:6px;margin-bottom:18px">
+        <sc-for list="{{ imgSizes }}" as="s" hint-placeholder-count="3">
+          <div onClick="{{ s.select }}" style="{{ s.style }}"><div style="font-weight:600;font-size:13px">{{ s.label }}</div><div style="font-size:11px;opacity:.7;font-family:'Space Mono'">{{ s.dim }}</div></div>
+        </sc-for>
+      </div>
+      <!-- preview -->
+      <div style="display:flex;justify-content:center;margin-bottom:20px">
+        <sc-if value="{{ imgLoading }}" hint-placeholder-val="{{ false }}">
+          <div style="{{ imgFrameStyle }};display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;background:#F3EEE7;border:1px solid #E7E0D6"><span style="width:28px;height:28px;border:3px solid #E7D9CE;border-top-color:#FF5A36;border-radius:50%;animation:spin .7s linear infinite"></span><span style="font-family:'Space Mono';font-size:12px;color:#8B8178">Generando con IA…</span></div>
+        </sc-if>
+        <sc-if value="{{ imgReady }}" hint-placeholder-val="{{ true }}">
+          <div style="{{ imgFrameStyle }};background:linear-gradient(150deg,#1C1418,#2A231F);position:relative;overflow:hidden;padding:26px;display:flex;flex-direction:column;justify-content:center">
+            <div style="position:absolute;top:-40px;right:-30px;width:150px;height:150px;border-radius:50%;background:radial-gradient(circle,#FF5A36,transparent 70%);opacity:.5"></div>
+            <div style="position:relative;color:#FBF7F2"><div style="color:#FFB020;font-size:18px;letter-spacing:2px;margin-bottom:14px">★★★★★</div><p style="font-family:'Bricolage Grotesque';font-weight:600;font-size:20px;line-height:1.3;letter-spacing:-.01em;margin:0 0 18px">"{{ imgQuote }}"</p><div style="display:flex;align-items:center;gap:10px"><span style="width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,#FF5A36,#FFB020)"></span><div><div style="font-size:13px;font-weight:600">{{ imgAuthor }}</div><div style="font-size:11.5px;color:rgba(251,247,242,.6)">{{ imgRole }}</div></div></div></div>
+            <div style="position:absolute;bottom:14px;right:16px;font-family:'Space Mono';font-size:9px;color:rgba(251,247,242,.4)">teamtestify.com</div>
+          </div>
+        </sc-if>
+      </div>
+      <div onClick="{{ downloadImg }}" style="text-align:center;background:#FF5A36;color:#fff;font-weight:600;font-size:15px;padding:14px;border-radius:13px;cursor:pointer;box-shadow:0 8px 20px rgba(255,90,54,.32)">⬇ Descargar {{ imgSize }}</div>
+    </div>
+  </div>
+</sc-if>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = {
+    screen: 'landing',      // landing | collect | app
+    appPage: 'inbox',       // inbox | settings | widgets | branding | share
+    inboxTab: 'pending',
+    sort: 'newest',
+    page: 1,
+    setTab: 'basic',        // basic | ai
+    collectMode: 'text',
+    accepting: true,
+    collect: { text: true, video: true, rating: true, name: true, email: true },
+    spaceName: 'Ana Coaching',
+    formTitle: 'Comparte tu experiencia',
+    formDesc: 'Tu opinión ayuda a otros a decidir. Toma 30 segundos. ¡Gracias!',
+    thanksMsg: '¡Gracias! Tu testimonio significa muchísimo para mí. 🙌',
+    bizDesc: '',
+    aiLoading: false,
+    aiGenerated: false,
+    aiTab: 'email',
+    faqOpen: 0,
+    questions: [
+      { id: 1, text: '¿Qué problema resolviste trabajando conmigo?' },
+      { id: 2, text: '¿Qué resultado concreto obtuviste?' },
+      { id: 3, text: '¿A quién le recomendarías este servicio?' },
+    ],
+    testimonials: [
+      { id: 1, name: 'María López', role: 'Coach de vida', rating: 5, type: 'text', status: 'pending', featured: false, order: 12, text: 'El proceso fue rapidísimo y súper claro. En una semana ya tenía testimonios llegando solos.' },
+      { id: 2, name: 'Diego Fernández', role: 'Fundador · Nutre', rating: 5, type: 'video', status: 'pending', featured: false, order: 11, text: '' },
+      { id: 3, name: 'Lucía Marín', role: 'Emprendedora', rating: 5, type: 'text', status: 'pending', featured: false, order: 10, text: 'Automaticé toda la recolección. Ahorro al menos 5 horas al mes.' },
+      { id: 4, name: 'Elena Cruz', role: 'Terapeuta', rating: 4, type: 'text', status: 'pending', featured: false, order: 9, text: 'Muy fácil de configurar. Mis pacientes dejan reseña sin fricción.' },
+      { id: 5, name: 'Tomás Reyes', role: 'Fotógrafo', rating: 5, type: 'text', status: 'pending', featured: false, order: 8, text: 'Las imágenes generadas para redes se ven increíbles, de nivel agencia.' },
+      { id: 6, name: 'Marta Peña', role: 'Coach de carrera', rating: 5, type: 'text', status: 'pending', featured: false, order: 7, text: 'La solicitud por IA fue perfecta, ni la tuve que editar.' },
+      { id: 7, name: 'Carla Ruiz', role: 'Freelance diseñadora', rating: 5, type: 'text', status: 'approved', featured: true, order: 6, text: 'Pasé de rogar por reseñas a tener 40 en un mes. Cambió mi marketing por completo.' },
+      { id: 8, name: 'Sofía Navarro', role: 'Coach fitness', rating: 5, type: 'video', status: 'approved', featured: true, order: 5, text: '' },
+      { id: 9, name: 'Javier Soto', role: 'CEO · TiendaMás', rating: 5, type: 'text', status: 'approved', featured: false, order: 4, text: 'Cerramos el ciclo completo: pedir, recolectar y publicar. Impecable.' },
+      { id: 10, name: 'Andrés Vidal', role: 'Freelance dev', rating: 4, type: 'text', status: 'approved', featured: false, order: 3, text: 'Buen producto y precio justo comparado con la competencia.' },
+      { id: 11, name: 'Pedro Gómez', role: 'Consultor', rating: 3, type: 'text', status: 'rejected', featured: false, order: 2, text: 'Esperaba más integraciones para mi caso puntual.' },
+    ],
+    toast: null,
+    showUpgrade: false,
+    showImgModal: false,
+    imgId: null,
+    imgSize: '1080x1080',
+    imgLoading: false,
+  };
+
+  // ---- helpers ----
+  showToast(msg) {
+    this.setState({ toast: msg });
+    clearTimeout(this._t);
+    this._t = setTimeout(() => this.setState({ toast: null }), 2400);
+  }
+  navChip(active) {
+    return 'font-size:12.5px;font-weight:600;padding:6px 13px;border-radius:8px;cursor:pointer;' +
+      (active ? 'background:#FF5A36;color:#fff' : 'color:rgba(251,247,242,.6)');
+  }
+  track(on) {
+    return 'width:42px;height:24px;border-radius:100px;flex:none;cursor:pointer;position:relative;transition:background .18s;background:' + (on ? '#12876B' : '#D3C9BC');
+  }
+  knob(on) {
+    return 'position:absolute;top:2px;left:2px;width:20px;height:20px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.2);transition:transform .18s;transform:translateX(' + (on ? '18px' : '0') + ')';
+  }
+  pill(active) {
+    return 'font-size:13.5px;font-weight:600;padding:8px 16px;border-radius:9px;cursor:pointer;display:flex;align-items:center;gap:7px;' +
+      (active ? 'background:#fff;color:#1C1418;box-shadow:0 1px 3px rgba(0,0,0,.08)' : 'color:#8B8178');
+  }
+
+  renderVals() {
+    const s = this.state;
+    const nav = (p) => () => this.setState({ screen: p });
+    const go = (obj) => () => this.setState(obj);
+
+    // ---- prototype nav ----
+    const v = {
+      goLanding: nav('landing'),
+      goCollect: nav('collect'),
+      goInbox: () => this.setState({ screen: 'app', appPage: 'inbox' }),
+      goSettings: () => this.setState({ screen: 'app', appPage: 'settings' }),
+      isLanding: s.screen === 'landing',
+      isCollect: s.screen === 'collect',
+      isApp: s.screen === 'app',
+      navLandingStyle: this.navChip(s.screen === 'landing'),
+      navCollectStyle: this.navChip(s.screen === 'collect'),
+      navInboxStyle: this.navChip(s.screen === 'app' && s.appPage === 'inbox'),
+      navSettingsStyle: this.navChip(s.screen === 'app' && s.appPage === 'settings'),
+    };
+
+    // ---- FAQ ----
+    const faqData = [
+      { q: '¿Es realmente gratis?', a: 'Sí. El plan Free es gratis para siempre e incluye hasta 10 testimonios. Pro cuesta $29/mes cuando necesitás más.' },
+      { q: '¿Puedo recolectar video?', a: 'Sí, texto y video llegan al mismo Inbox. El video está disponible en el plan Pro.' },
+      { q: '¿Cómo funciona la IA?', a: 'Describís tu negocio en una frase y la IA escribe tu email de solicitud, mensaje de WhatsApp, recordatorio y preguntas guía. Además convierte reseñas en imágenes para redes.' },
+      { q: '¿Necesito saber diseñar?', a: 'Para nada. Todo está pensado para que funcione en minutos, sin conocimientos técnicos ni de diseño.' },
+    ];
+    v.faqs = faqData.map((f, i) => ({
+      q: f.q, a: f.a,
+      open: s.faqOpen === i,
+      icon: s.faqOpen === i ? '−' : '+',
+      toggle: () => this.setState({ faqOpen: s.faqOpen === i ? -1 : i }),
+      style: 'background:#fff;border:1px solid ' + (s.faqOpen === i ? '#FF5A36' : '#E7E0D6') + ';border-radius:14px;padding:18px 20px;cursor:pointer',
+    }));
+
+    // ---- collect page ----
+    v.spaceName = s.spaceName;
+    v.spaceInitial = (s.spaceName || 'T').trim().charAt(0).toUpperCase();
+    v.formTitle = s.formTitle;
+    v.formDesc = s.formDesc;
+    v.thanksMsg = s.thanksMsg;
+    v.collect = s.collect;
+    v.questions = s.questions.map((q) => ({
+      id: q.id, text: q.text,
+      onEdit: (e) => this.setState({ questions: s.questions.map((x) => x.id === q.id ? { ...x, text: e.target.value } : x) }),
+      onRemove: () => this.setState({ questions: s.questions.filter((x) => x.id !== q.id) }),
+    }));
+    v.hasQuestions = s.questions.length > 0;
+    v.showModeToggle = s.collect.text && s.collect.video;
+    v.isTextMode = s.collect.text && (s.collectMode === 'text' || !s.collect.video);
+    v.isVideoMode = s.collect.video && s.collectMode === 'video' && s.collect.text;
+    if (!s.collect.text && s.collect.video) v.isVideoMode = true;
+    v.setModeText = () => this.setState({ collectMode: 'text' });
+    v.setModeVideo = () => this.setState({ collectMode: 'video' });
+    v.collectTextTabStyle = this.pill(v.isTextMode) + ';flex:1;justify-content:center';
+    v.collectVideoTabStyle = this.pill(v.isVideoMode) + ';flex:1;justify-content:center';
+    v.submitTestimonial = () => this.showToast('¡Testimonio enviado! Gracias 🙌');
+
+    // ---- app shell ----
+    const pages = {
+      inbox: { icon: '📥', label: 'Inbox', title: 'Inbox', sub: 'Gestioná tus testimonios' },
+      settings: { icon: '⚙️', label: 'Settings', title: 'Settings', sub: 'Configurá tu espacio de recolección' },
+      widgets: { icon: '🧱', label: 'Widgets', title: 'Widgets', sub: 'Embebé muros de testimonios' },
+      branding: { icon: '🎨', label: 'Branding', title: 'Branding', sub: 'Personalizá tu marca' },
+      share: { icon: '🔗', label: 'Share', title: 'Share', sub: 'Compartí tu link de recolección' },
+    };
+    v.navItems = Object.keys(pages).map((k) => ({
+      icon: pages[k].icon, label: pages[k].label,
+      go: () => this.setState({ appPage: k }),
+      style: 'display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;cursor:pointer;font-weight:' +
+        (s.appPage === k ? '600' : '400') + ';' +
+        (s.appPage === k ? 'background:rgba(255,90,54,.18);color:#FF8A6B' : 'color:rgba(251,247,242,.62)'),
+    }));
+    v.appTitle = pages[s.appPage].title;
+    v.appSubtitle = pages[s.appPage].sub;
+    v.isInbox = s.appPage === 'inbox';
+    v.isSettings = s.appPage === 'settings';
+    v.isOther = !['inbox', 'settings'].includes(s.appPage);
+    v.otherIcon = pages[s.appPage].icon;
+    v.otherTitle = pages[s.appPage].title;
+    v.otherDesc = pages[s.appPage].sub + '. Esta sección es parte del flujo pero está fuera del alcance de este prototipo.';
+
+    // ---- inbox ----
+    const all = s.testimonials;
+    v.countPending = all.filter((t) => t.status === 'pending').length;
+    v.countApproved = all.filter((t) => t.status === 'approved').length;
+    v.countRejected = all.filter((t) => t.status === 'rejected').length;
+    v.nearLimit = true;
+    v.openUpgrade = () => this.setState({ showUpgrade: true });
+
+    const tabPill = (active) => 'font-size:13.5px;font-weight:600;padding:8px 15px;border-radius:9px;cursor:pointer;display:flex;align-items:center;gap:7px;' +
+      (active ? 'background:#fff;color:#1C1418;box-shadow:0 1px 3px rgba(0,0,0,.08)' : 'color:#8B8178');
+    const badge = (active) => 'font-size:11px;font-weight:700;padding:1px 7px;border-radius:100px;' +
+      (active ? 'background:#FF5A36;color:#fff' : 'background:#E2D9CC;color:#8B8178');
+    v.tabPendingStyle = tabPill(s.inboxTab === 'pending');
+    v.tabApprovedStyle = tabPill(s.inboxTab === 'approved');
+    v.tabRejectedStyle = tabPill(s.inboxTab === 'rejected');
+    v.badgePendingStyle = badge(s.inboxTab === 'pending');
+    v.badgeApprovedStyle = badge(s.inboxTab === 'approved');
+    v.badgeRejectedStyle = badge(s.inboxTab === 'rejected');
+    v.setTabPending = () => this.setState({ inboxTab: 'pending', page: 1 });
+    v.setTabApproved = () => this.setState({ inboxTab: 'approved', page: 1 });
+    v.setTabRejected = () => this.setState({ inboxTab: 'rejected', page: 1 });
+    v.sortLabel = s.sort === 'newest' ? 'Newest first' : 'Oldest first';
+    v.toggleSort = () => this.setState({ sort: s.sort === 'newest' ? 'oldest' : 'newest' });
+
+    let list = all.filter((t) => t.status === s.inboxTab);
+    list.sort((a, b) => s.sort === 'newest' ? b.order - a.order : a.order - b.order);
+    const perPage = 4;
+    const totalPages = Math.max(1, Math.ceil(list.length / perPage));
+    const page = Math.min(s.page, totalPages);
+    const start = (page - 1) * perPage;
+    const pageSlice = list.slice(start, start + perPage);
+
+    const badgeFor = (status) => {
+      if (status === 'pending') return 'background:rgba(232,135,26,.14);color:#B5680F;font-size:11px;font-weight:600;padding:3px 10px;border-radius:100px';
+      if (status === 'approved') return 'background:rgba(18,135,107,.14);color:#0E6B54;font-size:11px;font-weight:600;padding:3px 10px;border-radius:100px';
+      return 'background:rgba(198,55,27,.12);color:#C6371B;font-size:11px;font-weight:600;padding:3px 10px;border-radius:100px';
+    };
+    const labelFor = (status) => status === 'pending' ? 'Pendiente' : status === 'approved' ? 'Aprobado' : 'Rechazado';
+    const grads = ['#FF5A36,#FFB020', '#12876B,#FFB020', '#1C1418,#FF5A36', '#E8871A,#FF5A36', '#12876B,#1C1418'];
+
+    v.pageItems = pageSlice.map((t, i) => {
+      const setStatus = (status, msg) => () => {
+        this.setState({ testimonials: s.testimonials.map((x) => x.id === t.id ? { ...x, status } : x) });
+        this.showToast(msg);
+      };
+      return {
+        name: t.name, role: t.role, text: t.text,
+        initial: t.name.charAt(0),
+        avatarStyle: 'width:40px;height:40px;border-radius:50%;flex:none;display:flex;align-items:center;justify-content:center;font-weight:700;color:#fff;font-size:15px;background:linear-gradient(135deg,' + grads[i % grads.length] + ')',
+        starsFull: '★'.repeat(t.rating),
+        starsEmpty: '★'.repeat(5 - t.rating),
+        badgeStyle: badgeFor(t.status),
+        badgeLabel: labelFor(t.status),
+        featured: t.featured,
+        isVideo: t.type === 'video',
+        isText: t.type === 'text',
+        isPending: t.status === 'pending',
+        isApproved: t.status === 'approved',
+        isRejected: t.status === 'rejected',
+        approve: setStatus('approved', 'Testimonio aprobado ✓'),
+        reject: setStatus('rejected', 'Testimonio rechazado'),
+        remove: () => { this.setState({ testimonials: s.testimonials.filter((x) => x.id !== t.id) }); this.showToast('Testimonio eliminado'); },
+        toggleFeature: () => { this.setState({ testimonials: s.testimonials.map((x) => x.id === t.id ? { ...x, featured: !x.featured } : x) }); this.showToast(t.featured ? 'Quitado de destacados' : 'Marcado como destacado ★'); },
+        featureBtnLabel: t.featured ? '★ No destacar' : '☆ Destacar',
+        featureBtnStyle: 'font-weight:600;font-size:13.5px;padding:9px 18px;border-radius:10px;cursor:pointer;border:1px solid;' +
+          (t.featured ? 'background:rgba(255,176,32,.14);color:#B5680F;border-color:rgba(255,176,32,.4)' : 'background:#fff;color:#55504A;border-color:#D3C9BC'),
+        genImage: () => {
+          this.setState({ showImgModal: true, imgId: t.id, imgSize: '1080x1080', imgLoading: true });
+          clearTimeout(this._img);
+          this._img = setTimeout(() => this.setState({ imgLoading: false }), 1500);
+        },
+      };
+    });
+    v.hasItems = pageSlice.length > 0;
+    v.isEmpty = pageSlice.length === 0;
+    v.showPagination = totalPages > 1;
+    v.pageLabel = 'Página ' + page + ' de ' + totalPages;
+    const canPrev = page > 1, canNext = page < totalPages;
+    const pgBtn = (on) => 'font-size:13.5px;font-weight:600;padding:9px 16px;border-radius:10px;border:1px solid #D3C9BC;' +
+      (on ? 'background:#fff;color:#1C1418;cursor:pointer' : 'background:#F3EEE7;color:#C3BAAE;cursor:not-allowed');
+    v.prevStyle = pgBtn(canPrev);
+    v.nextStyle = pgBtn(canNext);
+    v.prevPage = () => { if (canPrev) this.setState({ page: page - 1 }); };
+    v.nextPage = () => { if (canNext) this.setState({ page: page + 1 }); };
+
+    // ---- settings ----
+    v.publicLink = 'teamtestify.com/' + s.spaceName.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+    v.onSpaceName = (e) => this.setState({ spaceName: e.target.value });
+    v.onFormTitle = (e) => this.setState({ formTitle: e.target.value });
+    v.onFormDesc = (e) => this.setState({ formDesc: e.target.value });
+    v.onThanks = (e) => this.setState({ thanksMsg: e.target.value });
+    v.onBizDesc = (e) => this.setState({ bizDesc: e.target.value });
+    v.copyLink = () => this.showToast('Link copiado al portapapeles');
+    v.setSetBasic = () => this.setState({ setTab: 'basic' });
+    v.setSetAi = () => this.setState({ setTab: 'ai' });
+    v.isSetBasic = s.setTab === 'basic';
+    v.isSetAi = s.setTab === 'ai';
+    v.setBasicTabStyle = this.pill(s.setTab === 'basic');
+    v.setAiTabStyle = this.pill(s.setTab === 'ai');
+    v.acceptTrackStyle = this.track(s.accepting);
+    v.acceptKnobStyle = this.knob(s.accepting);
+    v.toggleAccepting = () => this.setState({ accepting: !s.accepting });
+
+    const dt = [
+      { key: 'text', label: 'Testimonio en texto' },
+      { key: 'video', label: 'Testimonio en video' },
+      { key: 'rating', label: 'Rating con estrellas' },
+      { key: 'name', label: 'Nombre y empresa' },
+      { key: 'email', label: 'Email' },
+    ];
+    v.dataToggles = dt.map((d) => ({
+      label: d.label,
+      trackStyle: this.track(s.collect[d.key]),
+      knobStyle: this.knob(s.collect[d.key]),
+      toggle: () => this.setState({ collect: { ...s.collect, [d.key]: !s.collect[d.key] } }),
+    }));
+
+    // AI
+    v.bizDesc = s.bizDesc;
+    v.aiLoading = s.aiLoading;
+    v.aiIdle = !s.aiLoading;
+    v.aiGenerated = s.aiGenerated;
+    v.aiBtnStyle = 'display:inline-flex;align-items:center;gap:9px;background:' + (s.aiLoading ? '#8B8178' : '#1C1418') + ';color:#fff;font-weight:600;font-size:14.5px;padding:12px 22px;border-radius:12px;cursor:pointer';
+    v.runAi = () => {
+      if (s.aiLoading) return;
+      this.setState({ aiLoading: true });
+      clearTimeout(this._ai);
+      this._ai = setTimeout(() => this.setState({ aiLoading: false, aiGenerated: true }), 1600);
+    };
+    const aiContent = {
+      email: 'Asunto: ¿Me regalás 30 segundos? 🙏\n\nHola [nombre], espero que estés genial. Trabajar juntos fue un placer y me encantaría contar con tu opinión. Solo toma 30 segundos y me ayuda muchísimo:\n\n👉 [tu link]\n\n¡Gracias de corazón!',
+      whatsapp: '¡Hola [nombre]! 👋 Me encantó trabajar con vos. ¿Me dejarías una reseña rápida? Toma 30 segundos y significa un montón para mí: [tu link] 🙌',
+      followup: 'Hola [nombre], sé que andás a full 🙂 Te dejo de nuevo el link por si tenés un ratito para dejarme tu opinión. ¡Sin apuro y mil gracias! 👉 [tu link]',
+      questions: '• ¿Qué problema resolviste trabajando conmigo?\n• ¿Qué resultado concreto obtuviste?\n• ¿Qué fue lo que más te sorprendió?\n• ¿A quién le recomendarías este servicio?',
+    };
+    const aiTabsData = [
+      { key: 'email', label: 'Email' },
+      { key: 'whatsapp', label: 'WhatsApp' },
+      { key: 'followup', label: 'Recordatorio' },
+      { key: 'questions', label: 'Preguntas guía' },
+    ];
+    v.aiTabs = aiTabsData.map((a) => ({
+      label: a.label,
+      select: () => this.setState({ aiTab: a.key }),
+      style: 'font-size:12.5px;font-weight:600;padding:7px 13px;border-radius:8px;cursor:pointer;' +
+        (s.aiTab === a.key ? 'background:#fff;color:#1C1418;box-shadow:0 1px 3px rgba(0,0,0,.08)' : 'color:#8B8178'),
+    }));
+    v.aiContent = aiContent[s.aiTab];
+    v.aiCurrentLabel = aiTabsData.find((a) => a.key === s.aiTab).label;
+    v.copyAi = () => this.showToast(v.aiCurrentLabel + ' copiado ✓');
+    v.addQuestion = () => this.setState({ questions: [...s.questions, { id: Date.now(), text: '' }] });
+    v.saveSettings = () => this.showToast('Cambios guardados ✓');
+
+    // upgrade
+    v.showUpgrade = s.showUpgrade;
+    v.closeUpgrade = () => this.setState({ showUpgrade: false });
+    v.confirmUpgrade = () => { this.setState({ showUpgrade: false }); this.showToast('¡Bienvenido a Pro! 🎉'); };
+
+    // image modal
+    v.showImgModal = s.showImgModal;
+    v.closeImgModal = () => this.setState({ showImgModal: false });
+    v.stopProp = (e) => e.stopPropagation();
+    v.imgLoading = s.imgLoading;
+    v.imgReady = !s.imgLoading;
+    const imgItem = all.find((t) => t.id === s.imgId) || all[6];
+    v.imgAuthor = imgItem.name;
+    v.imgRole = imgItem.role;
+    v.imgQuote = imgItem.text || 'Testimonio en video de ' + imgItem.name;
+    v.imgSize = s.imgSize;
+    const sizes = [
+      { key: '1080x1080', label: 'Post', dim: '1080×1080', w: 200, h: 200 },
+      { key: '1080x1350', label: 'Retrato', dim: '1080×1350', w: 176, h: 220 },
+      { key: '1080x1920', label: 'Story', dim: '1080×1920', w: 130, h: 231 },
+    ];
+    v.imgSizes = sizes.map((z) => ({
+      label: z.label, dim: z.dim,
+      select: () => this.setState({ imgSize: z.key }),
+      style: 'flex:1;text-align:center;padding:10px;border-radius:11px;cursor:pointer;border:1px solid;' +
+        (s.imgSize === z.key ? 'background:#FFF3EE;border-color:#FF5A36;color:#D63A17' : 'background:#fff;border-color:#E7E0D6;color:#55504A'),
+    }));
+    const cur = sizes.find((z) => z.key === s.imgSize);
+    v.imgFrameStyle = 'width:' + cur.w + 'px;height:' + cur.h + 'px;border-radius:14px';
+    v.downloadImg = () => { this.setState({ showImgModal: false }); this.showToast('Imagen ' + s.imgSize + ' descargada ⬇'); };
+
+    // toast
+    v.toast = s.toast;
+
+    return v;
+  }
+}
+</script>
+</body>
+</html>

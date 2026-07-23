@@ -18,3 +18,14 @@
 - [ ] Migrate video storage to R2 when Convex file storage usage
       approaches 300-350 MB (currently 16.52 MB as of 2026-07-11), or
       before any paid marketing push, whichever comes first
+
+## Deuda técnica identificada en auditoría
+
+- [ ] Fix #2 del audit: cachear embed público (Server Component +
+      revalidate 60s en src/app/(embed)/embed/[widgetId]/page.tsx),
+      hacerlo antes de campaña de marketing o tráfico real a widgets
+- [ ] Fix #3 del audit: paginación cursor nativa (.paginate()) en
+      convex/testimonials.ts::listBySpace, hacerlo cuando alguna
+      organización se acerque a 300-500 testimonios. Nota: cambia el
+      contrato de la query (page/limit → cursor), requiere ajustar
+      Inbox y los widget pickers que hoy usan limit: 999.
