@@ -62,6 +62,17 @@ export const create = mutation({
   args: { name: v.string(), slug: v.optional(v.string()) },
   handler: async (ctx, { name, slug }) => {
     const identity = await requireIdentity(ctx);
+
+    const existingMembership = await ctx.db
+      .query("organizationMembers")
+      .withIndex("by_user", (q) => q.eq("authUserId", identity.subject))
+      .first();
+    if (existingMembership) {
+      throw new Error(
+        "You can only create one organization. Contact support if you need more."
+      );
+    }
+
     const organizationId = await ctx.db.insert("organizations", {
       name,
       slug,

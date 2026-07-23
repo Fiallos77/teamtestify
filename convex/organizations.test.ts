@@ -29,6 +29,43 @@ async function seedOrgWithMember(
   return { organizationId, asUser: t.withIdentity({ subject: authUserId }) };
 }
 
+describe("organizations.create", () => {
+  test("creates an organization and makes the caller its owner", async () => {
+    const t = newTestConvex();
+    const authUserId = `user_${Math.random().toString(36).slice(2)}`;
+    const asUser = t.withIdentity({ subject: authUserId });
+
+    const organizationId = await asUser.mutation(api.organizations.create, { name: "Acme" });
+
+    const membership = await t.run(async (ctx) =>
+      ctx.db
+        .query("organizationMembers")
+        .withIndex("by_user", (q) => q.eq("authUserId", authUserId))
+        .unique()
+    );
+    expect(membership?.organizationId).toBe(organizationId);
+    expect(membership?.role).toBe("owner");
+  });
+
+  test("rejects a second organization for a user who already has one", async () => {
+    const t = newTestConvex();
+    const authUserId = `user_${Math.random().toString(36).slice(2)}`;
+    const asUser = t.withIdentity({ subject: authUserId });
+
+    await asUser.mutation(api.organizations.create, { name: "First Org" });
+
+    await expect(
+      asUser.mutation(api.organizations.create, { name: "Second Org" })
+    ).rejects.toThrow("You can only create one organization. Contact support if you need more.");
+  });
+
+  test("rejects an unauthenticated caller", async () => {
+    const t = newTestConvex();
+
+    await expect(t.mutation(api.organizations.create, { name: "Nope" })).rejects.toThrow();
+  });
+});
+
 describe("organizations.requireOwnerContext", () => {
   test("resolves for an owner", async () => {
     const t = newTestConvex();
