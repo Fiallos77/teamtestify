@@ -13,6 +13,7 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { PlanUsageCard } from "@/components/dashboard/plan-usage-card";
+import { validateChangePassword } from "@/components/dashboard/change-password-validation";
 
 const TABS = ["profile", "plan", "notifications"] as const;
 type TabValue = (typeof TABS)[number];
@@ -84,6 +85,91 @@ function ProfileTab() {
           </Button>
           {saved && <span className="text-sm text-muted-foreground">Saved</span>}
         </div>
+      </CardContent>
+    </Card>
+  );
+}
+
+function ChangePasswordCard() {
+  const [currentPassword, setCurrentPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState(false);
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    setError(null);
+    setSuccess(false);
+
+    const validationError = validateChangePassword({ currentPassword, newPassword, confirmPassword });
+    if (validationError) {
+      setError(validationError);
+      return;
+    }
+
+    setSubmitting(true);
+    const { error: changeError } = await authClient.changePassword({ currentPassword, newPassword });
+    setSubmitting(false);
+
+    if (changeError) {
+      setError(changeError.message ?? "Could not change password");
+      return;
+    }
+
+    setCurrentPassword("");
+    setNewPassword("");
+    setConfirmPassword("");
+    setSuccess(true);
+    setTimeout(() => setSuccess(false), 3000);
+  }
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>Change password</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="space-y-2">
+            <Label htmlFor="current-password">Current password</Label>
+            <Input
+              id="current-password"
+              type="password"
+              value={currentPassword}
+              onChange={(e) => setCurrentPassword(e.target.value)}
+              required
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="new-password">New password</Label>
+            <Input
+              id="new-password"
+              type="password"
+              value={newPassword}
+              onChange={(e) => setNewPassword(e.target.value)}
+              required
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="confirm-new-password">Confirm new password</Label>
+            <Input
+              id="confirm-new-password"
+              type="password"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              required
+            />
+          </div>
+          {error && <p className="text-sm text-destructive">{error}</p>}
+          <div className="flex items-center gap-3">
+            <Button type="submit" disabled={submitting}>
+              {submitting ? "Changing…" : "Change"}
+            </Button>
+            {success && <span className="text-sm text-muted-foreground">Password changed</span>}
+          </div>
+        </form>
       </CardContent>
     </Card>
   );
@@ -308,8 +394,9 @@ function AccountSettings() {
           <TabsTrigger value="notifications">Notifications</TabsTrigger>
         </TabsList>
 
-        <TabsContent value="profile" className="pt-4">
+        <TabsContent value="profile" className="space-y-4 pt-4">
           <ProfileTab />
+          <ChangePasswordCard />
         </TabsContent>
         <TabsContent value="plan" className="pt-4">
           <PlanTab />

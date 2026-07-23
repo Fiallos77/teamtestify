@@ -1,16 +1,18 @@
 "use client";
 
-import { useState } from "react";
+import { Suspense, useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { authClient } from "@/lib/auth-client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
-export default function Page() {
+function SignInForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const justReset = searchParams.get("reset") === "success";
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [submitting, setSubmitting] = useState(false);
@@ -39,6 +41,11 @@ export default function Page() {
           <CardTitle>Sign in</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
+          {justReset && (
+            <p className="rounded-md bg-muted p-2 text-center text-sm">
+              Password reset. Please sign in with your new password.
+            </p>
+          )}
           <Button
             type="button"
             variant="outline"
@@ -77,6 +84,11 @@ export default function Page() {
                 required
               />
             </div>
+            <p className="text-right text-sm">
+              <Link href="/reset-password" className="text-muted-foreground underline">
+                Forgot password?
+              </Link>
+            </p>
             {error && <p className="text-sm text-destructive">{error}</p>}
             <Button type="submit" className="w-full" disabled={submitting}>
               {submitting ? "Signing in…" : "Sign in"}
@@ -91,5 +103,14 @@ export default function Page() {
         </CardContent>
       </Card>
     </div>
+  );
+}
+
+export default function Page() {
+  // useSearchParams needs a Suspense boundary under the App Router.
+  return (
+    <Suspense fallback={<p className="text-muted-foreground">Loading…</p>}>
+      <SignInForm />
+    </Suspense>
   );
 }
