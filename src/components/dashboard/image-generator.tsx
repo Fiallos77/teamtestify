@@ -152,7 +152,9 @@ export function ImageGenerator({ testimonialId }: { testimonialId: Id<"testimoni
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger render={<Button size="sm" />}>
+      <DialogTrigger
+        render={<Button size="sm" title="Generate marketing images for social media" />}
+      >
         <ImageIcon className="size-4" />
         Create image
       </DialogTrigger>
