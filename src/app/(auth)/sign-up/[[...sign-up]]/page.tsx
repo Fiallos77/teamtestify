@@ -10,13 +10,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import {
-  Dialog,
-  DialogContent,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
 
 export default function Page() {
   const router = useRouter();
@@ -26,18 +19,7 @@ export default function Page() {
   const [password, setPassword] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  // No account exists yet at this point, so there's nothing server-side to
-  // check — this just gates the signup form itself for this page visit.
-  // The account-level record (convex/userSettings.ts) is written after
-  // signup succeeds below, and is what actually prevents this from being
-  // asked again on another device — see dashboard-shell.tsx for that gate,
-  // which also catches Google OAuth signups that never see this form at all.
-  const [termsAccepted, setTermsAccepted] = useState(false);
   const [termsChecked, setTermsChecked] = useState(false);
-
-  function handleAcceptTerms() {
-    setTermsAccepted(true);
-  }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -65,50 +47,6 @@ export default function Page() {
 
   return (
     <div className="flex min-h-screen items-center justify-center p-4">
-      {!termsAccepted && (
-        <Dialog open disablePointerDismissal>
-          <DialogContent showCloseButton={false}>
-            <DialogHeader>
-              <DialogTitle>Accept our Privacy Policy and Terms of Service</DialogTitle>
-            </DialogHeader>
-            <p className="text-sm text-muted-foreground">
-              By creating an account, you agree to our{" "}
-              <Link
-                href="/privacy-policy"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="underline"
-              >
-                Privacy Policy
-              </Link>{" "}
-              and{" "}
-              <Link
-                href="/terms-of-service"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="underline"
-              >
-                Terms of Service
-              </Link>
-              .
-            </p>
-            <label className="flex items-start gap-2 text-sm">
-              <input
-                type="checkbox"
-                className="mt-0.5"
-                checked={termsChecked}
-                onChange={(e) => setTermsChecked(e.target.checked)}
-              />
-              I accept Privacy Policy and Terms of Service
-            </label>
-            <DialogFooter>
-              <Button onClick={handleAcceptTerms} disabled={!termsChecked} className="w-full">
-                Accept
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
-      )}
       <Card className="w-full max-w-sm">
         <CardHeader>
           <CardTitle>Create your account</CardTitle>
@@ -162,8 +100,36 @@ export default function Page() {
                 minLength={8}
               />
             </div>
+            <label className="flex items-start gap-2 text-sm">
+              <input
+                type="checkbox"
+                className="mt-0.5"
+                checked={termsChecked}
+                onChange={(e) => setTermsChecked(e.target.checked)}
+              />
+              <span>
+                I accept the{" "}
+                <Link
+                  href="/privacy-policy"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="underline"
+                >
+                  Privacy Policy
+                </Link>{" "}
+                and{" "}
+                <Link
+                  href="/terms-of-service"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="underline"
+                >
+                  Terms of Service
+                </Link>
+              </span>
+            </label>
             {error && <p className="text-sm text-destructive">{error}</p>}
-            <Button type="submit" className="w-full" disabled={submitting}>
+            <Button type="submit" className="w-full" disabled={submitting || !termsChecked}>
               {submitting ? "Creating account…" : "Sign up"}
             </Button>
           </form>

@@ -17,6 +17,7 @@ function SignInForm() {
   const [password, setPassword] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [termsChecked, setTermsChecked] = useState(false);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -89,8 +90,36 @@ function SignInForm() {
                 Forgot password?
               </Link>
             </p>
+            <label className="flex items-start gap-2 text-sm">
+              <input
+                type="checkbox"
+                className="mt-0.5"
+                checked={termsChecked}
+                onChange={(e) => setTermsChecked(e.target.checked)}
+              />
+              <span>
+                I accept the{" "}
+                <Link
+                  href="/privacy-policy"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="underline"
+                >
+                  Privacy Policy
+                </Link>{" "}
+                and{" "}
+                <Link
+                  href="/terms-of-service"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="underline"
+                >
+                  Terms of Service
+                </Link>
+              </span>
+            </label>
             {error && <p className="text-sm text-destructive">{error}</p>}
-            <Button type="submit" className="w-full" disabled={submitting}>
+            <Button type="submit" className="w-full" disabled={submitting || !termsChecked}>
               {submitting ? "Signing in…" : "Sign in"}
             </Button>
           </form>
