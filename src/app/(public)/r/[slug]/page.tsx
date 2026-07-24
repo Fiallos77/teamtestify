@@ -1,6 +1,6 @@
 "use client";
 
-import { use, useEffect, useState } from "react";
+import { use, useState } from "react";
 import Link from "next/link";
 import { useMutation, useQuery } from "convex/react";
 import { api } from "../../../../../convex/_generated/api";
@@ -9,16 +9,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import {
-  Dialog,
-  DialogContent,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
 import { VideoRecorder } from "@/components/public/video-recorder";
 import { getVisitorId } from "@/lib/visitor-id";
-import { acceptPrivacy, hasAcceptedPrivacy } from "@/lib/privacy-acceptance";
 
 const BACKGROUND_STYLES: Record<string, string> = {
   solid: "color-mix(in srgb, var(--primary) 8%, var(--background))",
@@ -50,17 +42,7 @@ export default function CollectionPage({
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [done, setDone] = useState(false);
-  const [privacyAccepted, setPrivacyAccepted] = useState(true);
   const [privacyChecked, setPrivacyChecked] = useState(false);
-
-  useEffect(() => {
-    setPrivacyAccepted(hasAcceptedPrivacy());
-  }, []);
-
-  function handleAcceptPrivacy() {
-    acceptPrivacy();
-    setPrivacyAccepted(true);
-  }
 
   if (space === undefined) {
     return <p className="p-8 text-center text-muted-foreground">Loading…</p>;
@@ -180,41 +162,6 @@ export default function CollectionPage({
       style={brandingStyle}
       className="min-h-screen bg-[linear-gradient(165deg,#FFF6EF,#FBF7F2_55%)] py-12"
     >
-      {!privacyAccepted && (
-        <Dialog open disablePointerDismissal>
-          <DialogContent showCloseButton={false}>
-            <DialogHeader>
-              <DialogTitle>Accept our Privacy Policy</DialogTitle>
-            </DialogHeader>
-            <p className="text-sm text-muted-foreground">
-              By submitting your testimonial, you accept our{" "}
-              <Link
-                href="/privacy-policy"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="underline"
-              >
-                Privacy Policy
-              </Link>
-              .
-            </p>
-            <label className="flex items-start gap-2 text-sm">
-              <input
-                type="checkbox"
-                className="mt-0.5"
-                checked={privacyChecked}
-                onChange={(e) => setPrivacyChecked(e.target.checked)}
-              />
-              I accept the Privacy Policy
-            </label>
-            <DialogFooter>
-              <Button onClick={handleAcceptPrivacy} disabled={!privacyChecked} className="w-full">
-                Accept
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
-      )}
       <div className="mx-auto max-w-lg px-4">
         <div className="text-center">
           {space.logoUrl ? (
@@ -392,9 +339,29 @@ export default function CollectionPage({
                 </div>
               )}
 
+              <label className="flex items-start gap-2 text-sm">
+                <input
+                  type="checkbox"
+                  className="mt-0.5"
+                  checked={privacyChecked}
+                  onChange={(e) => setPrivacyChecked(e.target.checked)}
+                />
+                <span>
+                  I accept the{" "}
+                  <Link
+                    href="/privacy-policy"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="underline"
+                  >
+                    Privacy Policy
+                  </Link>
+                </span>
+              </label>
+
               {error && <p className="text-sm text-destructive">{error}</p>}
 
-              <Button type="submit" disabled={submitting} className="w-full">
+              <Button type="submit" disabled={submitting || !privacyChecked} className="w-full">
                 {submitting ? "Submitting…" : "Submit testimonial"}
               </Button>
             </div>
