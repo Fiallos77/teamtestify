@@ -60,6 +60,11 @@ export const createCheckoutSession = action({
       interval === "monthly" ? "STRIPE_PRO_MONTHLY_PRICE_ID" : "STRIPE_PRO_YEARLY_PRICE_ID"
     );
 
+    const successUrl = new URL(returnUrl);
+    successUrl.searchParams.set("checkout", "success");
+    const cancelUrl = new URL(returnUrl);
+    cancelUrl.searchParams.set("checkout", "cancel");
+
     const stripe = getStripeClient();
     const session = await stripe.checkout.sessions.create({
       mode: "subscription",
@@ -69,8 +74,11 @@ export const createCheckoutSession = action({
       // point reads.
       client_reference_id: organizationId,
       metadata: { organizationId },
-      success_url: `${returnUrl}?checkout=success`,
-      cancel_url: `${returnUrl}?checkout=cancel`,
+      // returnUrl may already carry its own query string (e.g. ?tab=plan) —
+      // URL.searchParams merges correctly with "&" instead of naive string
+      // concatenation producing an invalid second "?".
+      success_url: successUrl.toString(),
+      cancel_url: cancelUrl.toString(),
       ...(STRIPE_AUTOMATIC_TAX_ENABLED ? { automatic_tax: { enabled: true } } : {}),
     });
 
