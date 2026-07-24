@@ -4,6 +4,7 @@ import { components, internal } from "./_generated/api";
 import type { Id } from "./_generated/dataModel";
 import { getActiveStorageAdapter } from "./lib/storage";
 import { isAcceptableVideoUpload } from "./lib/videoValidation";
+import { isAcceptablePhotoUpload } from "./lib/photoValidation";
 import { getEntitlements } from "./entitlements";
 import { RateLimiter, HOUR, DAY } from "@convex-dev/rate-limiter";
 
@@ -138,6 +139,20 @@ export const submitTextTestimonial = mutation({
     }
     await limitTestimonialSubmission(ctx, args.spaceId, args.visitorId);
 
+    // The client's accept="image/*" is a UI hint only — verify the actual
+    // stored blob. Not deleted on rejection (unlike the video path below):
+    // this mutation throws rather than returning a result, and throwing
+    // after a storage.delete would roll the delete back anyway (one atomic
+    // transaction) — the existing orphaned-upload cron
+    // (storageCleanup.cleanupOrphanedUploads) already sweeps up exactly
+    // this kind of abandoned, never-referenced file.
+    if (args.authorPhotoStorageId) {
+      const photoMeta = await ctx.db.system.get("_storage", args.authorPhotoStorageId);
+      if (!isAcceptablePhotoUpload(photoMeta)) {
+        throw new Error("Photo upload rejected: unsupported format or file too large");
+      }
+    }
+
     const testimonialId = await ctx.db.insert("testimonials", {
       spaceId: space._id,
       organizationId: space.organizationId,
@@ -197,6 +212,19 @@ export const submitVideoTestimonial = mutation({
         ok: false,
         error: "Video upload rejected: unsupported format or file too large",
       };
+    }
+
+    // Same check as above, for the optional author photo — the client's
+    // accept="image/*" is a UI hint only.
+    if (args.authorPhotoStorageId) {
+      const photoMeta = await ctx.db.system.get("_storage", args.authorPhotoStorageId);
+      if (!isAcceptablePhotoUpload(photoMeta)) {
+        await ctx.storage.delete(args.authorPhotoStorageId);
+        return {
+          ok: false,
+          error: "Photo upload rejected: unsupported format or file too large",
+        };
+      }
     }
 
     const testimonialId = await ctx.db.insert("testimonials", {

@@ -420,6 +420,36 @@ describe("public.submitTextTestimonial", () => {
     ).rejects.toThrow();
   });
 
+  test("rejects an invalid author photo and creates no testimonial", async () => {
+    const t = newTestConvex();
+    const spaceId = await seedSpace(t);
+    const photoStorageId = await storeBlob(t, new Blob(["fake photo bytes"], { type: "image/jpeg" }));
+
+    // convex-test's storage mock never records a real contentType (see the
+    // note above describe("public.submitVideoTestimonial")), so this photo
+    // fails validation the same way every test blob does — what matters is
+    // that the check runs and the mutation rejects instead of silently
+    // storing an unvalidated photo.
+    await expect(
+      t.mutation(api.public.submitTextTestimonial, {
+        spaceId,
+        authorName: "Jane",
+        textContent: "Loved it!",
+        authorPhotoStorageId: photoStorageId,
+        visitorId: "visitor-1",
+      })
+    ).rejects.toThrow(/Photo upload rejected/);
+
+    const testimonials = await t.run(
+      async (ctx) =>
+        await ctx.db
+          .query("testimonials")
+          .withIndex("by_space", (q) => q.eq("spaceId", spaceId))
+          .collect()
+    );
+    expect(testimonials).toHaveLength(0);
+  });
+
   test("different visitors on the same space share a 50/day space-wide submission cap", async () => {
     const t = newTestConvex();
     const spaceId = await seedSpace(t);

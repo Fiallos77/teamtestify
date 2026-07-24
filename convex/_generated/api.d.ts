@@ -23,6 +23,7 @@ import type * as lib_email from "../lib/email.js";
 import type * as lib_imageLayouts from "../lib/imageLayouts.js";
 import type * as lib_imageToken from "../lib/imageToken.js";
 import type * as lib_pexels from "../lib/pexels.js";
+import type * as lib_photoValidation from "../lib/photoValidation.js";
 import type * as lib_retry from "../lib/retry.js";
 import type * as lib_storage from "../lib/storage.js";
 import type * as lib_stripeStatus from "../lib/stripeStatus.js";
@@ -64,6 +65,7 @@ declare const fullApi: ApiFromModules<{
   "lib/imageLayouts": typeof lib_imageLayouts;
   "lib/imageToken": typeof lib_imageToken;
   "lib/pexels": typeof lib_pexels;
+  "lib/photoValidation": typeof lib_photoValidation;
   "lib/retry": typeof lib_retry;
   "lib/storage": typeof lib_storage;
   "lib/stripeStatus": typeof lib_stripeStatus;
