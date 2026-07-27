@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { PLAN_MATRIX } from "./plan-matrix";
+import { BETA_MODE } from "@/lib/beta-mode";
 
 export function PricingSection() {
   const { data: session } = authClient.useSession();
@@ -77,7 +78,11 @@ export function PricingSection() {
             </CardHeader>
             <CardContent className="relative space-y-3">
               {error && <p className="text-sm text-destructive">{error}</p>}
-              {session?.user ? (
+              {BETA_MODE ? (
+                <p className="text-sm font-semibold tracking-wide text-foreground/80">
+                  COMING SOON
+                </p>
+              ) : session?.user ? (
                 <div className="flex flex-wrap gap-2">
                   <Button onClick={() => handleUpgrade("monthly")} disabled={loading !== null}>
                     {loading === "monthly" ? "Redirecting…" : "Upgrade monthly"}
