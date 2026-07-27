@@ -14,6 +14,7 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { PlanUsageCard } from "@/components/dashboard/plan-usage-card";
 import { validateChangePassword } from "@/components/dashboard/change-password-validation";
+import { BETA_MODE } from "@/lib/beta-mode";
 
 const TABS = ["profile", "plan", "notifications"] as const;
 type TabValue = (typeof TABS)[number];
@@ -256,7 +257,7 @@ function PlanTab() {
           </CardHeader>
           <CardContent className="space-y-3">
             <ul className="space-y-1 text-sm text-muted-foreground">
-              <li>1 space</li>
+              <li>3 spaces</li>
               <li>15 published testimonials (2 video)</li>
               <li>2-minute video length</li>
             </ul>
@@ -264,55 +265,69 @@ function PlanTab() {
         </Card>
 
         {/* Pro */}
-        <Card>
-          <CardHeader>
-            <div className="flex items-center gap-2">
-              <CardTitle>Pro</CardTitle>
-              {isPro && <Badge>Current plan</Badge>}
-            </div>
-            <p className="text-3xl font-bold">
-              $29<span className="text-sm font-normal text-muted-foreground">/mo</span>
-            </p>
-            <p className="text-sm text-muted-foreground">or $290/yr</p>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            <ul className="space-y-1 text-sm text-muted-foreground">
-              <li>5 spaces</li>
-              <li>Unlimited published testimonials</li>
-              <li>3-minute video length</li>
-              <li>100 AI generations / month</li>
-            </ul>
+        {BETA_MODE ? (
+          <Card>
+            <CardHeader>
+              <CardTitle>Pro plan — COMING SOON</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-sm text-muted-foreground">
+                We&apos;re in early access — everyone gets Free plan limits for now. Pro
+                pricing will open up once beta wraps.
+              </p>
+            </CardContent>
+          </Card>
+        ) : (
+          <Card>
+            <CardHeader>
+              <div className="flex items-center gap-2">
+                <CardTitle>Pro</CardTitle>
+                {isPro && <Badge>Current plan</Badge>}
+              </div>
+              <p className="text-3xl font-bold">
+                $29<span className="text-sm font-normal text-muted-foreground">/mo</span>
+              </p>
+              <p className="text-sm text-muted-foreground">or $290/yr</p>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <ul className="space-y-1 text-sm text-muted-foreground">
+                <li>5 spaces</li>
+                <li>Unlimited published testimonials</li>
+                <li>3-minute video length</li>
+                <li>100 AI generations / month</li>
+              </ul>
 
-            {billing === undefined ? (
-              <p className="text-sm text-muted-foreground">Loading…</p>
-            ) : isPro ? (
-              <div className="space-y-2">
-                {renewalDate && (
-                  <p className="text-sm text-muted-foreground">Renews {renewalDate}</p>
-                )}
-                {billing.status !== "active" && (
-                  <p className="text-sm text-destructive">Billing status: {billing.status}</p>
-                )}
-                <Button onClick={handleManageBilling} disabled={loading !== null}>
-                  {loading === "portal" ? "Opening…" : "Manage billing"}
-                </Button>
-              </div>
-            ) : (
-              <div className="flex flex-wrap gap-2">
-                <Button onClick={() => handleUpgrade("monthly")} disabled={loading !== null}>
-                  {loading === "monthly" ? "Redirecting…" : "Upgrade — $29/mo"}
-                </Button>
-                <Button
-                  variant="outline"
-                  onClick={() => handleUpgrade("yearly")}
-                  disabled={loading !== null}
-                >
-                  {loading === "yearly" ? "Redirecting…" : "Upgrade — $290/yr"}
-                </Button>
-              </div>
-            )}
-          </CardContent>
-        </Card>
+              {billing === undefined ? (
+                <p className="text-sm text-muted-foreground">Loading…</p>
+              ) : isPro ? (
+                <div className="space-y-2">
+                  {renewalDate && (
+                    <p className="text-sm text-muted-foreground">Renews {renewalDate}</p>
+                  )}
+                  {billing.status !== "active" && (
+                    <p className="text-sm text-destructive">Billing status: {billing.status}</p>
+                  )}
+                  <Button onClick={handleManageBilling} disabled={loading !== null}>
+                    {loading === "portal" ? "Opening…" : "Manage billing"}
+                  </Button>
+                </div>
+              ) : (
+                <div className="flex flex-wrap gap-2">
+                  <Button onClick={() => handleUpgrade("monthly")} disabled={loading !== null}>
+                    {loading === "monthly" ? "Redirecting…" : "Upgrade — $29/mo"}
+                  </Button>
+                  <Button
+                    variant="outline"
+                    onClick={() => handleUpgrade("yearly")}
+                    disabled={loading !== null}
+                  >
+                    {loading === "yearly" ? "Redirecting…" : "Upgrade — $290/yr"}
+                  </Button>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        )}
       </div>
 
       <p className="text-sm text-muted-foreground">

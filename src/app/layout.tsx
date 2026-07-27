@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Bricolage_Grotesque, Instrument_Sans, Space_Mono } from "next/font/google";
 import { ConvexClientProvider } from "@/components/providers/convex-client-provider";
+import { BETA_MODE } from "@/lib/beta-mode";
 import "./globals.css";
 
 const fontHeading = Bricolage_Grotesque({
@@ -40,6 +41,11 @@ export default function RootLayout({
       className={`${fontHeading.variable} ${fontSans.variable} ${fontMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
+        {BETA_MODE && (
+          <div className="bg-primary text-primary-foreground text-center text-sm py-2 px-4">
+            🧪 Early access beta — Free for testing. Pro coming soon.
+          </div>
+        )}
         <ConvexClientProvider>{children}</ConvexClientProvider>
       </body>
     </html>
