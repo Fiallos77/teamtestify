@@ -61,13 +61,24 @@ describe("spaces.create entitlement enforcement", () => {
     ).resolves.toEqual(expect.any(String));
   });
 
-  test("free org cannot create a second space", async () => {
+  test("free org can create up to 3 spaces", async () => {
     const t = newTestConvex();
     const { asUser } = await seedOrgContext(t);
-    await asUser.mutation(api.spaces.create, createArgs("free-space-a"));
+
+    for (let i = 0; i < 3; i++) {
+      await asUser.mutation(api.spaces.create, createArgs(`free-space-${i}`));
+    }
+  });
+
+  test("free org cannot create a 4th space", async () => {
+    const t = newTestConvex();
+    const { asUser } = await seedOrgContext(t);
+    for (let i = 0; i < 3; i++) {
+      await asUser.mutation(api.spaces.create, createArgs(`free-space-${i}`));
+    }
 
     await expect(
-      asUser.mutation(api.spaces.create, createArgs("free-space-b"))
+      asUser.mutation(api.spaces.create, createArgs("free-space-4"))
     ).rejects.toThrow();
   });
 

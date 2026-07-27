@@ -3,7 +3,7 @@ export type PlanMatrixRow = { label: string; free: string; pro: string };
 // Mirrors the Plan Matrix in teamtestify-v2-spec.md — keep in sync with
 // convex/entitlements.ts if either changes. See plan-matrix.test.ts.
 export const PLAN_MATRIX: PlanMatrixRow[] = [
-  { label: "Spaces", free: "1", pro: "5" },
+  { label: "Spaces", free: "3", pro: "5" },
   { label: "Testimonials collected", free: "Unlimited", pro: "Unlimited" },
   { label: "Testimonials published", free: "15 total", pro: "Unlimited" },
   { label: "Video testimonials published", free: "2", pro: "Unlimited" },

@@ -3,6 +3,7 @@ import { describe, expect, test } from "vitest";
 import schema from "./schema";
 import { internal } from "./_generated/api";
 import { currentMonth } from "./ai";
+import { FREE_AI_REQUEST_GENS_PER_MONTH, FREE_AI_IMAGE_GENS_PER_MONTH } from "./entitlements";
 import type { Id } from "./_generated/dataModel";
 
 const modules = import.meta.glob("./**/*.ts");
@@ -49,7 +50,7 @@ describe("currentMonth", () => {
 });
 
 describe("reserveAiCredit — increment-first, fail closed", () => {
-  test("free: 1 request gen allowed, 2nd in the same month rejected via direct mutation", async () => {
+  test("free: request reservations succeed well under the beta's 999/month cap", async () => {
     const t = newTestConvex();
     const organizationId = await seedOrg(t);
     const month = "2026-07";
@@ -59,14 +60,62 @@ describe("reserveAiCredit — increment-first, fail closed", () => {
       feature: "request",
       month,
     });
-    expect(first.remaining).toBe(0);
+    expect(first.remaining).toBe(FREE_AI_REQUEST_GENS_PER_MONTH - 1);
+
+    const second = await t.mutation(internal.ai.reserveAiCredit, {
+      organizationId,
+      feature: "request",
+      month,
+    });
+    expect(second.remaining).toBe(FREE_AI_REQUEST_GENS_PER_MONTH - 2);
+
+    expect((await usageRow(t, organizationId, month))?.requestGenCount).toBe(2);
+  });
+
+  test("free: request reservation is rejected once the 999/month cap is reached", async () => {
+    const t = newTestConvex();
+    const organizationId = await seedOrg(t);
+    const month = "2026-07";
+
+    // Seed usage at the cap directly rather than looping 999 times.
+    await t.run(
+      async (ctx) =>
+        await ctx.db.insert("aiUsage", {
+          organizationId,
+          month,
+          requestGenCount: FREE_AI_REQUEST_GENS_PER_MONTH,
+          imageGenCount: 0,
+        })
+    );
 
     await expect(
       t.mutation(internal.ai.reserveAiCredit, { organizationId, feature: "request", month })
     ).rejects.toThrow();
 
-    // The rejected 2nd attempt must not have incremented — exactly one credit spent.
-    expect((await usageRow(t, organizationId, month))?.requestGenCount).toBe(1);
+    // The rejected attempt must not have incremented past the cap.
+    expect((await usageRow(t, organizationId, month))?.requestGenCount).toBe(
+      FREE_AI_REQUEST_GENS_PER_MONTH
+    );
+  });
+
+  test("free: image reservation is rejected once the 999/month cap is reached", async () => {
+    const t = newTestConvex();
+    const organizationId = await seedOrg(t);
+    const month = "2026-07";
+
+    await t.run(
+      async (ctx) =>
+        await ctx.db.insert("aiUsage", {
+          organizationId,
+          month,
+          requestGenCount: 0,
+          imageGenCount: FREE_AI_IMAGE_GENS_PER_MONTH,
+        })
+    );
+
+    await expect(
+      t.mutation(internal.ai.reserveAiCredit, { organizationId, feature: "image", month })
+    ).rejects.toThrow();
   });
 
   test("free: request and image buckets are independent", async () => {
@@ -74,20 +123,13 @@ describe("reserveAiCredit — increment-first, fail closed", () => {
     const organizationId = await seedOrg(t);
     const month = "2026-07";
 
-    // Exhaust the single request credit.
     await t.mutation(internal.ai.reserveAiCredit, { organizationId, feature: "request", month });
-    // Image (3/mo) is still fully available.
     await t.mutation(internal.ai.reserveAiCredit, { organizationId, feature: "image", month });
     await t.mutation(internal.ai.reserveAiCredit, { organizationId, feature: "image", month });
-    await t.mutation(internal.ai.reserveAiCredit, { organizationId, feature: "image", month });
-    // 4th image over the cap.
-    await expect(
-      t.mutation(internal.ai.reserveAiCredit, { organizationId, feature: "image", month })
-    ).rejects.toThrow();
 
     const row = await usageRow(t, organizationId, month);
     expect(row?.requestGenCount).toBe(1);
-    expect(row?.imageGenCount).toBe(3);
+    expect(row?.imageGenCount).toBe(2);
   });
 
   test("pro: 100 combined gens allowed, 101st rejected", async () => {
@@ -113,14 +155,14 @@ describe("reserveAiCredit — increment-first, fail closed", () => {
     const organizationId = await seedOrg(t);
     const month = "2026-07";
 
-    // Reserve the single free request credit, then refund it (as the generate
+    // Reserve a free request credit, then refund it (as the generate
     // action does when the provider call throws).
     const reserved = await t.mutation(internal.ai.reserveAiCredit, {
       organizationId,
       feature: "request",
       month,
     });
-    expect(reserved.remaining).toBe(0);
+    expect(reserved.remaining).toBe(FREE_AI_REQUEST_GENS_PER_MONTH - 1);
     expect((await usageRow(t, organizationId, month))?.requestGenCount).toBe(1);
 
     await t.mutation(internal.ai.refundAiCredit, { organizationId, feature: "request", month });
@@ -132,7 +174,7 @@ describe("reserveAiCredit — increment-first, fail closed", () => {
       feature: "request",
       month,
     });
-    expect(again.remaining).toBe(0);
+    expect(again.remaining).toBe(FREE_AI_REQUEST_GENS_PER_MONTH - 1);
   });
 
   test("refund floors at zero — it can never mint credit", async () => {
@@ -155,11 +197,16 @@ describe("reserveAiCredit — increment-first, fail closed", () => {
     const t = newTestConvex();
     const organizationId = await seedOrg(t);
 
-    await t.mutation(internal.ai.reserveAiCredit, {
-      organizationId,
-      feature: "request",
-      month: "2026-07",
-    });
+    // Seed July at the cap directly rather than looping 999 times.
+    await t.run(
+      async (ctx) =>
+        await ctx.db.insert("aiUsage", {
+          organizationId,
+          month: "2026-07",
+          requestGenCount: FREE_AI_REQUEST_GENS_PER_MONTH,
+          imageGenCount: 0,
+        })
+    );
     await expect(
       t.mutation(internal.ai.reserveAiCredit, {
         organizationId,
@@ -174,6 +221,6 @@ describe("reserveAiCredit — increment-first, fail closed", () => {
       feature: "request",
       month: "2026-08",
     });
-    expect(next.remaining).toBe(0);
+    expect(next.remaining).toBe(FREE_AI_REQUEST_GENS_PER_MONTH - 1);
   });
 });

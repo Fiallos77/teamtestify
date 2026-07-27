@@ -5,6 +5,8 @@ import { api } from "./_generated/api";
 import {
   FREE_MAX_SPACES,
   FREE_MAX_PUBLISHED_VIDEO_TESTIMONIALS,
+  FREE_AI_REQUEST_GENS_PER_MONTH,
+  FREE_AI_IMAGE_GENS_PER_MONTH,
   PRO_MAX_SPACES,
 } from "./entitlements";
 import { currentMonth } from "./ai";
@@ -113,8 +115,10 @@ describe("planUsage.getPlanUsage", () => {
       used: 2,
       limit: FREE_MAX_PUBLISHED_VIDEO_TESTIMONIALS,
     });
-    // Free AI total = 1 request + 3 image = 4; nothing used yet.
-    expect(usage!.aiGenerations.limit).toBe(4);
+    // Free AI total = request + image quotas combined; nothing used yet.
+    expect(usage!.aiGenerations.limit).toBe(
+      FREE_AI_REQUEST_GENS_PER_MONTH + FREE_AI_IMAGE_GENS_PER_MONTH
+    );
     expect(usage!.aiGenerations.used).toBe(0);
   });
 

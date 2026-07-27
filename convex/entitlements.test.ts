@@ -106,8 +106,8 @@ describe("getEntitlements", () => {
     expect(entitlements.maxVideoSeconds).toBe(FREE_MAX_VIDEO_SECONDS);
     expect(entitlements.badgeRemovable).toBe(false);
     expect(entitlements.aiQuota.metering).toBe("per_feature");
-    expect(entitlements.aiQuota.requestGensPerMonth).toBe(1);
-    expect(entitlements.aiQuota.imageGensPerMonth).toBe(3);
+    expect(entitlements.aiQuota.requestGensPerMonth).toBe(999);
+    expect(entitlements.aiQuota.imageGensPerMonth).toBe(999);
     expect(entitlements.aiQuota.watermark).toBe(true);
     expect(entitlements.maxTeamMembers).toBe(1);
   });
@@ -163,10 +163,18 @@ describe("assertCanCreateSpace", () => {
     await t.run(async (ctx) => await assertCanCreateSpace(ctx, organizationId));
   });
 
-  test("throws for a free org's second space", async () => {
+  test("passes for a free org up to 3 spaces", async () => {
     const t = newTestConvex();
     const organizationId = await seedOrg(t);
-    await seedSpace(t, organizationId);
+    for (let i = 0; i < 2; i++) await seedSpace(t, organizationId);
+
+    await t.run(async (ctx) => await assertCanCreateSpace(ctx, organizationId));
+  });
+
+  test("throws for a free org's 4th space", async () => {
+    const t = newTestConvex();
+    const organizationId = await seedOrg(t);
+    for (let i = 0; i < 3; i++) await seedSpace(t, organizationId);
 
     await expect(
       t.run(async (ctx) => await assertCanCreateSpace(ctx, organizationId))

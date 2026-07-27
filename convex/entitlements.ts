@@ -7,7 +7,7 @@ type Ctx = QueryCtx | MutationCtx;
 // mutation/query that needs to know what an org can do goes through
 // getEntitlements or one of the assert* guards below, never an inline
 // plan check.
-export const FREE_MAX_SPACES = 1;
+export const FREE_MAX_SPACES = 3;
 export const PRO_MAX_SPACES = 5;
 export const FREE_MAX_PUBLISHED_TESTIMONIALS = 15;
 export const FREE_MAX_PUBLISHED_VIDEO_TESTIMONIALS = 2;
@@ -35,8 +35,8 @@ export interface AiUsageCounts {
   imageGenCount: number;
 }
 
-export const FREE_AI_REQUEST_GENS_PER_MONTH = 1;
-export const FREE_AI_IMAGE_GENS_PER_MONTH = 3;
+export const FREE_AI_REQUEST_GENS_PER_MONTH = 999;
+export const FREE_AI_IMAGE_GENS_PER_MONTH = 999;
 export const PRO_AI_COMBINED_GENS_PER_MONTH = 100;
 // Reserved for a future third tier (e.g. Agency). Not wired to any plan yet —
 // drop the real number in here and add the plan's AiQuota when that tier ships.
