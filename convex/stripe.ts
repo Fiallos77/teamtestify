@@ -39,6 +39,11 @@ export function assertSameOrigin(returnUrl: string): void {
   }
 }
 
+// Exported so it's directly unit-testable without needing a fake Date.now().
+export function buildCheckoutIdempotencyKey(organizationId: string, now: number): string {
+  return `checkout-${organizationId}-${now}`;
+}
+
 // Test-mode only (per teamtestify-v2-spec.md Phase 2 slice). Only the
 // organization owner can start a checkout — any member could otherwise
 // upgrade billing for an org they don't own.
@@ -66,21 +71,29 @@ export const createCheckoutSession = action({
     cancelUrl.searchParams.set("checkout", "cancel");
 
     const stripe = getStripeClient();
-    const session = await stripe.checkout.sessions.create({
-      mode: "subscription",
-      line_items: [{ price: priceId, quantity: 1 }],
-      // Both set, redundantly, so the webhook can recover organizationId
-      // from either field regardless of which one a given integration
-      // point reads.
-      client_reference_id: organizationId,
-      metadata: { organizationId },
-      // returnUrl may already carry its own query string (e.g. ?tab=plan) —
-      // URL.searchParams merges correctly with "&" instead of naive string
-      // concatenation producing an invalid second "?".
-      success_url: successUrl.toString(),
-      cancel_url: cancelUrl.toString(),
-      ...(STRIPE_AUTOMATIC_TAX_ENABLED ? { automatic_tax: { enabled: true } } : {}),
-    });
+    const session = await stripe.checkout.sessions.create(
+      {
+        mode: "subscription",
+        line_items: [{ price: priceId, quantity: 1 }],
+        // Both set, redundantly, so the webhook can recover organizationId
+        // from either field regardless of which one a given integration
+        // point reads.
+        client_reference_id: organizationId,
+        metadata: { organizationId },
+        // returnUrl may already carry its own query string (e.g. ?tab=plan) —
+        // URL.searchParams merges correctly with "&" instead of naive string
+        // concatenation producing an invalid second "?".
+        success_url: successUrl.toString(),
+        cancel_url: cancelUrl.toString(),
+        ...(STRIPE_AUTOMATIC_TAX_ENABLED ? { automatic_tax: { enabled: true } } : {}),
+      },
+      // A double-tap on "Upgrade", or a client retry after a dropped
+      // response, would otherwise create two Checkout Sessions for the
+      // same org. Scoping the key to organizationId + the request's own
+      // timestamp de-dupes retries of *this* click without blocking a
+      // later, separate checkout attempt.
+      { idempotencyKey: buildCheckoutIdempotencyKey(organizationId, Date.now()) }
+    );
 
     if (!session.url) throw new Error("Stripe did not return a checkout URL");
     return { url: session.url };
