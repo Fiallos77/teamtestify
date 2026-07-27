@@ -6,6 +6,8 @@ const PUBLIC_ROUTE_PATTERNS = [
   /^\/sign-in(\/.*)?$/,
   /^\/sign-up(\/.*)?$/,
   /^\/reset-password(\/.*)?$/,
+  /^\/privacy-policy$/,
+  /^\/terms-of-service$/,
   /^\/r\/.*/,
   /^\/embed\/.*/,
   /^\/api\/auth(\/.*)?$/,

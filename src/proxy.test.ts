@@ -18,4 +18,9 @@ describe("isPublicRoute", () => {
     expect(isPublicRoute("/dashboard")).toBe(false);
     expect(isPublicRoute("/dashboard/settings")).toBe(false);
   });
+
+  test("legal pages are reachable while logged out", () => {
+    expect(isPublicRoute("/privacy-policy")).toBe(true);
+    expect(isPublicRoute("/terms-of-service")).toBe(true);
+  });
 });
