@@ -151,3 +151,95 @@ export async function verifyRenderToken(token: string): Promise<RenderContext | 
 - **postMessage cross-origin:** `public/embed.js` valida `event.origin === origin` antes de procesar el mensaje de resize — vector previamente señalado como abierto, hoy corregido.
 - **SSRF:** `route.ts` de generación de imagen social valida el host de la foto de fondo vía `isAllowedPhotoHost` antes de hacer fetch.
 - **Protección de rutas:** `src/proxy.ts` (middleware) redirige a `/sign-in` sin cookie de sesión en toda ruta no pública; `DashboardLayout` repite el check server-side (`isAuthenticated()`), y cada función Convex vuelve a validar identidad independientemente — defensa en profundidad real, no solo perimetral.
+
+---
+
+## 2026-07-24 — Re-auditoría (verificación de fixes previos + credenciales / uploads / errores)
+
+Investigación únicamente, sin cambios de código.
+
+### Verificación de los 4 hallazgos anteriores de esta misma auditoría
+
+Los 4 quedan **confirmados corregidos** en el código actual:
+
+| Hallazgo original | Estado |
+|---|---|
+| `getLogoUrl` sin auth | ✅ `convex/spaces.ts:178` ahora llama `requireOrgContext(ctx)` |
+| `submitText/VideoTestimonial` sin rate limit propio | ✅ `convex/public.ts:139,186` llaman `limitTestimonialSubmission` |
+| `returnUrl` sin validar origen (Stripe) | ✅ `convex/stripe.ts:29-40,54,93` — `assertSameOrigin` en ambas actions |
+| Token de imagen social sin expiración | ✅ `convex/lib/imageToken.ts:33,69,93` — campo `exp` + rechazo si venció |
+
+### 🚨 VULNERABILIDAD DETECTADA [NIVEL: MEDIO]
+- **Ubicación:** `convex/public.ts:99-113` (`generateUploadUrl`) usado para la foto del autor en el formulario público de testimonios, vía `getActiveStorageAdapter().generateUploadUrl(ctx)` → `convex/lib/storage.ts:20-21` (`ctx.storage.generateUploadUrl()` sin restricciones).
+- **Explotación:** El video sí se valida después de subido (`convex/lib/videoValidation.ts` — whitelist de content-type `video/webm|video/mp4` + tope de 200MB, aplicado en `submitVideoTestimonial`), pero la **foto del autor no tiene ninguna validación equivalente**. El `<input type="file" accept="image/*">` del cliente es solo una sugerencia de UI — cualquier caller directo (curl/script) puede:
+  1. Llamar `generateUploadUrl` (limitado por tasa, pero no bloqueado).
+  2. Subir un archivo de **cualquier tipo y tamaño** (ejecutable, archivo gigante, contenido arbitrario) como si fuera la "foto".
+  3. Pasar ese `storageId` como `authorPhotoStorageId` en `submitTextTestimonial`/`submitVideoTestimonial` — se guarda sin más chequeo.
+  4. El archivo queda servible públicamente vía `ctx.storage.getUrl()` en cualquier lugar donde se renderiza `authorPhotoUrl` (dashboard Inbox, widgets embebidos).
+  Impacto: abuso de almacenamiento/costo (archivos gigantes disfrazados de foto), y hosting de contenido arbitrario bajo un dominio de confianza de Convex (no ejecuta el archivo, pero lo sirve). Mismo patrón aplica a `spaces.ts:160-166` (`generateLogoUploadUrl`), aunque ahí requiere estar autenticado como dueño de org — riesgo bastante menor (no es un vector anónimo).
+- **Código Vulnerable Actual:**
+```typescript
+// convex/lib/storage.ts
+async generateUploadUrl(ctx) {
+  return await ctx.storage.generateUploadUrl(); // sin content-type ni tamaño
+},
+```
+
+### 🔒 Solución de Parche de Seguridad (propuesta, no aplicada)
+```typescript
+// convex/public.ts — validar la foto igual que ya se hace con el video,
+// justo antes de insertar el testimonio (mismo lugar que isAcceptableVideoUpload).
+const ALLOWED_PHOTO_CONTENT_TYPES = new Set(["image/jpeg", "image/png", "image/webp"]);
+const MAX_PHOTO_BYTES = 5 * 1024 * 1024; // 5MB
+
+async function isAcceptablePhotoUpload(ctx: MutationCtx, storageId: Id<"_storage">) {
+  const meta = await ctx.db.system.get("_storage", storageId);
+  if (!meta) return false;
+  if (!ALLOWED_PHOTO_CONTENT_TYPES.has(meta.contentType ?? "")) return false;
+  if (meta.size > MAX_PHOTO_BYTES) return false;
+  return true;
+}
+
+// En submitTextTestimonial / submitVideoTestimonial, antes del insert:
+if (args.authorPhotoStorageId && !(await isAcceptablePhotoUpload(ctx, args.authorPhotoStorageId))) {
+  await ctx.storage.delete(args.authorPhotoStorageId);
+  throw new Error("Photo upload rejected: unsupported format or file too large");
+}
+```
+
+### ℹ️ Path traversal en storage — no aplica (green light)
+Convex Storage identifica archivos por `Id<"_storage">` generado por la plataforma, nunca por rutas de archivo controladas por el cliente — no existe superficie de path traversal en ningún flujo de subida (`public.ts`, `spaces.ts`).
+
+### ⚠️ ADVERTENCIA [NIVEL: BAJO] — Credencial real en texto plano dentro del repo (ya corregido)
+- **Ubicación:** `docs/session-status.md:16` — tenía `Account status: spakarlos@gmail.com, Pro plan, password: [REDACTED]` en texto plano.
+- **Explotación:** No es un secreto de infraestructura (API key/token), pero era la contraseña real de una cuenta de prueba, committeada en texto plano a un archivo de docs versionado — quedaba en el historial de git indefinidamente, visible a cualquiera con acceso al repo (incluyendo si el repo se hace público alguna vez). Bajo impacto porque es una cuenta de test-mode / dev, pero es mal hábito y fácil de evitar.
+- **Estado:** corregido en el commit `3af6f01` ("docs: redact test account password before repo is ever shared") — el valor ya está redactado en `docs/session-status.md`. Nota: la contraseña real ya está permanentemente en el historial de git de commits anteriores a ese fix; rotarla en el proveedor de auth si aún no se hizo.
+
+### Hallazgos de credenciales hardcodeadas (grep `password:`/`apiKey:`/`secret:` en `src/` y `convex/`)
+- **Sin coincidencias reales.** El único match de `password:` es copy de un email (`convex/lib/email.ts:47`, "reset your password"), no una credencial. Cero coincidencias de `apiKey:`/`secret:`. Ningún `sk_live`/`pk_live`/patrón de AWS key. Ningún `.env*` trackeado por git (`git ls-files | grep env` → vacío). Todos los secretos reales (`STRIPE_SECRET_KEY`, `RESEND_API_KEY`, `IMAGE_RENDER_SECRET`, `GOOGLE_CLIENT_SECRET`) se leen exclusivamente vía `process.env`/`requiredEnv()`. **Green light**, salvo la advertencia de `session-status.md` arriba.
+
+### Mensajes de error (`src/app/api`)
+- Solo 2 route handlers existen: el catch-all de Better Auth (framework, sin lógica propia) y `testimonial-image/route.ts`. Ningún `catch` reenvía `error.stack`, ningún `console.error`/`console.log` con datos sensibles en todo `src/app/api`. Los `catch` existentes (`fetchAsDataUri`, `req.json().catch(...)`) devuelven `undefined`/`null` silenciosamente y responden con mensajes genéricos (400). `grep -rn "\.stack\b"` en `convex/` y `src/` → cero resultados en código no-test. `next.config.ts` no tiene overrides que expongan más detalle de error en producción. **Green light.**
+
+### Verificación del código nuevo de esta sesión (checkboxes de términos, fix de SEO/metadata, fix de Stripe)
+Re-chequeado contra los mismos vectores base (auth, secretos, XSS) — sin hallazgos nuevos:
+- `dangerouslySetInnerHTML`: sigue en cero en todo `src/`.
+- Las nuevas llamadas `fetchQuery` en `generateMetadata` (`r/[slug]/page.tsx`, `embed/[widgetId]/page.tsx`) solo invocan queries públicas ya sin auth (`getSpaceBySlug`, `embedPublic.getWidgetMeta`) — no exponen nada que esas queries no expusieran ya al cliente.
+- `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` es la clave *publicable* de Stripe (`pk_test_...`) — uso correcto, estas claves están diseñadas para ir en el cliente.
+
+---
+
+## Resumen ejecutivo (formato solicitado)
+
+🚨 **Críticas (bloquean deploy):** ninguna.
+
+⚠️ **Advertencias (corregir antes de prod):**
+1. Foto de autor sin validar tipo/tamaño en el formulario público (`convex/public.ts` + `convex/lib/storage.ts`) — mismo tratamiento que ya tiene el video.
+2. Contraseña real de cuenta de prueba en texto plano en `docs/session-status.md:16`.
+
+✅ **Verde (seguro):**
+- Los 4 hallazgos de la auditoría anterior (auth de `getLogoUrl`, rate limit de submits, open redirect de Stripe, expiración de token de imagen) — confirmados corregidos.
+- Sin credenciales hardcodeadas reales en `src/`/`convex/`; sin `.env*` trackeado.
+- Sin path traversal posible en storage (IDs opacos, no rutas).
+- Sin fuga de stack traces / detalles internos en ningún error response.
+- Aislamiento multi-tenant, XSS, secretos server-side, webhook de Stripe, protección de rutas — todo como se documentó en la auditoría original, sin regresiones tras los cambios de esta sesión.
