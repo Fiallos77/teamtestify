@@ -1,36 +1,19 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# TeamTestify
 
-## Getting Started
+Multi-tenant SaaS platform to collect, manage, and showcase client testimonials. Built for sports and fitness businesses that need social proof without relying on spreadsheets or scattered screenshots.
 
-First, run the development server:
+## What it solves
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+Small sports and fitness businesses lose valuable testimonials because they lack a simple flow to request, organize, and publish them. TeamTestify gives each business its own space, with AI-assisted generation to help draft and structure the testimonials received.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Live demo
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+https://teamtestify-three.vercel.app
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Stack
 
-## Learn More
+Next.js 16 (App Router), Convex, Better Auth, Stripe (test mode), Gemini 2.5 flash, Resend, shadcn/ui. Deployed on Vercel.
 
-To learn more about Next.js, take a look at the following resources:
+## Status
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+In production, post-launch beta. Free plan: 3 spaces, 999 AI generations per month. Pro plan in development.
